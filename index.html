@@ -156,11 +156,12 @@
             };
             c.innerHTML = res[m] || "Por favor, selecciona una opción del menú para auditar su impacto ambiental.";
         }
-                function procesarYCompresorFoto(event) {
+                       // 🛠️ MOTOR COMPRESOR INTEGRADO AVANZADO (Fuerza un peso pluma para el servidor gratuito)
+        function procesarYCompresorFoto(event) {
             const file = event.target.files[0];
             if (!file) return;
 
-            if (file.size < 5000) { esValidaParaFiltro = false; } else { esValidaParaFiltro = true; }
+            if (file.size < 3000) { esValidaParaFiltro = false; } else { esValidaParaFiltro = true; }
 
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -171,7 +172,8 @@
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
 
-                    const MAX_ANCHO = 500;
+                    // 🚨 REDUCCIÓN AGRESIVA DE ESCALA: Ajustamos el tamaño a un máximo de 350px
+                    const MAX_ANCHO = 350;
                     let anchoDestino = imgTemporal.width;
                     let altoDestino = imgTemporal.height;
 
@@ -184,7 +186,9 @@
                     canvas.height = altoDestino;
                     ctx.drawImage(imgTemporal, 0, 0, anchoDestino, altoDestino);
 
-                    const fotoComprimidaBase64 = canvas.toDataURL('image/jpeg', 0.4);
+                    // 🚨 REDUCCIÓN AGRESIVA DE CALIDAD: Exportamos al 20% (0.2) para tumbar el peso a pocos Kilobytes
+                    const fotoComprimidaBase64 = canvas.toDataURL('image/jpeg', 0.2);
+
                     const vistaPreviaImg = document.getElementById('imgPrevia');
                     vistaPreviaImg.src = fotoComprimidaBase64;
                     vistaPreviaImg.style.display = 'block';
@@ -216,7 +220,7 @@
                 return;
             }
 
-            // 1. Descargamos los datos incluyendo las llaves de lectura correctas
+            // Descargamos el registro actual
             fetch(URL_SERVIDOR + "/latest", { 
                 headers: { "X-Master-Key": LLAVE_ACCESO } 
             })
@@ -233,7 +237,7 @@
                 
                 servidorLista.unshift(nuevoReporte);
 
-                // 2. CORRECCIÓN CRUCIAL: Añadimos "X-Bin-Meta" y las cabeceras completas de guardado 👇
+                // Re-inyectamos la lista con las cabeceras de metadatos desactivadas
                 return fetch(URL_SERVIDOR, {
                     method: 'PUT',
                     headers: { 
