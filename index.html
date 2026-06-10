@@ -19,8 +19,8 @@
         label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
         select, input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #CCC; border-radius: 6px; }
         .panel-alerta { padding: 15px; border-radius: 8px; font-size: 14px; line-height: 1.5; margin-top: 15px; }
-        .panel-alerta.verde { background-color: #E8F5E9; color: #1B5E20; }
-        .panel-alerta.naranja { background-color: #FFF3E0; color: #E65100; }
+        .panel-alerta.verde { background-color: #E8F5E9; color: #1B5E20; border: 1px solid #C8E6C9; }
+        .panel-alerta.naranja { background-color: #FFF3E0; color: #E65100; border: 1px solid #FFE0B2; }
         .cuadro-vista-previa { width: 100%; min-height: 120px; border: 2px dashed #CCC; background-color: #FAFAFA; border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; padding: 10px; color: #999; font-size: 13px; text-align: center; }
         .btn-accion { width: 100%; padding: 12px; border: none; border-radius: 6px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; }
         .btn-accion.rojo { background-color: #D32F2F; }
@@ -40,12 +40,13 @@
     </nav>
 
     <main class="contenedor-principal">
+        <!-- PESTAÑA 1: DEGRADACIÓN -->
         <section id="degradacion" class="tab-content active">
             <h3>⏱️ ¿Cuánto tardan en degradarse?</h3>
-            <label for="comboMateriales">Selecciona un material o componente:</label>
+            <label for="comboMateriales">Selecciona un material o componente por especialidad:</label>
             <select id="comboMateriales" onchange="mostrarDegradacion()">
                 <option value="">Selecciona un material...</option>
-                <optgroup label="Básicos">
+                <optgroup label="Básicos de la Escuela">
                     <option value="chicle">Chicle</option>
                     <option value="pet">Botella de PET</option>
                     <option value="aluminio">Lata de Aluminio</option>
@@ -55,21 +56,30 @@
                     <option value="organico">Manzana / Residuos Orgánicos</option>
                 </optgroup>
                 <optgroup label="Mecatrónica">
-                    <option value="jumpers">Cables Jumpers</option>
+                    <option value="jumpers">Cables Jumpers (Protoboard)</option>
                     <option value="pilas">Pilas y Baterías Lipo</option>
+                    <option value="pcbs">Placas Fenólicas (PCBs)</option>
+                    <option value="motores">Motores DC / Servomotores rotos</option>
+                    <option value="resistencias">Resistencias y Capacitores</option>
                 </optgroup>
                 <optgroup label="Soporte y Mantenimiento">
-                    <option value="carcasas">Carcasas de Teclados</option>
+                    <option value="carcasas">Carcasas de Monitores o Teclados</option>
+                    <option value="gabinetes">Gabinetes Metálicos (CPU)</option>
                     <option value="termica">Pasta Térmica Seca</option>
                 </optgroup>
                 <optgroup label="Programación">
-                    <option value="ethernet">Cables de Red</option>
+                    <option value="ethernet">Cables de Red (Ethernet UTP)</option>
+                    <option value="discos">Discos Duros Mecánicos Arruinados</option>
                 </optgroup>
                 <optgroup label="Proceso de Gestión Administrativa">
-                    <option value="toner">Cartuchos de Tóner</option>
+                    <option value="toner">Cartuchos de Tóner Vacíos</option>
+                    <option value="carpetas">Carpetas Archivadoras de Plástico Rotas</option>
+                    <option value="hojas_calculo">Hojas de Cálculo Impresas con Error</option>
                 </optgroup>
                 <optgroup label="Producción Industrial">
-                    <option value="virutas">Virutas de Metal</option>
+                    <option value="virutas">Virutas de Metal con Aceite de Corte</option>
+                    <option value="bandas">Bandas Transportadoras de Caucho</option>
+                    <option value="cascos">Cascos de Seguridad Agrietados</option>
                 </optgroup>
             </select>
             <div id="cajaResultadoDegradacion" class="panel-alerta verde">
@@ -82,11 +92,8 @@
             <div class="formulario">
                 <label>Descripción de la zona o desperdicio:</label>
                 <input type="text" id="txtDescripcion" placeholder="Ej: Basura acumulada en los talleres">
-                
                 <label>Foto de Evidencia:</label>
-                <!-- Modificado accept para permitir cámara en vivo 👇 -->
                 <input type="file" id="inputFoto" accept="image/*" onchange="procesarYCompresorFoto(event)">
-                
                 <div class="cuadro-vista-previa">
                     <img id="imgPrevia" src="" alt="Vista previa" style="display: none; max-width: 100%; max-height: 150px;">
                     <span id="txtPrevia">No se ha seleccionado ninguna foto</span>
@@ -122,35 +129,44 @@
             boton.classList.add('active');
         }
 
+        // ⏱️ CATÁLOGO DE INFORMACIÓN DEGRADACIÓN COMPLETO DE LAS CARRERAS
         function mostrarDegradacion() {
             const m = document.getElementById('comboMateriales').value;
             const c = document.getElementById('cajaResultadoDegradacion');
             const res = {
-                "chicle": "Tarda 5 años en deshacerse debido a que el oxígeno lo endurece.",
-                "pet": "Tarda de 450 a 500 años en descomponerse por completo. ¡Evita el PET plástico!",
-                "aluminio": "Tarda de 10 a 100 años en desaparecer por oxidación química natural.",
-                "jumpers": "Tardan de 200 a 300 años. El recubrimiento plástico de PVC dura siglos tirado.",
-                "pilas": "Tardan entre 500 y 1,000 años. Derraman mercurio, plomo y cadmio tóxico.",
-                "carcasas": "Tardan de 400 a 500 años. El plástico ABS rígido se fragmenta lentamente.",
-                "termica": "¡No se biodegrada! Los compuestos de silicona contaminan el suelo.",
-                "ethernet": "Tardan de 200 a 300 años. El PVC exterior protege los hilos de cobre.",
-                "toner": "Tarda de 400 a 500 años. El cartucho exterior es de plástico de alta densidad.",
-                "virutas": "Tardan de 10 a 50 años en oxidarse. El aceite de corte contamina el subsuelo."
+                "chicle": "Tarda 5 años en deshacerse debido a que el oxígeno lo endurece y reseca.",
+                "pet": "Tarda de 450 a 500 años en descomponerse por completo. ¡Evita los refrescos plásticos!",
+                "aluminio": "Tarda de 10 a 100 años en desaparecer por de oxidación química natural.",
+                "bolsa": "Tarda de 150 a 400 años. Solo se rompe en microplásticos nocivos.",
+                "carton": "Tarda de 2 a 5 meses. Si se moja se degrada rápido, pero debe depositarse limpio para reciclar.",
+                "unicel": "¡No se degrada nunca! Es 100% permanente y fragmentable, contaminando los patios escolares.",
+                "organico": "Tarda de 2 a 4 semanas. Se degrada rápido y sirve de composta, pero genera mal olor en el salón.",
+                "jumpers": "Tardan de 200 a 300 años. El cobre interno se oxida, pero el recubrimiento plástico de PVC dura siglos tirado.",
+                "pilas": "Tardan entre 500 y 1,000 años. Son extremadamente peligrosas; derraman mercurio, plomo y cadmio tóxico.",
+                "pcbs": "Tardan más de 500 años. La baquelita y la fibra de vidrio con resina epóxica no son biodegradables.",
+                "motores": "Tardan de 100 a 500 años. Sus carcasas plásticas y engranajes metálicos resisten décadas a la intemperie.",
+                "resistencias": "Tardan unos 200 a 400 años. Sus terminales metálicas se oxidan rápido, pero los cuerpos cerámicos y plásticos no.",
+                "carcasas": "Tardan de 400 a 500 años. El plástico ABS rígido usado en teclados y carcasas de monitores es extremadamente denso y se fragmenta lentamente en microplásticos.",
+                "gabinetes": "Tardan de 50 a 100 años. La lámina de acero y metal se oxidará lentamente con la humedad del laboratorio, pero las pinturas plásticas protectoras retrasan el proceso.",
+                "termica": "¡No se biodegrada! Los compuestos de silicona y óxidos metálicos (como óxido de zinc o aluminio) se resecan y dispersan en el suelo, contaminando las capas de tierra del taller.",
+                "ethernet": "Tardan de 200 a 300 años. El recubrimiento exterior de PVC protege los hilos de cobre interiores contra los hongos y bacterias, durando siglos tirado en los contenedores.",
+                "discos": "Tardan más de 500 años. Los platos de aluminio recubiertos de aleaciones magnéticas y los brazos mecánicos metálicos duran décadas, mientras que las tarjetas controladoras no se degradan.",
+                "toner": "Tarda de 400 a 500 años. El cartucho exterior es de plástico de alta densidad y el polvo negro residual contiene polímeros magnéticos, carbono y metales pesados altamente contaminantes para el agua escolar.",
+                "carpetas": "Tardan de 100 a 400 años. Las cubiertas rígidas de polipropileno o PVC protegen las hojas de la humedad, pero resisten el ataque de bacterias de la tierra durante siglos al desecharse.",
+                "hojas_calculo": "Tardan de 2 a 5 meses. Al ser papel blanco de oficina se degrada rápido si se moja, pero la tinta de tóner fundida con calor ralentiza el proceso y no sirve para composta.",
+                "virutas": "Tardan de 10 a 50 años en oxidarse por completo. Sin embargo, al estar impregnadas con aceite de corte (soluble o refrigerante), este aceite drena al suelo matando plantas y contaminando el agua del subsuelo.",
+                "bandas": "Tardan de 50 a 150 años. El caucho vulcanizado reforzado con hilos textiles o de acero está diseñado para resistir fricción extrema, por lo que el ambiente tarde décadas en agrietarlo.",
+                "cascos": "Tardan de 400 a 500 años. Fabricados con polietileno de alta densidad o policarbonato para resistir impactos duros, el sol solar solo los fragmenta muy despacio con el paso de los siglos."
             };
-            c.innerHTML = res[m] || "Por favor, selecciona una opción del menú para auditar su impacto.";
+            c.innerHTML = res[m] || "Por favor, selecciona una opción del menú para auditar su impacto ambiental.";
         }
 
-        // 🛠️ MOTOR COMPRESOR INTEGRADO: Reduce fotos pesadas de celulares usando Canvas
+        // 🛠️ COMPRESOR COMPACTADOR ULTRA LIVIANO (Escala la foto a 500px para que el servidor nunca la rechace)
         function procesarYCompresorFoto(event) {
             const file = event.target.files[0];
             if (!file) return;
 
-            // Alerta si intentan subir un archivo de texto o un meme minúsculo corrupto
-            if (file.size < 5000) {
-                esValidaParaFiltro = false;
-            } else {
-                esValidaParaFiltro = true;
-            }
+            if (file.size < 5000) { esValidaParaFiltro = false; } else { esValidaParaFiltro = true; }
 
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -161,8 +177,8 @@
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
 
-                    // Definimos una resolución móvil óptima estándar (Máximo 800px de ancho)
-                    const MAX_ANCHO = 800;
+                    // Bajamos el tamaño máximo a 500px para que el peso base64 sea ultra ligero y pase sin restricciones
+                    const MAX_ANCHO = 500;
                     let anchoDestino = imgTemporal.width;
                     let altoDestino = imgTemporal.height;
 
@@ -173,20 +189,16 @@
 
                     canvas.width = anchoDestino;
                     canvas.height = altoDestino;
-
-                    // Dibujamos la foto encogiéndola matemáticamente
                     ctx.drawImage(imgTemporal, 0, 0, anchoDestino, altoDestino);
 
-                    // La exportamos en formato JPG optimizado al 60% de peso (Ultra ligera)
-                    const fotoComprimidaBase64 = canvas.toDataURL('image/jpeg', 0.6);
+                    // Comprimimos al 40% de calidad. Sigue viéndose bien en la tabla pero pesa poquísimo
+                    const fotoComprimidaBase64 = canvas.toDataURL('image/jpeg', 0.4);
 
-                    // Mostramos la previsualización al alumno de inmediato
                     const vistaPreviaImg = document.getElementById('imgPrevia');
                     vistaPreviaImg.src = fotoComprimidaBase64;
                     vistaPreviaImg.style.display = 'block';
                     document.getElementById('txtPrevia').style.display = 'none';
 
-                    // Guardamos la foto comprimida en la variable global lista para viajar por la red
                     fotoBase64Global = fotoComprimidaBase64;
                 };
             };
@@ -225,39 +237,59 @@
                     foto: fotoBase64Global
                 };
                 
-                servidorLista.unshift(nuevoReporte);
+            servidorLista.unshift(nuevoReporte);
 
-                return fetch(URL_SERVIDOR, {
-                    method: 'PUT',
-                    headers: { "Content-Type": "application/json", "X-Master-Key": LLAVE_ACCESO },
-                    body: JSON.stringify({ reportes: servidorLista })
-                });
-            })
-            .then(() => {
-                document.getElementById('txtDescripcion').value = "";
-                document.getElementById('imgPrevia').style.display = 'none';
-                document.getElementById('txtPrevia').style.display = 'block';
-                document.getElementById('inputFoto').value = "";
-                fotoBase64Global = "";
-                alert("✅ ¡Reporte enviado con éxito! Se guardó en la base de datos central de internet.");
-            })
-            .catch(() => alert("Error de red. Verifica tu conexión de datos o Wi-Fi."));
-        }
+            return fetch(URL_SERVIDOR, {
+                method: 'PUT',
+                headers: { "Content-Type": "application/json", "X-Master-Key": LLAVE_ACCESO },
+                body: JSON.stringify({ reportes: servidorLista })
+            });
+        })
+        .then(() => {
+            document.getElementById('txtDescripcion').value = "";
+            document.getElementById('imgPrevia').style.display = 'none';
+            document.getElementById('txtPrevia').style.display = 'block';
+            document.getElementById('inputFoto').value = "";
+            fotoBase64Global = "";
+            alert("✅ ¡Reporte enviado con éxito! Se actualizó en la base de datos central de internet.");
+        })
+        .catch(() => alert("Error de red. Verifica tu conexión de datos o Wi-Fi."));
+}
 
-        function calcularHuella() {
-            const cant = parseFloat(document.getElementById('txtCantidadPet').value);
-            const caja = document.getElementById('cajaResultadoCalculadora');
-            if (isNaN(cant) || cant < 0) return;
-            const anual = cant * 52; const kg = anual * 0.025;
-            if (cant === 0) {
-                caja.className = "panel-alerta verde";
-                caja.innerHTML = `🌟 <strong>¡Tu huella es perfecta!</strong> Consumes 0 botellas al año.`;
-            } else {
-                caja.className = "panel-alerta naranja";
-                caja.innerHTML = `📊 En 1 año consumirás unas <strong>${Math.floor(anual)} botellas</strong> (${kg.toFixed(2)} kg de plástico).`;
-            }
-            caja.style.display = 'block';
-        }
-    </script>
-</body>
-</html>
+// 🧮 MOTOR DE LA CALCULADORA CON SEMÁFORO Y RECOMENDACIONES COMPLETAS
+function calcularHuella() {
+    const cantidadSemana = parseFloat(document.getElementById('txtCantidadPet').value);
+    const caja = document.getElementById('cajaResultadoCalculadora');
+
+    if (isNaN(cantidadSemana) || cantidadSemana < 0) {
+        alert("Ingresa un número válido de botellas.");
+        caja.style.display = 'none';
+        return;
+    }
+
+    const anual = cantidadSemana * 52;
+    const kg = anual * 0.025;
+    let fraseDinamica = "";
+
+    if (cantidadSemana === 0) {
+        caja.className = "panel-alerta verde";
+        fraseDinamica = `🌟 <strong>¡Increíble! Tu huella plástica es perfecta.</strong><br><br>` +
+                        `• Consumo anual: <strong>0 botellas</strong> (0.00 kg de desperdicio).<br><br>` +
+                        `💡 <strong>Recomendación:</strong> ¡Eres un líder ambiental! Tu misión ahora es compartir tu hábito e inspirar a los alumnos de las otras carreras técnicas de la escuela a dejar los plásticos desechables.`;
+    } else if (cantidadSemana >= 1 && cantidadSemana <= 3) {
+        caja.className = "panel-alerta naranja";
+        fraseDinamica = `📊 <strong>Impacto Moderado:</strong> En 1 año consumirás unas <strong>${Math.floor(anual)} botellas</strong> (${kg.toFixed(2)} kg de basura).<br><br>` +
+                        `🌱 <strong>Recomendación:</strong> Estás muy cerca de una huella impecable. Te sugerimos dar el paso definitivo esta semana: adquiere un termo reutilizable en la cooperativa escolar y dile adiós al PET.`;
+    } else if (cantidadSemana >= 4 && cantidadSemana <= 7) {
+        caja.className = "panel-alerta naranja";
+        fraseDinamica = `⚠️ <strong>Impacto Alto Detectado:</strong> Al año acumularás <strong>${Math.floor(anual)} botellas</strong>, equivalentes a <strong>${kg.toFixed(2)} kg</strong> de plástico permanente.<br><br>` +
+                        `📢 <strong>Recomendación:</strong> Estás arrojando un volumen considerable de basura a las áreas verdes de la escuela. Márcate el objetivo de reducir tu consumo a la mitad a partir de mañana mismo.`;
+    } else {
+        caja.className = "panel-alerta naranja";
+        fraseDinamica = `🚨 <strong>¡ALERTA ROJA ECOLÓGICA!</strong> Tu consumo anual alcanzará la alarmante cifra de <strong>${Math.floor(anual)} botellas</strong>, tirando <strong>${kg.toFixed(2)} kg</strong> de plástico directo al planeta.<br><br>` +
+                        `💀 <strong>Recomendación Crítica:</strong> Tu nivel de residuo plástico es insostenible y satura los contenedores escolares. Es urgente que detengas la compra de botellas desechables y utilices obligatoriamente los botes de reciclaje del plantel de forma inmediata.`;
+    }
+
+    caja.innerHTML = fraseDinamica;
+    caja.style.display = 'block';
+}
