@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escuela Limpia - Panel de Alumnos</title>
+    <!-- Bootstrap 5 para el diseño responsivo -->
+    <link href="https://jsdelivr.net" rel="stylesheet">
+    <style>
+        :root {
+            --institucional-guinda: #6A1B29;
+            --institucional-dorado: #BC955C;
+        }
+        .bg-guinda { background-color: var(--institucional-guinda) !important; }
+        .text-dorado { color: var(--institucional-dorado) !important; }
+        .btn-guinda { background-color: var(--institucional-guinda); color: white; border: 1px solid var(--institucional-guinda); }
+        .btn-guinda:hover { background-color: #4A121C; color: #BC955C; }
+        .border-dorado { border-left: 5px solid var(--institucional-dorado); }
+        .navbar-brand img { height: 45px; width: auto; object-fit: contain; }
+        .card-calculadora { border-top: 4px solid var(--institucional-guinda); }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Barra de Navegación Institucional -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-guinda shadow-sm py-2">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+                <!-- Logo oficial CECYTEH -->
+                <img src="https://cecyteh.edu.mx" alt="Logo CECYTEH">
+                <div class="vr bg-white mx-2" style="height: 30px;"></div>
+                <span class="fw-bold text-dorado text-uppercase small">Escuela Limpia</span>
+            </a>
+            <span class="navbar-text text-white fw-light">Módulo del Alumno</span>
+        </div>
+    </nav>
+    <!-- Contenido Principal -->
+    <div class="container my-5">
+        <div class="row">
+            
+            <!-- COLUMNA IZQUIERDA: Datos del Alumno y Reportes -->
+            <div class="col-lg-4 mb-4">
+                <div class="card shadow-sm border-0 border-dorado mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold text-secondary" id="nombreAlumno">Cargando alumno...</h5>
+                        <p class="card-text text-muted mb-1" id="matriculaAlumno">Matrícula: --</p>
+                        <p class="card-text text-muted mb-3" id="grupoAlumno">Grupo: --</p>
+                        <div class="alert alert-success d-flex justify-content-between align-items-center border-0 p-2" style="background-color: #e2f0d9; color: #385723;">
+                            <span class="small fw-bold">Mis Puntos:</span>
+                            <span class="badge bg-success fs-6" id="puntosAlumno">0 pts</span>
+                        </div>
+                        <hr>
+                        <div class="d-grid">
+                            <button class="btn btn-outline-danger btn-sm" onclick="cerrarSesion()">Cerrar Sesión</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white fw-bold text-secondary border-bottom">Registrar Acción Ecológica</div>
+                    <div class="card-body">
+                        <form id="formActividad">
+                            <div class="mb-3">
+                                <label class="form-label text-muted small fw-bold">Tipo de actividad</label>
+                                <select class="form-select form-select-sm" required>
+                                    <option value="reciclaje">Reciclaje de PET / Tapitas</option>
+                                    <option value="limpieza">Jornada de Limpieza</option>
+                                    <option value="tecnologico">Reciclaje de Basura Tecnológica</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small fw-bold">Cantidad / Evidencia</label>
+                                <textarea class="form-control form-control-sm" rows="2" placeholder="Ej: Traje 15 botellas de PET..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-guinda btn-sm w-100 fw-bold">Enviar a Revisión</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLUMNA DERECHA: Calculadora Ecoescuela Avanzada -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0 card-calculadora">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold text-secondary">🧮 Calculadora de Impacto Ambiental Escolar</h5>
+                        <p class="text-muted small mb-0">Mide el impacto de residuos tradicionales y de las especialidades de Soporte y Programación.</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-secondary small">Cantidad de botellas PET:</label>
+                                <input type="number" id="inputPet" class="form-control" placeholder="Ej. 10" min="0" value="0">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-secondary small">Selecciona otro componente escolar:</label>
+                                <select id="selectMaterial" class="form-select">
+                                    <optgroup label="Residuos Comunes (Ecoescuela)">
+                                        <option value="papel">Papel / Hojas de Libreta</option>
+                                        <option value="bolsa">Bolsas de Plástico (Cafetería)</option>
+                                        <option value="aluminio">Latas de Aluminio</option>
+                                    </optgroup>
+                                    <optgroup label="Soporte y Mantenimiento de Cómputo">
+                                        <option value="tarjeta">Tarjetas Madre / Circuitos (PCB)</option>
+                                        <option value="cable">Cables e hilos de Cobre/PVC</option>
+                                        <option value="carcasa">Carcasas de Plástico ABS (Monitores/CPUs)</option>
+                                    </optgroup>
+                                    <optgroup label="Programación y Ofimática">
+                                        <option value="disco">Discos Duros / Unidades de Almacenamiento</option>
+                                        <option value="teclado">Teclas y Teclados Obsoletos</option>
+                                        <option value="disco_optico">CDs / DVDs de Instalación viejos</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold text-secondary small">Cantidad del componente seleccionado (unidades o gramos):</label>
+                                <input type="number" id="inputMaterial" class="form-control" placeholder="Ej. 5" min="0" value="0">
+                            </div>
+                            <div class="col-12 mt-4">
+                                <button type="button" class="btn btn-guinda w-100 fw-bold" onclick="calcularImpacto()">Calcular Impacto de Degradación</button>
+                            </div>
+                        </div>
+
+                        <!-- Panel de Resultados Dinámicos -->
+                        <div id="resultadoCalculo" class="mt-4 p-3 bg-white border rounded shadow-sm d-none">
+                            <h6 class="fw-bold text-guinda mb-3">📢 Diagnóstico de Residuos - Escuela Limpia</h6>
+                            <div class="mb-3 p-2 bg-light border-start border-3 border-danger rounded">
+                                <strong>Impacto del PET:</strong> <span id="frasePet" class="text-dark small"></span>
+                            </div>
+                            <div class="p-2 bg-light border-start border-3 border-warning rounded">
+                                <strong>Impacto de Especialidad Técnica:</strong> <span id="infoDegradacion" class="text-dark small"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- Lógica de Simulación de Base de Datos y Calculadora Avanzada -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Datos simulados en lo que se efectúa la conexión a la base de datos externa
+            document.getElementById("nombreAlumno").innerText = "Juan Pérez Gómez";
+            document.getElementById("matriculaAlumno").innerText = "Matrícula: 233H01928";
+            document.getElementById("grupoAlumno").innerText = "4º \"A\" - Programación";
+            document.getElementById("puntosAlumno").innerText = "45";
+        });
+
+        // Tabla de datos para el impacto técnico escolar (Ecoescuela ampliado)
+        const tiemposDegradacion = {
+            papel: "De 2 a 5 meses. ¡Es biodegradable pero evita desperdiciarlo en tus apuntes!",
+            bolsa: "150 años. Las bolsas plásticas colapsan los botes de basura del plantel.",
+            aluminio: "10 años. Las latas de refresco de la cafetería se pueden reciclar infinitamente.",
+            tarjeta: "¡Más de 1,000 años! Los metales pesados y la soldadura de las tarjetas en Soporte y Mantenimiento contaminan gravemente el suelo si no se desechan correctamente.",
+            cable: "Entre 100 y 300 años. El recubrimiento plásticos de los cables UTP tarda siglos en desintegrarse.",
+            carcasa: "De 400 a 500 años. El plástico ABS usado en gabinetes de talleres de cómputo sobrevive por generaciones.",
+            disco: "Indefinido (cientos de años). El aluminio y los platos magnéticos de almacenamiento de las prácticas de sistemas requieren reciclaje especializado.",
+            teclado: "400 años. Cada teclado desechado en el laboratorio contiene polímeros muy difíciles de degradar.",
+            disco_optico: "No se degrada fácilmente. Los discos de instalación antiguos toman cerca de 1,000 años en desaparecer."
+        };
+
+        function calcularImpacto() {
+            const pet = parseInt(document.getElementById("inputPet").value) || 0;
+            const materialSeleccionado = document.getElementById("selectMaterial").value;
+            const cantidadMaterial = parseInt(document.getElementById("inputMaterial").value) || 0;
+            
+            let frasePetResultado = "";
+
+            // Evaluación adaptativa de frases para la cantidad de PET
+            if (pet === 0) {
+                frasePetResultado = "No has ingresado botellas de PET. ¡Anímate a recolectar en el receso para limpiar el plantel!";
+            } else if (pet > 0 && pet <= 5) {
+                frasePetResultado = `Has registrado ${pet} botellas. Es un buen inicio, pero tardarán cerca de 500 años en degradarse en un vertedero. ¡Sigue juntando más!`;
+            } else if (pet > 5 && pet <= 20) {
+                frasePetResultado = `¡Gran esfuerzo! Al recolectar ${pet} botellas de PET estás evitando que microplásticos contaminen las áreas verdes del CECYTEH. Al validar con tu encargado ganarás valiosos puntos ecológicos.`;
+            } else {
+                frasePetResultado = `⚡ ¡Eres un Guardián Ecológico de Élite! Al retirar ${pet} botellas estás generando un cambio masivo en el plantel. Esto equivale a reducir drásticamente la huella de carbono escolar. ¡Lleva este lote de inmediato al contenedor principal!`;
+            }
+
+            // Procesamiento de materiales para Soporte y Programación
+            let textoMaterial = "Selecciona una cantidad válida para evaluar el residuo técnico.";
+            if (cantidadMaterial > 0) {
+                const nombreMaterialTexto = document.getElementById("selectMaterial").options[document.getElementById("selectMaterial").selectedIndex].text;
+                textoMaterial = `Al desechar u olvidar ${cantidadMaterial} unidades de [${nombreMaterialTexto}], debes saber que su tiempo estimado de degradación es: ${tiemposDegradacion[materialSeleccionado]}`;
+            }
+
+            // Mostrar resultados en pantalla
+            const boxResultado = document.getElementById("resultadoCalculo");
+            boxResultado.classList.remove("d-none");
+            document.getElementById("frasePet").innerText = frasePetResultado;
+            document.getElementById("infoDegradacion").innerText = textoMaterial;
+        }
+
+        function cerrarSesion() {
+            alert("Sesión finalizada de forma segura.");
+        }
+    </script>
+</body>
+</html>
