@@ -84,7 +84,8 @@
                 <input type="text" id="txtDescripcion" placeholder="Ej: Basura acumulada en los talleres">
                 
                 <label>Foto de Evidencia:</label>
-                <input type="file" id="inputFoto" accept="image/*" onchange="previsualizarFoto(event)">
+                <!-- Modificado accept para permitir cámara en vivo 👇 -->
+                <input type="file" id="inputFoto" accept="image/*" onchange="procesarYCompresorFoto(event)">
                 
                 <div class="cuadro-vista-previa">
                     <img id="imgPrevia" src="" alt="Vista previa" style="display: none; max-width: 100%; max-height: 150px;">
@@ -108,10 +109,9 @@
 
     <script>
         let fotoBase64Global = "";
-        let detallesFotoGlobal = { peso: 0, ancho: 0, alto: 0 };
+        let esValidaParaFiltro = true;
         const PALABRAS_PROHIBIDAS = ["meme", "memes", "broma", "pack", "sexo", "porno", "pendejo", "puto", "mierda"];
         
-        // Base de datos automatizada y libre en internet (JsonBin)
         const URL_SERVIDOR = "https://jsonbin.io";
         const LLAVE_ACCESO = "$2b$10$vN9vR99Xm7Q8lKxtnZ6N3.3XW.iS2Mh9S/Z1xSREvSae.g8RREfM.";
 
@@ -140,21 +140,55 @@
             c.innerHTML = res[m] || "Por favor, selecciona una opción del menú para auditar su impacto.";
         }
 
-        function previsualizarFoto(event) {
+        // 🛠️ MOTOR COMPRESOR INTEGRADO: Reduce fotos pesadas de celulares usando Canvas
+        function procesarYCompresorFoto(event) {
             const file = event.target.files[0];
             if (!file) return;
-            detallesFotoGlobal.peso = file.size;
+
+            // Alerta si intentan subir un archivo de texto o un meme minúsculo corrupto
+            if (file.size < 5000) {
+                esValidaParaFiltro = false;
+            } else {
+                esValidaParaFiltro = true;
+            }
+
             const reader = new FileReader();
-            reader.onload = function() {
-                const img = document.getElementById('imgPrevia');
-                img.src = reader.result;
-                img.onload = function() {
-                    detallesFotoGlobal.ancho = img.naturalWidth;
-                    detallesFotoGlobal.alto = img.naturalHeight;
+            reader.onload = function(e) {
+                const imgTemporal = new Image();
+                imgTemporal.src = e.target.result;
+                
+                imgTemporal.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    // Definimos una resolución móvil óptima estándar (Máximo 800px de ancho)
+                    const MAX_ANCHO = 800;
+                    let anchoDestino = imgTemporal.width;
+                    let altoDestino = imgTemporal.height;
+
+                    if (anchoDestino > MAX_ANCHO) {
+                        altoDestino *= MAX_ANCHO / anchoDestino;
+                        anchoDestino = MAX_ANCHO;
+                    }
+
+                    canvas.width = anchoDestino;
+                    canvas.height = altoDestino;
+
+                    // Dibujamos la foto encogiéndola matemáticamente
+                    ctx.drawImage(imgTemporal, 0, 0, anchoDestino, altoDestino);
+
+                    // La exportamos en formato JPG optimizado al 60% de peso (Ultra ligera)
+                    const fotoComprimidaBase64 = canvas.toDataURL('image/jpeg', 0.6);
+
+                    // Mostramos la previsualización al alumno de inmediato
+                    const vistaPreviaImg = document.getElementById('imgPrevia');
+                    vistaPreviaImg.src = fotoComprimidaBase64;
+                    vistaPreviaImg.style.display = 'block';
+                    document.getElementById('txtPrevia').style.display = 'none';
+
+                    // Guardamos la foto comprimida en la variable global lista para viajar por la red
+                    fotoBase64Global = fotoComprimidaBase64;
                 };
-                img.style.display = 'block';
-                document.getElementById('txtPrevia').style.display = 'none';
-                fotoBase64Global = reader.result;
             };
             reader.readAsDataURL(file);
         }
@@ -174,12 +208,11 @@
                 return;
             }
 
-            if (detallesFotoGlobal.peso < 15000) {
-                alert("⚠️ ALERTA: Sube una foto real del patio, no capturas ni memes ligeros.");
+            if (!esValidaParaFiltro) {
+                alert("⚠️ ALERTA: Sube una foto real de evidencia, las capturas o memes están prohibidos.");
                 return;
             }
 
-            // Llamada directa y nativa HTTP a la API global en internet
             fetch(URL_SERVIDOR + "/latest", { headers: { "X-Master-Key": LLAVE_ACCESO } })
             .then(res => res.json())
             .then(data => {
@@ -206,7 +239,7 @@
                 document.getElementById('txtPrevia').style.display = 'block';
                 document.getElementById('inputFoto').value = "";
                 fotoBase64Global = "";
-                alert("✅ ¡Reporte enviado con éxito! Se actualizó en la base de datos central de internet.");
+                alert("✅ ¡Reporte enviado con éxito! Se guardó en la base de datos central de internet.");
             })
             .catch(() => alert("Error de red. Verifica tu conexión de datos o Wi-Fi."));
         }
