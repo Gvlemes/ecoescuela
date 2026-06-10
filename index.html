@@ -34,7 +34,8 @@
                     <option value="aluminio">Lata de Aluminio</option>
                     <option value="bolsa">Bolsa de Plástico</option>
                     <option value="carton">Cartón y Papel</option>
-                    <option value="tetra">Envase Tetra Brik (Jugos)</option>
+                    <!-- Eliminada la palabra jugos 👇 -->
+                    <option value="tetra">Envase Tetra Brik</option>
                     <option value="unicel">Unicel / Telgopor</option>
                     <option value="organico">Manzana / Residuos Orgánicos</option>
                 </optgroup>
@@ -54,9 +55,11 @@
                     <option value="ethernet">Cables de Red (Ethernet UTP)</option>
                     <option value="discos">Discos Duros Mecánicos Arruinados</option>
                 </optgroup>
-                <optgroup label="PGA">
-                    <option value="filtros">Filtros de Agua Saturados</option>
-                    <option value="agroquimicos">Envases de Agroquímicos / Fertilizantes</option>
+                <!-- Nombre de la carrera corregido 👇 -->
+                <optgroup label="Proceso de Gestión Administrativa y Contabilidad">
+                    <option value="toner">Cartuchos de Tóner Vacíos</option>
+                    <option value="carpetas">Carpetas Archivadoras de Plástico Rotas</option>
+                    <option value="hojas_calculo">Hojas de Cálculo Impresas con Error</option>
                 </optgroup>
                 <optgroup label="Producción Industrial">
                     <option value="virutas">Virutas de Metal con Aceite de Corte</option>
@@ -75,7 +78,7 @@
             <h3>🚨 Reportar Punto Sucio</h3>
             <div class="formulario">
                 <label>Descripción de la zona o desperdicio:</label>
-                <input type="text" id="txtDescripcion" placeholder="Ej: Cables tirados en el lab de mecatrónica">
+                <input type="text" id="txtDescripcion" placeholder="Ej: Basura acumulada en los talleres">
                 
                 <label>Foto de Evidencia:</label>
                 <input type="file" id="inputFoto" accept="image/*" onchange="previsualizarFoto(event)">
