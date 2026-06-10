@@ -113,7 +113,6 @@
             </div>
         </section>
     </main>
-
     <script>
         let fotoBase64Global = "";
         let esValidaParaFiltro = true;
@@ -129,7 +128,6 @@
             boton.classList.add('active');
         }
 
-        // ⏱️ CATÁLOGO DE INFORMACIÓN DEGRADACIÓN COMPLETO DE LAS CARRERAS
         function mostrarDegradacion() {
             const m = document.getElementById('comboMateriales').value;
             const c = document.getElementById('cajaResultadoDegradacion');
@@ -152,7 +150,7 @@
                 "ethernet": "Tardan de 200 a 300 años. El recubrimiento exterior de PVC protege los hilos de cobre interiores contra los hongos y bacterias, durando siglos tirado en los contenedores.",
                 "discos": "Tardan más de 500 años. Los platos de aluminio recubiertos de aleaciones magnéticas y los brazos mecánicos metálicos duran décadas, mientras que las tarjetas controladoras no se degradan.",
                 "toner": "Tarda de 400 a 500 años. El cartucho exterior es de plástico de alta densidad y el polvo negro residual contiene polímeros magnéticos, carbono y metales pesados altamente contaminantes para el agua escolar.",
-                "carpetas": "Tardan de 100 a 400 años. Las cubiertas rígidas de polipropileno o PVC protegen las hojas de la humedad, pero resisten el ataque de bacterias de la tierra durante siglos al desecharse.",
+                "carpetas": "Tardan de 100 a 400 años. Las cubiertas rígidas de polipropileno o PVC profesan las hojas de la humedad, pero resisten el ataque de bacterias de la tierra durante siglos al desecharse.",
                 "hojas_calculo": "Tardan de 2 a 5 meses. Al ser papel blanco de oficina se degrada rápido si se moja, pero la tinta de tóner fundida con calor ralentiza el proceso y no sirve para composta.",
                 "virutas": "Tardan de 10 a 50 años en oxidarse por completo. Sin embargo, al estar impregnadas con aceite de corte (soluble o refrigerante), este aceite drena al suelo matando plantas y contaminando el agua del subsuelo.",
                 "bandas": "Tardan de 50 a 150 años. El caucho vulcanizado reforzado con hilos textiles o de acero está diseñado para resistir fricción extrema, por lo que el ambiente tarde décadas en agrietarlo.",
@@ -161,9 +159,8 @@
             c.innerHTML = res[m] || "Por favor, selecciona una opción del menú para auditar su impacto ambiental.";
         }
 
-        // 🛠️ COMPRESOR COMPACTADOR ULTRA LIVIANO (Escala la foto a 500px para que el servidor nunca la rechace)
         function procesarYCompresorFoto(event) {
-            const file = event.target.files[0];
+            const file = event.target.files;
             if (!file) return;
 
             if (file.size < 5000) { esValidaParaFiltro = false; } else { esValidaParaFiltro = true; }
@@ -177,7 +174,6 @@
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
 
-                    // Bajamos el tamaño máximo a 500px para que el peso base64 sea ultra ligero y pase sin restricciones
                     const MAX_ANCHO = 500;
                     let anchoDestino = imgTemporal.width;
                     let altoDestino = imgTemporal.height;
@@ -191,7 +187,6 @@
                     canvas.height = altoDestino;
                     ctx.drawImage(imgTemporal, 0, 0, anchoDestino, altoDestino);
 
-                    // Comprimimos al 40% de calidad. Sigue viéndose bien en la tabla pero pesa poquísimo
                     const fotoComprimidaBase64 = canvas.toDataURL('image/jpeg', 0.4);
 
                     const vistaPreviaImg = document.getElementById('imgPrevia');
@@ -237,45 +232,44 @@
                     foto: fotoBase64Global
                 };
                 
-            servidorLista.unshift(nuevoReporte);
+                servidorLista.unshift(nuevoReporte);
 
-            return fetch(URL_SERVIDOR, {
-                method: 'PUT',
-                headers: { "Content-Type": "application/json", "X-Master-Key": LLAVE_ACCESO },
-                body: JSON.stringify({ reportes: servidorLista })
-            });
-        })
-        .then(() => {
-            document.getElementById('txtDescripcion').value = "";
-            document.getElementById('imgPrevia').style.display = 'none';
-            document.getElementById('txtPrevia').style.display = 'block';
-            document.getElementById('inputFoto').value = "";
-            fotoBase64Global = "";
-            alert("✅ ¡Reporte enviado con éxito! Se actualizó en la base de datos central de internet.");
-        })
-        .catch(() => alert("Error de red. Verifica tu conexión de datos o Wi-Fi."));
-}
+                return fetch(URL_SERVIDOR, {
+                    method: 'PUT',
+                    headers: { "Content-Type": "application/json", "X-Master-Key": LLAVE_ACCESO },
+                    body: JSON.stringify({ reportes: servidorLista })
+                });
+            })
+            .then(() => {
+                document.getElementById('txtDescripcion').value = "";
+                document.getElementById('imgPrevia').style.display = 'none';
+                document.getElementById('txtPrevia').style.display = 'block';
+                document.getElementById('inputFoto').value = "";
+                fotoBase64Global = "";
+                alert("✅ ¡Reporte enviado con éxito! Se actualizó en la base de datos central de internet.");
+            })
+            .catch(() => alert("Error de red. Verifica tu conexión de datos o Wi-Fi."));
+        }
 
-// 🧮 MOTOR DE LA CALCULADORA CON SEMÁFORO Y RECOMENDACIONES COMPLETAS
-function calcularHuella() {
-    const cantidadSemana = parseFloat(document.getElementById('txtCantidadPet').value);
-    const caja = document.getElementById('cajaResultadoCalculadora');
+        function calcularHuella() {
+            const cantidadSemana = parseFloat(document.getElementById('txtCantidadPet').value);
+            const caja = document.getElementById('cajaResultadoCalculadora');
 
-    if (isNaN(cantidadSemana) || cantidadSemana < 0) {
-        alert("Ingresa un número válido de botellas.");
-        caja.style.display = 'none';
-        return;
-    }
+            if (isNaN(cantidadSemana) || cantidadSemana < 0) {
+                alert("Ingresa un número válido de botellas.");
+                caja.style.display = 'none';
+                return;
+            }
 
-    const anual = cantidadSemana * 52;
-    const kg = anual * 0.025;
-    let fraseDinamica = "";
+            const anual = cantidadSemana * 52;
+            const kg = anual * 0.025;
+            let fraseDinamica = "";
 
-    if (cantidadSemana === 0) {
-        caja.className = "panel-alerta verde";
-        fraseDinamica = `🌟 <strong>¡Increíble! Tu huella plástica es perfecta.</strong><br><br>` +
-                        `• Consumo anual: <strong>0 botellas</strong> (0.00 kg de desperdicio).<br><br>` +
-                        `💡 <strong>Recomendación:</strong> ¡Eres un líder ambiental! Tu misión ahora es compartir tu hábito e inspirar a los alumnos de las otras carreras técnicas de la escuela a dejar los plásticos desechables.`;
+            if (cantidadSemana === 0) {
+                caja.className = "panel-alerta verde";
+                fraseDinamica = `🌟 <strong>¡Increíble! Tu huella plástica es perfecta.</strong><br><br>` +
+                                `• Consumo anual: <strong>0 botellas</strong> (0.00 kg de desperdicio).<br><br>` +
+                                `💡 <strong>Recomendación:</strong> ¡Eres un líder ambiental! Tu misión ahora es compartir tu hábito e inspirar a los alumnos de las otras carreras técnicas de la escuela a dejar los plásticos desechables.`;
     } else if (cantidadSemana >= 1 && cantidadSemana <= 3) {
         caja.className = "panel-alerta naranja";
         fraseDinamica = `📊 <strong>Impacto Moderado:</strong> En 1 año consumirás unas <strong>${Math.floor(anual)} botellas</strong> (${kg.toFixed(2)} kg de basura).<br><br>` +
@@ -289,7 +283,7 @@ function calcularHuella() {
         fraseDinamica = `🚨 <strong>¡ALERTA ROJA ECOLÓGICA!</strong> Tu consumo anual alcanzará la alarmante cifra de <strong>${Math.floor(anual)} botellas</strong>, tirando <strong>${kg.toFixed(2)} kg</strong> de plástico directo al planeta.<br><br>` +
                         `💀 <strong>Recomendación Crítica:</strong> Tu nivel de residuo plástico es insostenible y satura los contenedores escolares. Es urgente que detengas la compra de botellas desechables y utilices obligatoriamente los botes de reciclaje del plantel de forma inmediata.`;
     }
-
+    
     caja.innerHTML = fraseDinamica;
     caja.style.display = 'block';
 }
