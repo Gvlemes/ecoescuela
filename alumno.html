@@ -3,196 +3,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escuela Limpia - Panel de Alumnos</title>
-    <!-- Bootstrap 5 para el diseño responsivo -->
+    <title>Escuela Limpia - App Alumno</title>
+    <!-- Bootstrap 5 para la estructura -->
     <link href="https://jsdelivr.net" rel="stylesheet">
+    <!-- FontAwesome para agregar iconos modernos a la app -->
+    <link href="https://cloudflare.com" rel="stylesheet">
     <style>
         :root {
             --institucional-guinda: #6A1B29;
             --institucional-dorado: #BC955C;
+            --app-bg: #f4f6f9;
         }
-        .bg-guinda { background-color: var(--institucional-guinda) !important; }
-        .text-dorado { color: var(--institucional-dorado) !important; }
-        .btn-guinda { background-color: var(--institucional-guinda); color: white; border: 1px solid var(--institucional-guinda); }
-        .btn-guinda:hover { background-color: #4A121C; color: #BC955C; }
-        .border-dorado { border-left: 5px solid var(--institucional-dorado); }
-        .navbar-brand img { height: 45px; width: auto; object-fit: contain; }
-        .card-calculadora { border-top: 4px solid var(--institucional-guinda); }
+        body {
+            background-color: var(--app-bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        /* Navbar estilo App Moderna */
+        .app-navbar {
+            background-color: var(--institucional-guinda);
+            border-bottom: 4px solid var(--institucional-dorado);
+            padding: 0.8rem 1.5rem;
+        }
+        .navbar-brand img {
+            height: 40px;
+            filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.2));
+        }
+        /* Tarjetas estilo Dashboard */
+        .app-card {
+            border: none;
+            border-radius: 16px;
+            background: #ffffff;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+            overflow: hidden;
+        }
+        .app-card:hover {
+            transform: translateY(-2px);
+        }
+        .card-accent-title {
+            background: linear-gradient(135deg, var(--institucional-guinda), #4A121C);
+            color: white;
+            padding: 1.2rem;
+            font-weight: 600;
+        }
+        /* Puntos e indicadores en grande */
+        .points-display {
+            background: linear-gradient(135deg, #2e7d32, #43a047);
+            color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(46, 125, 50, 0.2);
+        }
+        .points-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            display: block;
+            line-height: 1;
+        }
+        /* Componentes de formularios de la App */
+        .form-control, .form-select {
+            border-radius: 10px;
+            padding: 0.65rem 1rem;
+            border: 1px solid #e0e0e0;
+            background-color: #fafafa;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--institucional-dorado);
+            box-shadow: 0 0 0 0.25rem rgba(188, 149, 92, 0.15);
+            background-color: #fff;
+        }
+        .btn-app-primary {
+            background-color: var(--institucional-guinda);
+            color: white;
+            font-weight: 600;
+            border-radius: 10px;
+            padding: 0.7rem;
+            border: none;
+            box-shadow: 0 4px 12px rgba(106, 27, 41, 0.2);
+        }
+        .btn-app-primary:hover {
+            background-color: #4A121C;
+            color: var(--institucional-dorado);
+        }
+        /* Alertas de la calculadora */
+        .alert-custom {
+            border-radius: 12px;
+            border: none;
+            padding: 1rem;
+        }
     </style>
 </head>
-<body class="bg-light">
-    <!-- Barra de Navegación Institucional -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-guinda shadow-sm py-2">
-        <div class="container">
-            <a class="navbar-brand d-flex align-items-center gap-2" href="#">
-                <!-- Logo oficial CECYTEH -->
+<body>
+    <!-- Navbar de la Aplicación -->
+    <nav class="navbar app-navbar navbar-dark shadow">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center gap-3" href="#">
                 <img src="https://cecyteh.edu.mx" alt="Logo CECYTEH">
-                <div class="vr bg-white mx-2" style="height: 30px;"></div>
-                <span class="fw-bold text-dorado text-uppercase small">Escuela Limpia</span>
+                <div class="vr bg-white opacity-50" style="height: 25px;"></div>
+                <span class="fw-bold text-white fs-5 tracking-wide">Escuela<span class="text-dorado">Limpia</span></span>
             </a>
-            <span class="navbar-text text-white fw-light">Módulo del Alumno</span>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge bg-light text-dark px-3 py-2 rounded-pill fw-bold d-none d-md-inline-block">
+                    <i class="fa-solid fa-graduation-cap me-1 text-muted"></i> Panel Alumno
+                </span>
+                <button class="btn btn-sm btn-outline-light rounded-pill px-3" onclick="cerrarSesion()">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
         </div>
     </nav>
-    <!-- Contenido Principal -->
+
+    <!-- Contenedor Principal de la App -->
     <div class="container my-5">
-        <div class="row">
+        <div class="row g-4">
             
-            <!-- COLUMNA IZQUIERDA: Datos del Alumno y Reportes -->
-            <div class="col-lg-4 mb-4">
-                <div class="card shadow-sm border-0 border-dorado mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title fw-bold text-secondary" id="nombreAlumno">Cargando alumno...</h5>
-                        <p class="card-text text-muted mb-1" id="matriculaAlumno">Matrícula: --</p>
-                        <p class="card-text text-muted mb-3" id="grupoAlumno">Grupo: --</p>
-                        <div class="alert alert-success d-flex justify-content-between align-items-center border-0 p-2" style="background-color: #e2f0d9; color: #385723;">
-                            <span class="small fw-bold">Mis Puntos:</span>
-                            <span class="badge bg-success fs-6" id="puntosAlumno">0 pts</span>
+            <!-- Perfil e Indicadores -->
+            <div class="col-lg-4">
+                <!-- Tarjeta de Perfil -->
+                <div class="app-card card mb-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="bg-light p-3 rounded-circle text-center" style="width: 60px; height: 60px; background-color: rgba(106, 27, 41, 0.1) !important;">
+                                <i class="fa-solid fa-user-astronaut fs-3" style="color: var(--institucional-guinda);"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0 text-dark" id="nombreAlumno">Cargando...</h5>
+                                <span class="text-muted small" id="matriculaAlumno">Matrícula: --</span>
+                            </div>
                         </div>
-                        <hr>
-                        <div class="d-grid">
-                            <button class="btn btn-outline-danger btn-sm" onclick="cerrarSesion()">Cerrar Sesión</button>
+                        <div class="p-2 bg-light rounded-3 mb-3">
+                            <i class="fa-solid fa-code text-muted me-2 small"></i><span class="text-secondary small fw-medium" id="grupoAlumno">Grupo: --</span>
+                        </div>
+                        
+                        <!-- Marcador de Puntos Premium -->
+                        <div class="points-display">
+                            <span class="small text-uppercase tracking-wider opacity-75 fw-bold">Puntos Ecológicos</span>
+                            <span class="points-number my-1" id="puntosAlumno">0</span>
+                            <span class="small bg-white bg-opacity-20 px-3 py-1 rounded-pill"><i class="fa-solid fa-leaf me-1"></i>Estatus Activo</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="card shadow-sm border-0">
-                    <div class="card-header bg-white fw-bold text-secondary border-bottom">Registrar Acción Ecológica</div>
-                    <div class="card-body">
+                <!-- Tarjeta de Envío de Actividades -->
+                <div class="app-card card">
+                    <div class="card-accent-title">
+                        <i class="fa-solid fa-paper-plane me-2"></i>Registrar Acción Ecológica
+                    </div>
+                    <div class="card-body p-4">
                         <form id="formActividad">
                             <div class="mb-3">
-                                <label class="form-label text-muted small fw-bold">Tipo de actividad</label>
-                                <select class="form-select form-select-sm" required>
-                                    <option value="reciclaje">Reciclaje de PET / Tapitas</option>
-                                    <option value="limpieza">Jornada de Limpieza</option>
-                                    <option value="tecnologico">Reciclaje de Basura Tecnológica</option>
+                                <label class="form-label text-secondary small fw-bold">Tipo de Actividad</label>
+                                <select class="form-select" required>
+                                    <option value="reciclaje">♻️ Reciclaje de PET / Tapitas</option>
+                                    <option value="limpieza">🧹 Jornada de Limpieza</option>
+                                    <option value="tecnologico">💻 Reciclaje de Basura Tecnológica</option>
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label text-muted small fw-bold">Cantidad / Evidencia</label>
-                                <textarea class="form-control form-control-sm" rows="2" placeholder="Ej: Traje 15 botellas de PET..." required></textarea>
+                                <label class="form-label text-secondary small fw-bold">Cantidad / Evidencia</label>
+                                <textarea class="form-control" rows="2" placeholder="Describe brevemente cuántas botellas o qué material trajiste..." required></textarea>
                             </div>
-                            <button type="submit" class="btn btn-guinda btn-sm w-100 fw-bold">Enviar a Revisión</button>
+                            <button type="submit" class="btn btn-app-primary w-100 mt-2">Enviar Evidencia</button>
                         </form>
                     </div>
                 </div>
             </div>
 
-            <!-- COLUMNA DERECHA: Calculadora Ecoescuela Avanzada -->
+            <!-- Panel de la Calculadora Ecológica Avanzada -->
             <div class="col-lg-8">
-                <div class="card shadow-sm border-0 card-calculadora">
-                    <div class="card-header bg-white py-3">
-                        <h5 class="mb-0 fw-bold text-secondary">🧮 Calculadora de Impacto Ambiental Escolar</h5>
-                        <p class="text-muted small mb-0">Mide el impacto de residuos tradicionales y de las especialidades de Soporte y Programación.</p>
+                <div class="app-card card h-100">
+                    <div class="card-accent-title d-flex justify-content-between align-items-center">
+                        <span><i class="fa-solid fa-calculator me-2"></i>Calculadora de Impacto Ambiental Escolar</span>
+                        <i class="fa-solid fa-seedling text-dorado fs-4"></i>
                     </div>
-                    <div class="card-body">
-                        <div class="row g-3">
+                    <div class="card-body p-4">
+                        <p class="text-muted small mb-4">Calcula el tiempo de degradación de los insumos tradicionales y tecnológicos del plantel.</p>
+                        
+                        <div class="row g-4">
+                            <!-- Entrada de PET -->
                             <div class="col-md-6">
-                                <label class="form-label fw-bold text-secondary small">Cantidad de botellas PET:</label>
-                                <input type="number" id="inputPet" class="form-control" placeholder="Ej. 10" min="0" value="0">
+                                <div class="p-3 bg-light rounded-4 border-1">
+                                    <label class="form-label fw-bold text-dark small mb-2"><i class="fa-solid fa-bottle-water text-primary me-2"></i>Botellas PET:</label>
+                                    <input type="number" id="inputPet" class="form-control form-control-lg fw-bold" placeholder="0" min="0" value="0">
+                                </div>
                             </div>
+
+                            <!-- Selector de Materiales Especiales -->
                             <div class="col-md-6">
-                                <label class="form-label fw-bold text-secondary small">Selecciona otro componente escolar:</label>
-                                <select id="selectMaterial" class="form-select">
-                                    <optgroup label="Residuos Comunes (Ecoescuela)">
-                                        <option value="papel">Papel / Hojas de Libreta</option>
-                                        <option value="bolsa">Bolsas de Plástico (Cafetería)</option>
-                                        <option value="aluminio">Latas de Aluminio</option>
-                                    </optgroup>
-                                    <optgroup label="Soporte y Mantenimiento de Cómputo">
-                                        <option value="tarjeta">Tarjetas Madre / Circuitos (PCB)</option>
-                                        <option value="cable">Cables e hilos de Cobre/PVC</option>
-                                        <option value="carcasa">Carcasas de Plástico ABS (Monitores/CPUs)</option>
-                                    </optgroup>
-                                    <optgroup label="Programación y Ofimática">
-                                        <option value="disco">Discos Duros / Unidades de Almacenamiento</option>
-                                        <option value="teclado">Teclas y Teclados Obsoletos</option>
-                                        <option value="disco_optico">CDs / DVDs de Instalación viejos</option>
-                                    </optgroup>
-                                </select>
+                                <div class="p-3 bg-light rounded-4 h-100">
+                                    <label class="form-label fw-bold text-dark small mb-2"><i class="fa-solid fa-microchip text-success me-2"></i>Material de Especialidad:</label>
+                                    <select id="selectMaterial" class="form-select">
+                                        <optgroup label="Comunes (Ecoescuela)">
+                                            <option value="papel">📝 Papel de Libreta</option>
+                                            <option value="bolsa">🛍️ Bolsas de Plástico</option>
+                                            <option value="aluminio">🥤 Latas de Aluminio</option>
+                                        </optgroup>
+                                        <optgroup label="Soporte y Mantenimiento">
+                                            <option value="tarjeta">🔌 Tarjetas Madre / Circuitos</option>
+                                            <option value="cable">🧵 Cables e hilos de Cobre</option>
+                                            <option value="carcasa">🖥️ Carcasas de Monitores/CPUs</option>
+                                        </optgroup>
+                                        <optgroup label="Programación y Ofimática">
+                                            <option value="disco">💾 Discos Duros Viejos</option>
+                                            <option value="teclado">⌨️ Teclas y Teclados Dañados</option>
+                                            <option value="disco_optico">💿 CDs / DVDs obsoletos</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
                             </div>
+
+                            <!-- Input de Material de Especialidad -->
                             <div class="col-12">
-                                <label class="form-label fw-bold text-secondary small">Cantidad del componente seleccionado (unidades o gramos):</label>
-                                <input type="number" id="inputMaterial" class="form-control" placeholder="Ej. 5" min="0" value="0">
+                                <label class="form-label fw-bold text-secondary small">Cantidad del material seleccionado (unidades):</label>
+                                <input type="number" id="inputMaterial" class="form-control" placeholder="0" min="0" value="0">
                             </div>
+
+                            <!-- Botón Acción Principal -->
                             <div class="col-12 mt-4">
-                                <button type="button" class="btn btn-guinda w-100 fw-bold" onclick="calcularImpacto()">Calcular Impacto de Degradación</button>
+                                <button type="button" class="btn btn-app-primary w-100 py-3 fs-5 shadow" onclick="calcularImpacto()">
+                                    <i class="fa-solid fa-wand-magic-sparkles me-2"></i>Procesar Datos de Impacto
+                                </button>
                             </div>
                         </div>
 
-                        <!-- Panel de Resultados Dinámicos -->
-                        <div id="resultadoCalculo" class="mt-4 p-3 bg-white border rounded shadow-sm d-none">
-                            <h6 class="fw-bold text-guinda mb-3">📢 Diagnóstico de Residuos - Escuela Limpia</h6>
-                            <div class="mb-3 p-2 bg-light border-start border-3 border-danger rounded">
-                                <strong>Impacto del PET:</strong> <span id="frasePet" class="text-dark small"></span>
+                        <!-- Pantalla de Resultados de la App -->
+                        <div id="resultadoCalculo" class="mt-4 d-none">
+                            <div class="p-4 rounded-4" style="background-color: #fafafa; border: 2px dashed #e0e0e0;">
+                                <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-square-poll-horizontal me-2 text-secondary"></i>Resultados del Análisis</h6>
+                                
+                                <div class="alert-custom p-3 mb-3 bg-white shadow-sm border-start border-4 border-danger">
+                                    <div class="fw-bold text-danger mb-1"><i class="fa-solid fa-triangle-exclamation me-1"></i> Impacto de Residuos PET:</div>
+                                    <span id="frasePet" class="text-secondary small"></span>
+                                </div>
+
+                                <div class="alert-custom p-3 bg-white shadow-sm border-start border-4 border-warning">
+                                    <div class="fw-bold text-warning mb-1"><i class="fa-solid fa-clock me-1"></i> Ciclo de Degradación Técnica:</div>
+                                    <span id="infoDegradacion" class="text-secondary small"></span>
+                                </div>
                             </div>
-                            <div class="p-2 bg-light border-start border-3 border-warning rounded">
-                                <strong>Impacto de Especialidad Técnica:</strong> <span id="infoDegradacion" class="text-dark small"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-    <!-- Lógica de Simulación de Base de Datos y Calculadora Avanzada -->
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            // Datos simulados en lo que se efectúa la conexión a la base de datos externa
-            document.getElementById("nombreAlumno").innerText = "Juan Pérez Gómez";
-            document.getElementById("matriculaAlumno").innerText = "Matrícula: 233H01928";
-            document.getElementById("grupoAlumno").innerText = "4º \"A\" - Programación";
-            document.getElementById("puntosAlumno").innerText = "45";
-        });
-
-        // Tabla de datos para el impacto técnico escolar (Ecoescuela ampliado)
-        const tiemposDegradacion = {
-            papel: "De 2 a 5 meses. ¡Es biodegradable pero evita desperdiciarlo en tus apuntes!",
-            bolsa: "150 años. Las bolsas plásticas colapsan los botes de basura del plantel.",
-            aluminio: "10 años. Las latas de refresco de la cafetería se pueden reciclar infinitamente.",
-            tarjeta: "¡Más de 1,000 años! Los metales pesados y la soldadura de las tarjetas en Soporte y Mantenimiento contaminan gravemente el suelo si no se desechan correctamente.",
-            cable: "Entre 100 y 300 años. El recubrimiento plásticos de los cables UTP tarda siglos en desintegrarse.",
-            carcasa: "De 400 a 500 años. El plástico ABS usado en gabinetes de talleres de cómputo sobrevive por generaciones.",
-            disco: "Indefinido (cientos de años). El aluminio y los platos magnéticos de almacenamiento de las prácticas de sistemas requieren reciclaje especializado.",
-            teclado: "400 años. Cada teclado desechado en el laboratorio contiene polímeros muy difíciles de degradar.",
-            disco_optico: "No se degrada fácilmente. Los discos de instalación antiguos toman cerca de 1,000 años en desaparecer."
-        };
-
-        function calcularImpacto() {
-            const pet = parseInt(document.getElementById("inputPet").value) || 0;
-            const materialSeleccionado = document.getElementById("selectMaterial").value;
-            const cantidadMaterial = parseInt(document.getElementById("inputMaterial").value) || 0;
-            
-            let frasePetResultado = "";
-
-            // Evaluación adaptativa de frases para la cantidad de PET
-            if (pet === 0) {
-                frasePetResultado = "No has ingresado botellas de PET. ¡Anímate a recolectar en el receso para limpiar el plantel!";
-            } else if (pet > 0 && pet <= 5) {
-                frasePetResultado = `Has registrado ${pet} botellas. Es un buen inicio, pero tardarán cerca de 500 años en degradarse en un vertedero. ¡Sigue juntando más!`;
-            } else if (pet > 5 && pet <= 20) {
-                frasePetResultado = `¡Gran esfuerzo! Al recolectar ${pet} botellas de PET estás evitando que microplásticos contaminen las áreas verdes del CECYTEH. Al validar con tu encargado ganarás valiosos puntos ecológicos.`;
-            } else {
-                frasePetResultado = `⚡ ¡Eres un Guardián Ecológico de Élite! Al retirar ${pet} botellas estás generando un cambio masivo en el plantel. Esto equivale a reducir drásticamente la huella de carbono escolar. ¡Lleva este lote de inmediato al contenedor principal!`;
-            }
-
-            // Procesamiento de materiales para Soporte y Programación
-            let textoMaterial = "Selecciona una cantidad válida para evaluar el residuo técnico.";
-            if (cantidadMaterial > 0) {
-                const nombreMaterialTexto = document.getElementById("selectMaterial").options[document.getElementById("selectMaterial").selectedIndex].text;
-                textoMaterial = `Al desechar u olvidar ${cantidadMaterial} unidades de [${nombreMaterialTexto}], debes saber que su tiempo estimado de degradación es: ${tiemposDegradacion[materialSeleccionado]}`;
-            }
-
-            // Mostrar resultados en pantalla
-            const boxResultado = document.getElementById("resultadoCalculo");
-            boxResultado.classList.remove("d-none");
-            document.getElementById("frasePet").innerText = frasePetResultado;
-            document.getElementById("infoDegradacion").innerText = textoMaterial;
-        }
-
-        function cerrarSesion() {
-            alert("Sesión finalizada de forma segura.");
-        }
-    </script>
-</body>
-</html>
