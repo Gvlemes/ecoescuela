@@ -3,124 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escuela Limpia - Inicio de Sesión</title>
-    <!-- Bootstrap 5 para el diseño responsivo -->
-    <link href="https://jsdelivr.net" rel="stylesheet">
-    <style>
-        :root {
-            --institucional-guinda: #6A1B29;
-            --institucional-dorado: #BC955C;
-        }
-        body {
-            background-color: #f8f9fa;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .card-login {
-            border-top: 5px solid var(--institucional-guinda);
-            max-width: 420px;
-            width: 100%;
-        }
-        .btn-guinda {
-            background-color: var(--institucional-guinda);
-            color: white;
-            border: 1px solid var(--institucional-guinda);
-        }
-        .btn-guinda:hover {
-            background-color: #4A121C;
-            color: #BC955C;
-        }
-        .text-dorado {
-            color: var(--institucional-dorado) !important;
-        }
-        .logo-institucional {
-            max-height: 65px;
-            object-fit: contain;
-        }
-    </style>
+    <title>EcoEscuela Mecatrónica</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container d-flex justify-content-center px-3">
-        <div class="card card-login shadow border-0 rounded-3 p-4">
+
+    <header>
+        <h2>🌿 EcoEscuela Mecatrónica</h2>
+    </header>
+
+    <!-- Barra de Navegación Móvil (TabBAR) -->
+    <nav class="tab-bar">
+        <button class="tab-btn active" onclick="cambiarPestana('degradacion', this)">⏱️ Degradación</button>
+        <button class="tab-btn" onclick="cambiarPestana('reportar', this)">🚨 Reportar</button>
+        <button class="tab-btn" onclick="cambiarPestana('calculadora', this)">🧮 Calculadora</button>
+        <button class="tab-btn" onclick="cambiarPestana('admin', this)">👑 Admin</button>
+    </nav>
+
+    <main class="contenedor-principal">
+        
+        <!-- PESTAÑA 1: DEGRADACIÓN -->
+        <section id="degradacion" class="tab-content active">
+            <h3>⏱️ ¿Cuánto tardan en degradarse?</h3>
+            <label for="comboMateriales">Selecciona un material o componente:</label>
+            <select id="comboMateriales" onchange="mostrarDegradacion()">
+                <option value="">Selecciona un material...</option>
+                <optgroup label="Básicos de la Escuela">
+                    <option value="chicle">Chicle</option>
+                    <option value="pet">Botella de PET</option>
+                    <option value="aluminio">Lata de Aluminio</option>
+                    <option value="bolsa">Bolsa de Plástico</option>
+                    <option value="carton">Cartón y Papel</option>
+                    <option value="tetra">Envase Tetra Brik (Jugos)</option>
+                    <option value="unicel">Unicel / Telgopor</option>
+                    <option value="organico">Manzana / Residuos Orgánicos</option>
+                </optgroup>
+                <optgroup label="Laboratorio de Mecatrónica">
+                    <option value="jumpers">Cables Jumpers (Protoboard)</option>
+                    <option value="pilas">Pilas y Baterías Lipo</option>
+                    <option value="pcbs">Placas Fenólicas (PCBs)</option>
+                    <option value="motores">Motores DC / Servomotores rotos</option>
+                    <option value="resistencias">Resistencias y Capacitores</option>
+                </optgroup>
+            </select>
             
-            <!-- Encabezado con Logotipo Oficial -->
-            <div class="text-center mb-4">
-                <img src="https://cecyteh.edu.mx" class="logo-institucional mb-3" alt="Logo CECYTEH">
-                <h5 class="fw-bold text-secondary text-uppercase tracking-wide mb-1">Escuela Limpia</h5>
-                <p class="text-muted small">Sistema de Control e Impacto Ambiental</p>
+            <div id="cajaResultadoDegradacion" class="panel-alerta verde">
+                Por favor, selecciona una opción del menú para auditar su impacto ambiental.
+            </div>
+        </section>
+
+        <!-- PESTAÑA 2: REPORTAR -->
+        <section id="reportar" class="tab-content">
+            <h3>🚨 Reportar Punto Sucio</h3>
+            <div class="formulario">
+                <label>Descripción de la zona o desperdicio:</label>
+                <input type="text" id="txtDescripcion" placeholder="Ej: Cables tirados en el lab de mecatrónica">
+                
+                <label>Foto de Evidencia:</label>
+                <input type="file" id="inputFoto" accept="image/*" onchange="previsualizarFoto(event)">
+                
+                <div class="cuadro-vista-previa">
+                    <img id="imgPrevia" src="" alt="Vista previa" style="display: none; max-width: 100%; max-height: 150px;">
+                    <span id="txtPrevia">No se ha seleccionado ninguna foto</span>
+                </div>
+                
+                <button class="btn-accion rojo" onclick="enviarReporte()">📤 Enviar Reporte a la Lista</button>
+            </div>
+        </section>
+
+        <!-- PESTAÑA 3: CALCULADORA -->
+        <section id="calculadora" class="tab-content">
+            <h3>🧮 Huella de Plástico Anual</h3>
+            <div class="formulario">
+                <label>¿Cuántas botellas de plástico consumes por SEMANA?</label>
+                <input type="number" id="txtCantidadPet" placeholder="Ej. 4" min="0">
+                <button class="btn-accion verde-oscuro" onclick="calcularHuella()">🍃 Calcular Impacto Anual</button>
+                
+                <div id="cajaResultadoCalculadora" class="panel-alerta naranja" style="display: none;"></div>
+            </div>
+        </section>
+
+        <!-- PESTAÑA 4: PANEL ADMINISTRADOR -->
+        <section id="admin" class="tab-content">
+            <!-- Bloque de Login -->
+            <div id="panelLoginAdmin">
+                <h3>🔐 Acceso de Administrador</h3>
+                <p>Introduce la clave de acceso restringido:</p>
+                <input type="password" id="txtPasswordAdmin" placeholder="Clave de seguridad">
+                <button class="btn-accion azul" onclick="comprobarAccesoAdmin()">Ingresar al Historial</button>
             </div>
 
-            <!-- Formulario de Entrada -->
-            <form id="formLogin">
-                <!-- Selector de Rol (Tipo de Usuario) -->
-                <div class="mb-3">
-                    <label class="form-label text-muted small fw-bold">Tipo de Usuario</label>
-                    <select id="tipoUsuario" class="form-select" onchange="cambiarPlaceholders()" required>
-                        <option value="alumno">Alumno (Estudiante)</option>
-                        <option value="encargado">Encargado (Administrador/Docente)</option>
-                    </select>
+            <!-- Bloque del Historial (Oculto inicialmente) -->
+            <div id="panelHistorialAdmin" style="display: none;">
+                <h3>📋 Registro General de Puntos Sucios</h3>
+                <div id="listaReportes" class="lista-items">
+                    <p class="txt-vacio">No se han registrado reportes en esta sesión aún.</p>
                 </div>
-
-                <!-- Campo de Usuario Dinámico -->
-                <div class="mb-3">
-                    <label id="labelUsuario" class="form-label text-muted small fw-bold">Matrícula</label>
-                    <input type="text" id="inputUsuario" class="form-control" placeholder="Ej. 233H01928" required>
-                </div>
-
-                <!-- Campo de Contraseña -->
-                <div class="mb-4">
-                    <label class="form-label text-muted small fw-bold">Contraseña</label>
-                    <input type="password" id="inputPassword" class="form-control" placeholder="••••••••" required>
-                </div>
-
-                <!-- Botón de Ingreso Estilo SIGA -->
-                <div class="d-grid mb-2">
-                    <button type="submit" class="btn btn-guinda fw-bold py-2">Ingresar al Sistema</button>
-                </div>
-            </form>
-            
-            <!-- Pie de la tarjeta -->
-            <div class="text-center mt-3 border-top pt-2">
-                <span class="text-muted text-uppercase fw-bold text-dorado" style="font-size: 0.75rem;">CECYTEH Hidalgo</span>
+                <button class="btn-accion gris" onclick="cerrarSesionAdmin()">🔐 Cerrar Sesión</button>
             </div>
+        </section>
 
-        </div>
-    </div>
-    <!-- Lógica de Navegación entre Módulos -->
-    <script>
-        // Cambia los textos informativos en pantalla dependiendo del rol seleccionado
-        function cambiarPlaceholders() {
-            const tipo = document.getElementById("tipoUsuario").value;
-            const label = document.getElementById("labelUsuario");
-            const input = document.getElementById("inputUsuario");
+    </main>
 
-            if (tipo === "encargado") {
-                label.innerText = "Usuario / RFC";
-                input.placeholder = "Ej. ARCH680512";
-            } else {
-                label.innerText = "Matrícula";
-                input.placeholder = "Ej. 233H01928";
-            }
-        }
-
-        // Procesa el formulario y simula el inicio de sesión hacia el archivo correspondiente
-        document.getElementById("formLogin").addEventListener("submit", function(event) {
-            event.preventDefault(); // Evita que la página se recargue sola
-            
-            const tipo = document.getElementById("tipoUsuario").value;
-            const usuario = document.getElementById("inputUsuario").value;
-
-            alert(`Iniciando sesión como ${tipo}: ${usuario}`);
-
-            // Redirección directa según el rol del usuario
-            if (tipo === "encargado") {
-                window.location.href = "encargado.html";
-            } else {
-                window.location.href = "alumno.html";
-            }
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
