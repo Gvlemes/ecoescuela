@@ -113,29 +113,31 @@ function calcularHuella() {
     const kg = anual * 0.025;
     let fraseDinamica = "";
 
+    // Evaluación inteligente combinada con recomendaciones adaptables por cantidad
     if (cantidadSemana === 0) {
         caja.className = "panel-alerta verde";
         fraseDinamica = `🌟 <strong>¡Increíble! Tu huella plástica es perfecta.</strong><br><br>` +
-                        `Mantienes un consumo de 0 botellas al año. Eres un ejemplo de sustentabilidad para todas las carreras de la escuela. ¡Sigue así!`;
+                        `• Consumo anual: <strong>0 botellas</strong> (0.00 kg de desperdicio).<br><br>` +
+                        `💡 <strong>Recomendación:</strong> ¡Eres un líder ambiental! Tu misión ahora es compartir tu hábito e inspirar a los alumnos de las otras carreras técnicas de la escuela a dejar los plásticos desechables.`;
     } else if (cantidadSemana >= 1 && cantidadSemana <= 3) {
         caja.className = "panel-alerta naranja";
-        fraseDinamica = `📊 <strong>Impacto Moderado:</strong> En 1 año consumirás unas <strong>${Math.floor(anual)} botellas</strong> (${kg.toFixed(2)} kg de basura).<br><br>` +
-                        `🌱 <em>Análisis:</em> Tu consumo no es crítico, pero estás a un solo paso de la meta. Reemplaza esas pocas botellas usando un termo recargable en los laboratorios.`;
+        fraseDinamica = `📊 <strong>Impacto Moderado:</strong> Al año consumirás unas <strong>${Math.floor(anual)} botellas</strong>, generando <strong>${kg.toFixed(2)} kg</strong> de basura.<br><br>` +
+                        `🌱 <strong>Recomendación:</strong> Estás muy cerca de una huella impecable. Te sugerimos dar el paso definitivo esta semana: adquiere un termo reutilizable en la cooperativa escolar y dile adiós al PET.`;
     } else if (cantidadSemana >= 4 && cantidadSemana <= 7) {
         caja.className = "panel-alerta naranja";
-        fraseDinamica = `⚠️ <strong>Impacto Alto Detectado:</strong> Al año acumularás <strong>${Math.floor(anual)} botellas</strong>, equivalentes a <strong>${kg.toFixed(2)} kg</strong> de desecho plástico.<br><br>` +
-                        `📢 <em>Análisis:</em> Estás generando un volumen considerable de plástico permanente. Esta cantidad tarda siglos en degradarse y satura los contenedores de los talleres escolares. ¡Es hora de reducirlo!`;
+        fraseDinamica = `⚠️ <strong>Impacto Alto Detectado:</strong> En 1 año acumularás <strong>${Math.floor(anual)} botellas</strong>, equivalentes a <strong>${kg.toFixed(2)} kg</strong> de plástico permanente.<br><br>` +
+                        `📢 <strong>Recomendación:</strong> Estás arrojando un volumen considerable de basura a las áreas verdes de la escuela. Márcate el objetivo de reducir tu consumo a la mitad a partir de mañana mismo.`;
     } else {
         caja.className = "panel-alerta naranja";
-        fraseDinamica = `🚨 <strong>¡ALERTA ROJA ECOLÓGICA!</strong> Tu consumo anual alcanzará la alarmante cifra de <strong>${Math.floor(anual)} botellas</strong>, arrojando <strong>${kg.toFixed(2)} kg</strong> de plástico directo al planeta.<br><br>` +
-                        `💀 <em>Análisis Crítico:</em> Tu huella plástica individual equivale al peso de múltiples herramientas de taller. Es urgente detener este consumo e implementar contenedores de reciclaje masivos de inmediato.`;
+        fraseDinamica = `🚨 <strong>¡ALERTA ROJA ECOLÓGICA!</strong> Tu consumo anual alcanzará la alarmante cifra de <strong>${Math.floor(anual)} botellas</strong>, tirando <strong>${kg.toFixed(2)} kg</strong> de plástico directo al planeta.<br><br>` +
+                        `💀 <strong>Recomendación Crítica:</strong> Tu nivel de residuo plástico es insostenible y satura los contenedores escolares. Es urgente que detengas la compra de botellas desechables y utilices obligatoriamente los botes de reciclaje del plantel de forma inmediata.`;
     }
 
     caja.innerHTML = fraseDinamica;
     caja.style.display = 'block';
 }
 
-function comprobarAccessoAdmin() {
+function comprobarAccesoAdmin() {
     const clave = document.getElementById('txtPasswordAdmin').value;
 
     if (clave === "mecatronica") {
