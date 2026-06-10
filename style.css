@@ -11,14 +11,25 @@ body {
 }
 
 header {
-    background-color: #2E7D32;
+    background-color: #1B5E20;
     color: white;
     text-align: center;
     padding: 15px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* Barra de Navegación Táctil Superior */
+optgroup {
+    font-weight: bold;
+    color: #1B5E20;
+    background-color: #E8F5E9;
+}
+
+option {
+    color: #333333;
+    background-color: #FFFFFF;
+    font-weight: normal;
+}
+
 .tab-bar {
     display: flex;
     background-color: #FFFFFF;
@@ -42,12 +53,11 @@ header {
 }
 
 .tab-btn.active {
-    color: #2E7D32;
-    border-bottom: 3px solid #2E7D32;
+    color: #1B5E20;
+    border-bottom: 3px solid #1B5E20;
     background-color: #E8F5E9;
 }
 
-/* Contenedores de contenido */
 .contenedor-principal {
     padding: 20px;
     max-width: 500px;
@@ -79,7 +89,6 @@ label {
     font-weight: 600;
 }
 
-/* Elementos de Formulario */
 select, input[type="text"], input[type="number"], input[type="password"] {
     width: 100%;
     padding: 10px;
@@ -92,15 +101,10 @@ select, input[type="text"], input[type="number"], input[type="password"] {
 
 input:focus, select:focus {
     outline: none;
-    border-color: #2E7D32;
+    border-color: #1B5E20;
     background-color: #FFFFFF;
 }
 
-input[type="file"] {
-    margin-bottom: 15px;
-}
-
-/* Paneles de Alerta Dinámicos */
 .panel-alerta {
     padding: 15px;
     border-radius: 8px;
@@ -112,7 +116,6 @@ input[type="file"] {
 .panel-alerta.verde { background-color: #E8F5E9; color: #1B5E20; border: 1px solid #C8E6C9; }
 .panel-alerta.naranja { background-color: #FFF3E0; color: #E65100; border: 1px solid #FFE0B2; }
 
-/* Cuadro de previsualización de imágenes */
 .cuadro-vista-previa {
     width: 100%;
     min-height: 120px;
@@ -129,7 +132,6 @@ input[type="file"] {
     text-align: center;
 }
 
-/* Botones Estilo Qt */
 .btn-accion {
     width: 100%;
     padding: 12px;
@@ -143,11 +145,10 @@ input[type="file"] {
 }
 
 .btn-accion.rojo { background-color: #D32F2F; }
-.btn-accion.verde-oscuro { background-color: #2E7D32; }
+.btn-accion.verde-oscuro { background-color: #1B5E20; }
 .btn-accion.azul { background-color: #1976D2; }
 .btn-accion.gris { background-color: #757575; margin-top: 15px; }
 
-/* Historial del Administrador */
 .lista-items {
     margin-top: 15px;
     max-height: 400px;
@@ -161,17 +162,6 @@ input[type="file"] {
     padding: 12px;
     margin-bottom: 12px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-}
-
-.reporte-card p {
-    font-size: 13px;
-    margin-bottom: 4px;
-}
-
-.reporte-card img {
-    margin-top: 8px;
-    border-radius: 4px;
-    border: 1px solid #DDD;
 }
 
 .txt-vacio {
