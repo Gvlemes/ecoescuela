@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración - Escuela Limpia</title>
-    <!-- Cargamos el motor de la gráfica directamente de la red pública 👇 -->
     <script src="https://jsdelivr.net"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
@@ -20,7 +19,8 @@
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #EEE; font-size: 14px; }
         th { background-color: #1B5E20; color: white; }
-        .img-miniatura { width: 100px; height: auto; border-radius: 4px; }
+        .img-miniatura { width: 100px; height: auto; border-radius: 4px; background-color: #EEE; min-height: 50px; display: block; }
+        .indicador-carga { text-align: center; padding: 20px; font-weight: bold; color: #1B5E20; }
     </style>
 </head>
 <body>
@@ -87,9 +87,8 @@
 
         function descargarDatosDeInternet() {
             const cuerpo = document.getElementById('cuerpoTabla');
-            cuerpo.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Consultando el servidor central...</td></tr>";
+            cuerpo.innerHTML = "<tr><td colspan='4' class='indicador-carga'>📥 Conectando de forma segura con el servidor central...</td></tr>";
 
-            // Jalamos en tiempo real la lista unificada guardada en la nube mundial
             fetch(URL_SERVIDOR + "/latest", { headers: { "X-Master-Key": LLAVE_ACCESO }, cache: "no-store" })
             .then(res => res.json())
             .then(data => {
@@ -98,29 +97,30 @@
                 cuerpo.innerHTML = "";
 
                 if (historial.length === 0) {
-                    cuerpo.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#999;">No hay reportes en la base de datos de internet.</td></tr>`;
+                    cuerpo.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#999; padding:20px;">No hay reportes nuevos en la base de datos de internet.</td></tr>`;
                     return;
                 }
 
                 let mapaFechas = {};
 
                 historial.forEach(r => {
-                    // Agrupamos cortando la hora para la estadística diaria
-                    let soloFecha = r.fecha.split(" ")[0];
+                    let soloFecha = r.fecha.split(" ")[0] || r.fecha; 
                     mapaFechas[soloFecha] = (mapaFechas[soloFecha] || 0) + 1;
 
                     const fila = document.createElement('tr');
+                    const fotoTag = r.foto ? `<img src="${r.foto}" class="img-miniatura" onclick="window.open(this.src)">` : `<div class='img-miniatura' style='text-align:center;line-height:50px;font-size:11px;color:#999;'>Sin Imagen</div>`;
+                    
                     fila.innerHTML = `<td><strong>#${r.id}</strong></td>` +
                                      `<td>${r.fecha}</td>` +
                                      `<td>${r.descripcion}</td>` +
-                                     `<td><img src="${r.foto}" class="img-miniatura" onclick="window.open(this.src)"></td>`;
+                                     `<td>${fotoTag}</td>`;
                     cuerpo.appendChild(fila);
                 });
 
                 dibujarGrafica(mapaFechas);
             })
             .catch(() => {
-                cuerpo.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red;">Error al conectar con la base de datos en internet.</td></tr>`;
+                cuerpo.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red; padding:20px; font-weight:bold;">❌ Error al conectar con el servidor central.</td></tr>`;
             });
         }
 
@@ -133,7 +133,7 @@
                 data: {
                     labels: Object.keys(mapaFechas),
                     datasets: [{
-                        label: 'Cantidad de Reportes',
+                        label: 'Cantidad de Reportes Diarios',
                         data: Object.values(mapaFechas),
                         backgroundColor: 'rgba(27, 94, 32, 0.3)',
                         borderColor: 'rgba(27, 94, 32, 1)',
