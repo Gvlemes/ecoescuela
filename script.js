@@ -58,6 +58,7 @@ function mostrarDegradacion() {
         caja.innerHTML = "Por favor, selecciona una opción del menú para auditar su impacto ambiental.";
     }
 }
+
 function previsualizarFoto(event) {
     const reader = new FileReader();
     reader.onload = function() {
@@ -67,8 +68,8 @@ function previsualizarFoto(event) {
         document.getElementById('txtPrevia').style.display = 'none';
         fotoBase64Global = reader.result;
     }
-    if(event.target.files) {
-        reader.readAsDataURL(event.target.files);
+    if(event.target.files && event.target.files[0]) {
+        reader.readAsDataURL(event.target.files[0]);
     }
 }
 
@@ -113,7 +114,6 @@ function calcularHuella() {
     const kg = anual * 0.025;
     let fraseDinamica = "";
 
-    // Evaluación inteligente combinada con recomendaciones adaptables por cantidad
     if (cantidadSemana === 0) {
         caja.className = "panel-alerta verde";
         fraseDinamica = `🌟 <strong>¡Increíble! Tu huella plástica es perfecta.</strong><br><br>` +
@@ -121,11 +121,11 @@ function calcularHuella() {
                         `💡 <strong>Recomendación:</strong> ¡Eres un líder ambiental! Tu misión ahora es compartir tu hábito e inspirar a los alumnos de las otras carreras técnicas de la escuela a dejar los plásticos desechables.`;
     } else if (cantidadSemana >= 1 && cantidadSemana <= 3) {
         caja.className = "panel-alerta naranja";
-        fraseDinamica = `📊 <strong>Impacto Moderado:</strong> Al año consumirás unas <strong>${Math.floor(anual)} botellas</strong>, generando <strong>${kg.toFixed(2)} kg</strong> de basura.<br><br>` +
+        fraseDinamica = `📊 <strong>Impacto Moderado:</strong> En 1 año consumirás unas <strong>${Math.floor(anual)} botellas</strong> (${kg.toFixed(2)} kg de basura).<br><br>` +
                         `🌱 <strong>Recomendación:</strong> Estás muy cerca de una huella impecable. Te sugerimos dar el paso definitivo esta semana: adquiere un termo reutilizable en la cooperativa escolar y dile adiós al PET.`;
     } else if (cantidadSemana >= 4 && cantidadSemana <= 7) {
         caja.className = "panel-alerta naranja";
-        fraseDinamica = `⚠️ <strong>Impacto Alto Detectado:</strong> En 1 año acumularás <strong>${Math.floor(anual)} botellas</strong>, equivalentes a <strong>${kg.toFixed(2)} kg</strong> de plástico permanente.<br><br>` +
+        fraseDinamica = `⚠️ <strong>Impacto Alto Detectado:</strong> Al año acumularás <strong>${Math.floor(anual)} botellas</strong>, equivalentes a <strong>${kg.toFixed(2)} kg</strong> de plástico permanente.<br><br>` +
                         `📢 <strong>Recomendación:</strong> Estás arrojando un volumen considerable de basura a las áreas verdes de la escuela. Márcate el objetivo de reducir tu consumo a la mitad a partir de mañana mismo.`;
     } else {
         caja.className = "panel-alerta naranja";
