@@ -39,7 +39,6 @@
         <button class="tab-btn" onclick="cambiarPestana('calculadora', this)">🧮 Calculadora</button>
     </nav>
     <main class="contenedor-principal">
-        <!-- PESTAÑA 1: DEGRADACIÓN -->
         <section id="degradacion" class="tab-content active">
             <h3>⏱️ ¿Cuánto tardan en degradarse?</h3>
             <label for="comboMateriales">Selecciona un material o componente por especialidad:</label>
@@ -86,7 +85,6 @@
             </div>
         </section>
 
-        <!-- PESTAÑA 2: REPORTAR -->
         <section id="reportar" class="tab-content">
             <h3>🚨 Reportar Punto Sucio Global</h3>
             <div class="formulario">
@@ -102,7 +100,6 @@
             </div>
         </section>
 
-        <!-- PESTAÑA 3: CALCULADORA -->
         <section id="calculadora" class="tab-content">
             <h3>🧮 Huella de Plástico Anual</h3>
             <div class="formulario">
@@ -118,6 +115,7 @@
         let esValidaParaFiltro = true;
         const PALABRAS_PROHIBIDAS = ["meme", "memes", "broma", "pack", "sexo", "porno", "pendejo", "puto", "mierda"];
         
+        // SERVIDOR Y ACCESO CENTRAL RESTAURADO ILIMITADO
         const URL_SERVIDOR = "https://jsonbin.io";
         const LLAVE_ACCESO = "$2b$10$vN9vR99Xm7Q8lKxtnZ6N3.3XW.iS2Mh9S/Z1xSREvSae.g8RREfM.";
 
@@ -187,7 +185,6 @@
                     ctx.drawImage(imgTemporal, 0, 0, anchoDestino, altoDestino);
 
                     const fotoComprimidaBase64 = canvas.toDataURL('image/jpeg', 0.4);
-
                     const vistaPreviaImg = document.getElementById('imgPrevia');
                     vistaPreviaImg.src = fotoComprimidaBase64;
                     vistaPreviaImg.style.display = 'block';
