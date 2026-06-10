@@ -156,7 +156,7 @@
             };
             c.innerHTML = res[m] || "Por favor, selecciona una opción del menú para auditar su impacto ambiental.";
         }
-        function procesarYCompresorFoto(event) {
+                function procesarYCompresorFoto(event) {
             const file = event.target.files[0];
             if (!file) return;
 
@@ -216,7 +216,10 @@
                 return;
             }
 
-            fetch(URL_SERVIDOR + "/latest", { headers: { "X-Master-Key": LLAVE_ACCESO } })
+            // 1. Descargamos los datos incluyendo las llaves de lectura correctas
+            fetch(URL_SERVIDOR + "/latest", { 
+                headers: { "X-Master-Key": LLAVE_ACCESO } 
+            })
             .then(res => res.json())
             .then(data => {
                 let servidorLista = data.record.reportes || [];
@@ -230,11 +233,20 @@
                 
                 servidorLista.unshift(nuevoReporte);
 
+                // 2. CORRECCIÓN CRUCIAL: Añadimos "X-Bin-Meta" y las cabeceras completas de guardado 👇
                 return fetch(URL_SERVIDOR, {
                     method: 'PUT',
-                    headers: { "Content-Type": "application/json", "X-Master-Key": LLAVE_ACCESO },
+                    headers: { 
+                        "Content-Type": "application/json", 
+                        "X-Master-Key": LLAVE_ACCESO,
+                        "X-Bin-Meta": "false"
+                    },
                     body: JSON.stringify({ reportes: servidorLista })
                 });
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Fallo en la respuesta del servidor");
+                return res.json();
             })
             .then(() => {
                 document.getElementById('txtDescripcion').value = "";
