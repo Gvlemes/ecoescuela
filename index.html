@@ -49,6 +49,10 @@
                     <option value="chicle">Chicle</option>
                     <option value="pet">Botella de PET</option>
                     <option value="aluminio">Lata de Aluminio</option>
+                    <option value="bolsa">Bolsa de Plástico</option>
+                    <option value="carton">Cartón y Papel</option>
+                    <option value="unicel">Unicel / Telgopor</option>
+                    <option value="organico">Manzana / Residuos Orgánicos</option>
                 </optgroup>
                 <optgroup label="Mecatrónica">
                     <option value="jumpers">Cables Jumpers</option>
@@ -107,7 +111,7 @@
         let detallesFotoGlobal = { peso: 0, ancho: 0, alto: 0 };
         const PALABRAS_PROHIBIDAS = ["meme", "memes", "broma", "pack", "sexo", "porno", "pendejo", "puto", "mierda"];
         
-        // Base de datos invisible en la nube (No necesitas registrarte en ningún lado)
+        // Base de datos automatizada y libre en internet (JsonBin)
         const URL_SERVIDOR = "https://jsonbin.io";
         const LLAVE_ACCESO = "$2b$10$vN9vR99Xm7Q8lKxtnZ6N3.3XW.iS2Mh9S/Z1xSREvSae.g8RREfM.";
 
@@ -155,7 +159,6 @@
             reader.readAsDataURL(file);
         }
 
-        // 📤 ENVIAR DATOS AL SERVIDOR GLOBAL AUTOMÁTICO
         function enviarReporteNube() {
             const descInput = document.getElementById('txtDescripcion').value;
             const desc = descInput.trim().toLowerCase();
@@ -167,6 +170,7 @@
 
             if (PALABRAS_PROHIBIDAS.some(p => desc.includes(p))) {
                 alert("🚨 INTENTO BLOQUEADO: Contenido o vocabulario inapropiado.");
+                document.getElementById('txtDescripcion').value = "";
                 return;
             }
 
@@ -175,7 +179,7 @@
                 return;
             }
 
-            // Descargamos primero la lista que ya existe en internet para sumarle el nuevo reporte
+            // Llamada directa y nativa HTTP a la API global en internet
             fetch(URL_SERVIDOR + "/latest", { headers: { "X-Master-Key": LLAVE_ACCESO } })
             .then(res => res.json())
             .then(data => {
@@ -190,7 +194,6 @@
                 
                 servidorLista.unshift(nuevoReporte);
 
-                // Guardamos la lista actualizada de vuelta en la nube de internet
                 return fetch(URL_SERVIDOR, {
                     method: 'PUT',
                     headers: { "Content-Type": "application/json", "X-Master-Key": LLAVE_ACCESO },
