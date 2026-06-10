@@ -43,13 +43,14 @@ function mostrarDegradacion() {
         "ethernet": "Tardan de 200 a 300 años. El recubrimiento exterior de PVC protege los hilos de cobre interiores contra los hongos y bacterias, durando siglos tirado en los contenedores.",
         "discos": "Tardan más de 500 años. Los platos de aluminio recubiertos de aleaciones magnéticas y los brazos mecánicos metálicos duran décadas, mientras que las tarjetas controladoras no se degradan.",
         
-        // PGA
-        "filtros": "Tardan de 100 a 300 años. Las mallas plásticas exteriores duran siglos, y el carbón activado interno atrapa contaminantes concentrados que se vierten directo al entorno si no se desechan con cuidado.",
-        "agroquimicos": "Tardan hasta 500 años. Al ser polietileno de alta densidad (HDPE) diseñado para resistir químicos agresivos, las bacterias de la tierra no pueden romperlo. Son residuos altamente peligrosos.",
+        // Gestión Administrativa y Contabilidad 👇
+        "toner": "Tarda de 400 a 500 años. El cartucho exterior es de plástico de alta densidad y el polvo negro residual contiene polímeros magnéticos, carbono y metales pesados altamente contaminantes para el agua escolar.",
+        "carpetas": "Tardan de 100 a 400 años. Las cubiertas rígidas de polipropileno o PVC protegen las hojas de la humedad, pero resisten el ataque de bacterias de la tierra durante siglos al desecharse.",
+        "hojas_calculo": "Tardan de 2 a 5 meses. Al ser papel blanco de oficina se degrada rápido si se moja, pero la tinta de tóner fundida con calor ralentiza el proceso y no sirve para composta.",
         
         // Producción Industrial
         "virutas": "Tardan de 10 a 50 años en oxidarse por completo. Sin embargo, al estar impregnadas con aceite de corte (soluble o refrigerante), este aceite drena al suelo matando plantas y contaminando el agua del subsuelo.",
-        "bandas": "Tardan de 50 a 150 años. El caucho vulcanizado reforzado con hilos textiles o de acero está diseñado para resistir fricción extrema, por lo que el ambiente tarda décadas en agrietarlo.",
+        "bandas": "Tardan de 50 a 150 años. El caucho vulcanizado reforzado con hilos textiles o de acero está diseñado para resistir fricción extrema, por lo que el ambiente tarde décadas en agrietarlo.",
         "cascos": "Tardan de 400 a 500 años. Fabricados con polietileno de alta densidad o policarbonato para resistir impactos duros, el sol solar solo los fragmenta muy despacio con el paso de los siglos."
     };
 
@@ -69,8 +70,8 @@ function previsualizarFoto(event) {
         document.getElementById('txtPrevia').style.display = 'none';
         fotoBase64Global = reader.result;
     }
-    if(event.target.files[0]) {
-        reader.readAsDataURL(event.target.files[0]);
+    if(event.target.files) {
+        reader.readAsDataURL(event.target.files);
     }
 }
 
