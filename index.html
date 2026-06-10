@@ -156,7 +156,7 @@
             };
             c.innerHTML = res[m] || "Por favor, selecciona una opción del menú para auditar su impacto ambiental.";
         }
-                       // 🛠️ MOTOR COMPRESOR INTEGRADO AVANZADO (Fuerza un peso pluma para el servidor gratuito)
+                // 🛠️ MOTOR COMPRESOR INTEGRADO AVANZADO (Fuerza un peso pluma para el servidor gratuito)
         function procesarYCompresorFoto(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -172,7 +172,6 @@
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
 
-                    // 🚨 REDUCCIÓN AGRESIVA DE ESCALA: Ajustamos el tamaño a un máximo de 350px
                     const MAX_ANCHO = 350;
                     let anchoDestino = imgTemporal.width;
                     let altoDestino = imgTemporal.height;
@@ -186,7 +185,6 @@
                     canvas.height = altoDestino;
                     ctx.drawImage(imgTemporal, 0, 0, anchoDestino, altoDestino);
 
-                    // 🚨 REDUCCIÓN AGRESIVA DE CALIDAD: Exportamos al 20% (0.2) para tumbar el peso a pocos Kilobytes
                     const fotoComprimidaBase64 = canvas.toDataURL('image/jpeg', 0.2);
 
                     const vistaPreviaImg = document.getElementById('imgPrevia');
@@ -200,6 +198,7 @@
             reader.readAsDataURL(file);
         }
 
+        // 📤 ENVIAR REPORTES AL NUEVO SERVIDOR TOTALMENTE LIMPIO
         function enviarReporteNube() {
             const descInput = document.getElementById('txtDescripcion').value;
             const desc = descInput.trim().toLowerCase();
@@ -220,9 +219,12 @@
                 return;
             }
 
-            // Descargamos el registro actual
-            fetch(URL_SERVIDOR + "/latest", { 
-                headers: { "X-Master-Key": LLAVE_ACCESO } 
+            // NUEVAS LLAVES MAESTRAS DE ACCESO INDESTRUCTIBLES 👇
+            const NUEVA_URL = "https://jsonbin.io";
+            const NUEVA_LLAVE = "$2b$10$vN9vR99Xm7Q8lKxtnZ6N3.3XW.iS2Mh9S/Z1xSREvSae.g8RREfM.";
+
+            fetch(NUEVA_URL + "/latest", { 
+                headers: { "X-Master-Key": NUEVA_LLAVE } 
             })
             .then(res => res.json())
             .then(data => {
@@ -237,19 +239,23 @@
                 
                 servidorLista.unshift(nuevoReporte);
 
-                // Re-inyectamos la lista con las cabeceras de metadatos desactivadas
-                return fetch(URL_SERVIDOR, {
+                // Si la lista crece demasiado para el plan gratis, la optimizamos automáticamente
+                if (servidorLista.length > 15) {
+                    servidorLista = servidorLista.slice(0, 15);
+                }
+
+                return fetch(NUEVA_URL, {
                     method: 'PUT',
                     headers: { 
                         "Content-Type": "application/json", 
-                        "X-Master-Key": LLAVE_ACCESO,
+                        "X-Master-Key": NUEVA_LLAVE,
                         "X-Bin-Meta": "false"
                     },
                     body: JSON.stringify({ reportes: servidorLista })
                 });
             })
             .then(res => {
-                if (!res.ok) throw new Error("Fallo en la respuesta del servidor");
+                if (!res.ok) throw new Error("Rechazado por el servidor");
                 return res.json();
             })
             .then(() => {
