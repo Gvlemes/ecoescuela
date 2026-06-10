@@ -25,32 +25,8 @@
 </head>
 <body>
 
-    <div id="login" class="seccion">
-        <h2>🔐 Acceso Administrativo Global</h2>
-        <input type="password" id="passAdmin" placeholder="Introduce la clave mecatronica">
-        <button onclick="entrarPanel()">Ingresar al Sistema</button>
-    </div>
-
-    <div id="dashboard" style="display: none;">
-        <header>
-            <h2>📊 Panel Ejecutivo de Auditoría Central</h2>
-            <p>Monitoreo de reportes y gráficas estadísticas unificadas en internet</p>
-        </header>
-
-        <div class="grid-analitica">
             <div class="seccion">
-                <h3>📈 Resumen Total</h3>
-                <h1 id="totalContador" style="font-size: 54px; color: #1B5E20; margin-top: 15px;">0</h1>
-                <p style="color:#666; font-size: 13px; margin-top: 5px;">Misiones enviadas por alumnos desde cualquier teléfono de la escuela.</p>
-            </div>
-            
-            <div class="seccion">
-                <h3>📅 Gráfica: Reportes Recibidos por Día</h3>
-                <div class="canvas-contenedor"><canvas id="graficaReportes"></canvas></div>
-            </div>
-        </div>
-        <div class="seccion">
-            <h3>📋 Tabla de Evidencias (Base de Datos Centralizada)</h3>
+            <h3>📋 Tabla de Evidencias (Memoria Interna del Dispositivo)</h3>
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
@@ -69,8 +45,6 @@
     </div>
 
     <script>
-               const URL_SERVIDOR = "https://jsonbin.io";
-        const LLAVE_ACCESO = "$2b$10$vN9vR99Xm7Q8lKxtnZ6N3.3XW.iS2Mh9S/Z1xSREvSae.g8RREfM.";
         let chartInstancia = null;
 
         function entrarPanel() {
@@ -78,50 +52,50 @@
             if (clave === "mecatronica") {
                 document.getElementById('login').style.display = 'none';
                 document.getElementById('dashboard').style.display = 'block';
-                descargarDatosDeInternet();
+                cargarDatosYEstadisticasLocales(); // Llama al motor de memoria interna nativa
             } else {
                 alert("Clave incorrecta.");
                 document.getElementById('passAdmin').value = "";
             }
         }
 
-        function descargarDatosDeInternet() {
+        // 💾 MOTOR 100% OFFLINE: Lee el almacenamiento seguro del navegador
+        function cargarDatosYEstadisticasLocales() {
             const cuerpo = document.getElementById('cuerpoTabla');
-            cuerpo.innerHTML = "<tr><td colspan='4' class='indicador-carga'>📥 Conectando de forma segura con el servidor central...</td></tr>";
+            const contador = document.getElementById('totalContador');
+            
+            cuerpo.innerHTML = "";
 
-            fetch(URL_SERVIDOR + "/latest", { headers: { "X-Master-Key": LLAVE_ACCESO }, cache: "no-store" })
-            .then(res => res.json())
-            .then(data => {
-                const historial = data.record.reportes || [];
-                document.getElementById('totalContador').innerText = historial.length;
-                cuerpo.innerHTML = "";
+            // Jalamos el archivo JSON guardado por index.html en el LocalStorage del teléfono
+            const historialLocal = JSON.parse(localStorage.getItem('bd_escuela_limpia')) || [];
+            
+            contador.innerText = historialLocal.length;
 
-                if (historial.length === 0) {
-                    cuerpo.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#999; padding:20px;">No hay reportes nuevos en la base de datos de internet.</td></tr>`;
-                    return;
-                }
+            if (historialLocal.length === 0) {
+                cuerpo.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#999; padding:20px;">No hay misiones registradas de forma local en este dispositivo todavía.</td></tr>`;
+                return;
+            }
 
-                let mapaFechas = {};
+            let mapaFechasLocal = {};
 
-                historial.forEach(r => {
-                    let soloFecha = r.fecha.split(" ")[0] || r.fecha; 
-                    mapaFechas[soloFecha] = (mapaFechas[soloFecha] || 0) + 1;
+            // 📋 LLENAMOS LA TABLA CON LOS DATOS LOCALES REALES
+            historialLocal.forEach(r => {
+                // Filtramos la fecha para agrupar los reportes por día en el gráfico
+                let soloFecha = r.fecha.split(" ")[0] || r.fecha;
+                mapaFechasLocal[soloFecha] = (mapaFechasLocal[soloFecha] || 0) + 1;
 
-                    const fila = document.createElement('tr');
-                    const fotoTag = r.foto ? `<img src="${r.foto}" class="img-miniatura" onclick="window.open(this.src)">` : `<div class='img-miniatura' style='text-align:center;line-height:50px;font-size:11px;color:#999;'>Sin Imagen</div>`;
-                    
-                    fila.innerHTML = `<td><strong>#${r.id}</strong></td>` +
-                                     `<td>${r.fecha}</td>` +
-                                     `<td>${r.descripcion}</td>` +
-                                     `<td>${fotoTag}</td>`;
-                    cuerpo.appendChild(fila);
-                });
-
-                dibujarGrafica(mapaFechas);
-            })
-            .catch(() => {
-                cuerpo.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red; padding:20px; font-weight:bold;">❌ Error al conectar con el servidor central.</td></tr>`;
+                const fila = document.createElement('tr');
+                const fotoTag = r.foto ? `<img src="${r.foto}" class="img-miniatura" onclick="window.open(this.src)">` : `<div class='img-miniatura' style='text-align:center;line-height:50px;font-size:11px;color:#999;'>Sin Imagen</div>`;
+                
+                fila.innerHTML = `<td><strong>#${r.id}</strong></td>` +
+                                 `<td>${r.fecha}</td>` +
+                                 `<td>${r.descripcion}</td>` +
+                                 `<td>${fotoTag}</td>`;
+                cuerpo.appendChild(fila);
             });
+
+            // Mandamos los picos de días calculados al motor gráfico de Chart.js
+            dibujarGrafica(mapaFechasLocal);
         }
 
         function dibujarGrafica(mapaFechas) {
