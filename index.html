@@ -40,7 +40,6 @@
     </nav>
 
     <main class="contenedor-principal">
-        <!-- PESTAÑA 1: DEGRADACIÓN -->
         <section id="degradacion" class="tab-content active">
             <h3>⏱️ ¿Cuánto tardan en degradarse?</h3>
             <label for="comboMateriales">Selecciona un material o componente:</label>
@@ -75,7 +74,7 @@
         </section>
         <!-- PESTAÑA 2: REPORTAR -->
         <section id="reportar" class="tab-content">
-            <h3>🚨 Reportar Punto Sucio (Offline)</h3>
+            <h3>🚨 Reportar Punto Sucio Global</h3>
             <div class="formulario">
                 <label>Descripción de la zona o desperdicio:</label>
                 <input type="text" id="txtDescripcion" placeholder="Ej: Basura acumulada en los talleres">
@@ -87,7 +86,7 @@
                     <img id="imgPrevia" src="" alt="Vista previa" style="display: none; max-width: 100%; max-height: 150px;">
                     <span id="txtPrevia">No se ha seleccionado ninguna foto</span>
                 </div>
-                <button class="btn-accion rojo" onclick="enviarReporteLocal()">💾 Guardar Reporte Local</button>
+                <button class="btn-accion rojo" onclick="enviarReporteNube()">📤 Enviar Reporte a la Red</button>
             </div>
         </section>
 
@@ -107,6 +106,10 @@
         let fotoBase64Global = "";
         let detallesFotoGlobal = { peso: 0, ancho: 0, alto: 0 };
         const PALABRAS_PROHIBIDAS = ["meme", "memes", "broma", "pack", "sexo", "porno", "pendejo", "puto", "mierda"];
+        
+        // Base de datos invisible en la nube (No necesitas registrarte en ningún lado)
+        const URL_SERVIDOR = "https://jsonbin.io";
+        const LLAVE_ACCESO = "$2b$10$vN9vR99Xm7Q8lKxtnZ6N3.3XW.iS2Mh9S/Z1xSREvSae.g8RREfM.";
 
         function cambiarPestana(idPestana, boton) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -152,7 +155,8 @@
             reader.readAsDataURL(file);
         }
 
-        function enviarReporteLocal() {
+        // 📤 ENVIAR DATOS AL SERVIDOR GLOBAL AUTOMÁTICO
+        function enviarReporteNube() {
             const descInput = document.getElementById('txtDescripcion').value;
             const desc = descInput.trim().toLowerCase();
             
@@ -163,32 +167,45 @@
 
             if (PALABRAS_PROHIBIDAS.some(p => desc.includes(p))) {
                 alert("🚨 INTENTO BLOQUEADO: Contenido o vocabulario inapropiado.");
+                return;
+            }
+
+            if (detallesFotoGlobal.peso < 15000) {
+                alert("⚠️ ALERTA: Sube una foto real del patio, no capturas ni memes ligeros.");
+                return;
+            }
+
+            // Descargamos primero la lista que ya existe en internet para sumarle el nuevo reporte
+            fetch(URL_SERVIDOR + "/latest", { headers: { "X-Master-Key": LLAVE_ACCESO } })
+            .then(res => res.json())
+            .then(data => {
+                let servidorLista = data.record.reportes || [];
+                
+                const nuevoReporte = {
+                    id: servidorLista.length + 1,
+                    fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString(),
+                    descripcion: descInput,
+                    foto: fotoBase64Global
+                };
+                
+                servidorLista.unshift(nuevoReporte);
+
+                // Guardamos la lista actualizada de vuelta en la nube de internet
+                return fetch(URL_SERVIDOR, {
+                    method: 'PUT',
+                    headers: { "Content-Type": "application/json", "X-Master-Key": LLAVE_ACCESO },
+                    body: JSON.stringify({ reportes: servidorLista })
+                });
+            })
+            .then(() => {
                 document.getElementById('txtDescripcion').value = "";
-                return;
-            }
-
-            if (detallesFotoGlobal.peso < 15000 || (detallesFotoGlobal.ancho === detallesFotoGlobal.alto && detallesFotoGlobal.ancho < 800)) {
-                alert("⚠️ ALERTA: La imagen parece un meme o descarga. Por favor, toma una foto real.");
-                return;
-            }
-
-            let historialLocal = JSON.parse(localStorage.getItem('bd_escuela_limpia')) || [];
-            const nuevoReporte = {
-                id: historialLocal.length + 1,
-                fecha: new Date().toLocaleDateString(),
-                descripcion: descInput,
-                foto: fotoBase64Global
-            };
-
-            historialLocal.unshift(nuevoReporte);
-            localStorage.setItem('bd_escuela_limpia', JSON.stringify(historialLocal));
-
-            document.getElementById('txtDescripcion').value = "";
-            document.getElementById('imgPrevia').style.display = 'none';
-            document.getElementById('txtPrevia').style.display = 'block';
-            document.getElementById('inputFoto').value = "";
-            fotoBase64Global = "";
-            alert("✅ ¡Reporte guardado localmente en el teléfono!");
+                document.getElementById('imgPrevia').style.display = 'none';
+                document.getElementById('txtPrevia').style.display = 'block';
+                document.getElementById('inputFoto').value = "";
+                fotoBase64Global = "";
+                alert("✅ ¡Reporte enviado con éxito! Se actualizó en la base de datos central de internet.");
+            })
+            .catch(() => alert("Error de red. Verifica tu conexión de datos o Wi-Fi."));
         }
 
         function calcularHuella() {
@@ -198,10 +215,10 @@
             const anual = cant * 52; const kg = anual * 0.025;
             if (cant === 0) {
                 caja.className = "panel-alerta verde";
-                caja.innerHTML = `🌟 <strong>¡Tu huella es perfecta!</strong> Consumes 0 botellas al año. ¡Sigue así!`;
+                caja.innerHTML = `🌟 <strong>¡Tu huella es perfecta!</strong> Consumes 0 botellas al año.`;
             } else {
                 caja.className = "panel-alerta naranja";
-                caja.innerHTML = `📊 En 1 año consumirás unas <strong>${Math.floor(anual)} botellas</strong> (${kg.toFixed(2)} kg de plástico). ¡Usa un termo escolar!`;
+                caja.innerHTML = `📊 En 1 año consumirás unas <strong>${Math.floor(anual)} botellas</strong> (${kg.toFixed(2)} kg de plástico).`;
             }
             caja.style.display = 'block';
         }
