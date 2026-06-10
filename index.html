@@ -38,7 +38,6 @@
         <button class="tab-btn" onclick="cambiarPestana('reportar', this)">🚨 Reportar</button>
         <button class="tab-btn" onclick="cambiarPestana('calculadora', this)">🧮 Calculadora</button>
     </nav>
-
     <main class="contenedor-principal">
         <!-- PESTAÑA 1: DEGRADACIÓN -->
         <section id="degradacion" class="tab-content active">
@@ -86,6 +85,7 @@
                 Por favor, selecciona una opción del menú para auditar su impacto ambiental.
             </div>
         </section>
+
         <!-- PESTAÑA 2: REPORTAR -->
         <section id="reportar" class="tab-content">
             <h3>🚨 Reportar Punto Sucio Global</h3>
@@ -138,29 +138,28 @@
                 "bolsa": "Tarda de 150 a 400 años. Solo se rompe en microplásticos nocivos.",
                 "carton": "Tarda de 2 a 5 meses. Si se moja se degrada rápido, pero debe depositarse limpio para reciclar.",
                 "unicel": "¡No se degrada nunca! Es 100% permanente y fragmentable, contaminando los patios escolares.",
-                "organico": "Tarda de 2 a 4 semanas. Se degrada rápido y sirve de composta, pero genera mal olor en el salón.",
+                "organico": "Tarda de 2 a 4 semanas. Si se moja se degrada rápido, pero genera mal olor.",
                 "jumpers": "Tardan de 200 a 300 años. El cobre interno se oxida, pero el recubrimiento plástico de PVC dura siglos tirado.",
                 "pilas": "Tardan entre 500 y 1,000 años. Son extremadamente peligrosas; derraman mercurio, plomo y cadmio tóxico.",
                 "pcbs": "Tardan más de 500 años. La baquelita y la fibra de vidrio con resina epóxica no son biodegradables.",
-                "motores": "Tardan de 100 a 500 años. Sus carcasas plásticas y engranajes metálicos resisten décadas a la intemperie.",
-                "resistencias": "Tardan unos 200 a 400 años. Sus terminales metálicas se oxidan rápido, pero los cuerpos cerámicos y plásticos no.",
-                "carcasas": "Tardan de 400 a 500 años. El plástico ABS rígido usado en teclados y carcasas de monitores es extremadamente denso y se fragmenta lentamente en microplásticos.",
-                "gabinetes": "Tardan de 50 a 100 años. La lámina de acero y metal se oxidará lentamente con la humedad del laboratorio, pero las pinturas plásticas protectoras retrasan el proceso.",
-                "termica": "¡No se biodegrada! Los compuestos de silicona y óxidos metálicos (como óxido de zinc o aluminio) se resecan y dispersan en el suelo, contaminando las capas de tierra del taller.",
-                "ethernet": "Tardan de 200 a 300 años. El recubrimiento exterior de PVC protege los hilos de cobre interiores contra los hongos y bacterias, durando siglos tirado en los contenedores.",
-                "discos": "Tardan más de 500 años. Los platos de aluminio recubiertos de aleaciones magnéticas y los brazos mecánicos metálicos duran décadas, mientras que las tarjetas controladoras no se degradan.",
-                "toner": "Tarda de 400 a 500 años. El cartucho exterior es de plástico de alta densidad y el polvo negro residual contiene polímeros magnéticos, carbono y metales pesados altamente contaminantes para el agua escolar.",
-                "carpetas": "Tardan de 100 a 400 años. Las cubiertas rígidas de polipropileno o PVC profesan las hojas de la humedad, pero resisten el ataque de bacterias de la tierra durante siglos al desecharse.",
-                "hojas_calculo": "Tardan de 2 a 5 meses. Al ser papel blanco de oficina se degrada rápido si se moja, pero la tinta de tóner fundida con calor ralentiza el proceso y no sirve para composta.",
-                "virutas": "Tardan de 10 a 50 años en oxidarse por completo. Sin embargo, al estar impregnadas con aceite de corte (soluble o refrigerante), este aceite drena al suelo matando plantas y contaminando el agua del subsuelo.",
-                "bandas": "Tardan de 50 a 150 años. El caucho vulcanizado reforzado con hilos textiles o de acero está diseñado para resistir fricción extrema, por lo que el ambiente tarde décadas en agrietarlo.",
-                "cascos": "Tardan de 400 a 500 años. Fabricados con polietileno de alta densidad o policarbonato para resistir impactos duros, el sol solar solo los fragmenta muy despacio con el paso de los siglos."
+                "motores": "Tardan de 100 a 500 años. Sus carcasas plásticas y engranajes metálicos resisten décadas.",
+                "resistencias": "Tardan unos 200 a 400 años. Los cuerpos cerámicos y plásticos no se destruyen.",
+                "carcasas": "Tardan de 400 a 500 años. El plástico ABS rígido usado en teclados se fragmenta lentamente.",
+                "gabinetes": "Tardan de 50 a 100 años. La lámina de acero y metal se oxidará lentamente con la humedad.",
+                "termica": "¡No se biodegrada! Los compuestos de silicona contaminan las capas de tierra.",
+                "ethernet": "Tardan de 200 a 300 años. El recubrimiento exterior de PVC protege los hilos de cobre.",
+                "discos": "Tardan más de 500 años. Los platos de aluminio duran décadas.",
+                "toner": "Tarda de 400 a 500 años. El cartucho exterior es de plástico y el polvo negro contiene metales pesados.",
+                "carpetas": "Tardan de 100 a 400 años. Las cubiertas rígidas de polipropileno resisten siglos al desecharse.",
+                "hojas_calculo": "Tardan de 2 a 5 meses. El papel se degrada rápido, pero la tinta de tóner fundida no.",
+                "virutas": "Tardan de 10 a 50 años en oxidarse por completo. El aceite de corte contamina el agua del subsuelo.",
+                "bandas": "Tardan de 50 a 150 años. El caucho vulcanizado está diseñado para resistir fricción extrema.",
+                "cascos": "Tardan de 400 a 500 años. Fabricados con polietileno de alta densidad para resistir impactos duros."
             };
             c.innerHTML = res[m] || "Por favor, selecciona una opción del menú para auditar su impacto ambiental.";
         }
-
         function procesarYCompresorFoto(event) {
-            const file = event.target.files;
+            const file = event.target.files[0];
             if (!file) return;
 
             if (file.size < 5000) { esValidaParaFiltro = false; } else { esValidaParaFiltro = true; }
@@ -270,20 +269,23 @@
                 fraseDinamica = `🌟 <strong>¡Increíble! Tu huella plástica es perfecta.</strong><br><br>` +
                                 `• Consumo anual: <strong>0 botellas</strong> (0.00 kg de desperdicio).<br><br>` +
                                 `💡 <strong>Recomendación:</strong> ¡Eres un líder ambiental! Tu misión ahora es compartir tu hábito e inspirar a los alumnos de las otras carreras técnicas de la escuela a dejar los plásticos desechables.`;
-    } else if (cantidadSemana >= 1 && cantidadSemana <= 3) {
-        caja.className = "panel-alerta naranja";
-        fraseDinamica = `📊 <strong>Impacto Moderado:</strong> En 1 año consumirás unas <strong>${Math.floor(anual)} botellas</strong> (${kg.toFixed(2)} kg de basura).<br><br>` +
-                        `🌱 <strong>Recomendación:</strong> Estás muy cerca de una huella impecable. Te sugerimos dar el paso definitivo esta semana: adquiere un termo reutilizable en la cooperativa escolar y dile adiós al PET.`;
-    } else if (cantidadSemana >= 4 && cantidadSemana <= 7) {
-        caja.className = "panel-alerta naranja";
-        fraseDinamica = `⚠️ <strong>Impacto Alto Detectado:</strong> Al año acumularás <strong>${Math.floor(anual)} botellas</strong>, equivalentes a <strong>${kg.toFixed(2)} kg</strong> de plástico permanente.<br><br>` +
-                        `📢 <strong>Recomendación:</strong> Estás arrojando un volumen considerable de basura a las áreas verdes de la escuela. Márcate el objetivo de reducir tu consumo a la mitad a partir de mañana mismo.`;
-    } else {
-        caja.className = "panel-alerta naranja";
-        fraseDinamica = `🚨 <strong>¡ALERTA ROJA ECOLÓGICA!</strong> Tu consumo anual alcanzará la alarmante cifra de <strong>${Math.floor(anual)} botellas</strong>, tirando <strong>${kg.toFixed(2)} kg</strong> de plástico directo al planeta.<br><br>` +
-                        `💀 <strong>Recomendación Crítica:</strong> Tu nivel de residuo plástico es insostenible y satura los contenedores escolares. Es urgente que detengas la compra de botellas desechables y utilices obligatoriamente los botes de reciclaje del plantel de forma inmediata.`;
-    }
-    
-    caja.innerHTML = fraseDinamica;
-    caja.style.display = 'block';
-}
+            } else if (cantidadSemana >= 1 && cantidadSemana <= 3) {
+                caja.className = "panel-alerta naranja";
+                fraseDinamica = `📊 <strong>Impacto Moderado:</strong> En 1 año consumirás unas <strong>${Math.floor(anual)} botellas</strong> (${kg.toFixed(2)} kg de basura).<br><br>` +
+                                `🌱 <strong>Recomendación:</strong> Estás muy cerca de una huella impecable. Te sugerimos dar el paso definitivo esta semana: adquiere un termo reutilizable en la cooperativa escolar y dile adiós al PET.`;
+            } else if (cantidadSemana >= 4 && cantidadSemana <= 7) {
+                caja.className = "panel-alerta naranja";
+                fraseDinamica = `⚠️ <strong>Impacto Alto Detectado:</strong> Al año acumularás <strong>${Math.floor(anual)} botellas</strong>, equivalentes a <strong>${kg.toFixed(2)} kg</strong> de plástico permanente.<br><br>` +
+                                `📢 <strong>Recomendación:</strong> Estás arrojando un volumen considerable de basura a las áreas verdes de la escuela. Márcate el objetivo de reducir tu consumo a la mitad a partir de mañana mismo.`;
+            } else {
+                caja.className = "panel-alerta naranja";
+                fraseDinamica = `🚨 <strong>¡ALERTA ROJA ECOLÓGICA!</strong> Tu consumo anual alcanzará la alarmante cifra de <strong>${Math.floor(anual)} botellas</strong>, tirando <strong>${kg.toFixed(2)} kg</strong> de plástico directo al planeta.<br><br>` +
+                                `💀 <strong>Recomendación Crítica:</strong> Tu nivel de residuo plástico es insostenible y satura los contenedores escolares. Es urgente que detengas la compra de botellas desechables y utilices obligatoriamente los botes de reciclaje del plantel de forma inmediata.`;
+            }
+
+            caja.innerHTML = fraseDinamica;
+            caja.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
