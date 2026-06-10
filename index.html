@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoEscuela Mecatrónica</title>
+    <title>Escuela Limpia</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <header>
-        <h2>🌿 EcoEscuela Mecatrónica</h2>
+        <h2>🌿 Escuela Limpia</h2>
     </header>
 
     <!-- Barra de Navegación Móvil (TabBAR) -->
@@ -25,7 +25,7 @@
         <!-- PESTAÑA 1: DEGRADACIÓN -->
         <section id="degradacion" class="tab-content active">
             <h3>⏱️ ¿Cuánto tardan en degradarse?</h3>
-            <label for="comboMateriales">Selecciona un material o componente:</label>
+            <label for="comboMateriales">Selecciona un material o componente por especialidad:</label>
             <select id="comboMateriales" onchange="mostrarDegradacion()">
                 <option value="">Selecciona un material...</option>
                 <optgroup label="Básicos de la Escuela">
@@ -38,12 +38,30 @@
                     <option value="unicel">Unicel / Telgopor</option>
                     <option value="organico">Manzana / Residuos Orgánicos</option>
                 </optgroup>
-                <optgroup label="Laboratorio de Mecatrónica">
+                <optgroup label="Mecatrónica">
                     <option value="jumpers">Cables Jumpers (Protoboard)</option>
                     <option value="pilas">Pilas y Baterías Lipo</option>
                     <option value="pcbs">Placas Fenólicas (PCBs)</option>
                     <option value="motores">Motores DC / Servomotores rotos</option>
                     <option value="resistencias">Resistencias y Capacitores</option>
+                </optgroup>
+                <optgroup label="Soporte y Mantenimiento">
+                    <option value="carcasas">Carcasas de Monitores o Teclados</option>
+                    <option value="gabinetes">Gabinetes Metálicos (CPU)</option>
+                    <option value="termica">Pasta Térmica Seca</option>
+                </optgroup>
+                <optgroup label="Programación">
+                    <option value="ethernet">Cables de Red (Ethernet UTP)</option>
+                    <option value="discos">Discos Duros Mecánicos Arruinados</option>
+                </optgroup>
+                <optgroup label="PGA">
+                    <option value="filtros">Filtros de Agua Saturados</option>
+                    <option value="agroquimicos">Envases de Agroquímicos / Fertilizantes</option>
+                </optgroup>
+                <optgroup label="Producción Industrial">
+                    <option value="virutas">Virutas de Metal con Aceite de Corte</option>
+                    <option value="bandas">Bandas Transportadoras de Caucho</option>
+                    <option value="cascos">Cascos de Seguridad Agrietados</option>
                 </optgroup>
             </select>
             
@@ -85,7 +103,6 @@
 
         <!-- PESTAÑA 4: PANEL ADMINISTRADOR -->
         <section id="admin" class="tab-content">
-            <!-- Bloque de Login -->
             <div id="panelLoginAdmin">
                 <h3>🔐 Acceso de Administrador</h3>
                 <p>Introduce la clave de acceso restringido:</p>
@@ -93,7 +110,6 @@
                 <button class="btn-accion azul" onclick="comprobarAccesoAdmin()">Ingresar al Historial</button>
             </div>
 
-            <!-- Bloque del Historial (Oculto inicialmente) -->
             <div id="panelHistorialAdmin" style="display: none;">
                 <h3>📋 Registro General de Puntos Sucios</h3>
                 <div id="listaReportes" class="lista-items">
