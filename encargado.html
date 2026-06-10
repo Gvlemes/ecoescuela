@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escuela Limpia - Panel de Encargados</title>
+    <link href="https://jsdelivr.net" rel="stylesheet">
+    <style>
+        :root {
+            --institucional-guinda: #6A1B29;
+            --institucional-dorado: #BC955C;
+        }
+        .bg-guinda { background-color: var(--institucional-guinda) !important; }
+        .text-dorado { color: var(--institucional-dorado) !important; }
+        .btn-guinda { background-color: var(--institucional-guinda); color: white; border: 1px solid var(--institucional-guinda); }
+        .btn-guinda:hover { background-color: #4A121C; color: #BC955C; }
+        .navbar-brand img { height: 45px; width: auto; object-fit: contain; }
+    </style>
+</head>
+<body class="bg-light">
+
+    <!-- Barra de Navegación Institucional -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-guinda shadow-sm py-2">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+                <!-- Logo institucional CECYTEH -->
+                <img src="https://cecyteh.edu.mx" alt="Logo CECYTEH">
+                <div class="vr bg-white mx-2" style="height: 30px;"></div>
+                <span class="fw-bold tracking-wide text-dorado text-uppercase small">Escuela Limpia</span>
+            </a>
+            <span class="navbar-text text-white fw-light">Panel Administrativo (Encargados)</span>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4 my-5">
+        <!-- Tarjetas de Estadísticas Rápidas -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-white bg-guinda mb-3 border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title text-dorado">Alumnos Registrados</h5>
+                        <p class="card-text fs-2 fw-bold" id="totalAlumnos">1,240</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-success mb-3 border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5>Acciones Validadas</h5>
+                        <p class="card-text fs-2 fw-bold">342</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-warning mb-3 border-0 shadow-sm">
+                    <div class="card-body text-dark">
+                        <h5 class="fw-bold">Reportes Pendientes</h5>
+                        <p class="card-text fs-2 fw-bold">18</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de Datos Principal (Estilo SIGA) -->
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3 border-bottom">
+                <h5 class="mb-0 fw-bold text-secondary">Control General de Alumnos</h5>
+                <div class="d-flex gap-2">
+                    <input type="text" class="form-control form-control-sm" placeholder="Buscar por matrícula...">
+                    <button class="btn btn-sm btn-success fw-bold">Exportar Excel</button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light text-secondary small uppercase">
+                            <tr>
+                                <th>Matrícula</th>
+                                <th>Nombre Completo</th>
+                                <th>Semestre/Grupo</th>
+                                <th>Puntos Acumulados</th>
+                                <th>Última Actividad</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="fw-bold text-secondary">233H01928</td>
+                                <td>Juan Pérez Gómez</td>
+                                <td>4º "A" Programación</td>
+                                <td><span class="badge bg-success">45 pts</span></td>
+                                <td>Reciclaje de PET</td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-guinda fw-bold" onclick="editarPuntos('233H01928')">Validar Puntos</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold text-secondary">233H01452</td>
+                                <td>María Rodríguez Hernández</td>
+                                <td>2º "B" Componentes</td>
+                                <td><span class="badge bg-success">60 pts</span></td>
+                                <td>Reforestación</td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-guinda fw-bold" onclick="editarPuntos('233H01452')">Validar Puntos</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function editarPuntos(matricula) {
+            const nuevosPuntos = prompt(`Modificar o asignar nuevos puntos para el alumno ${matricula}:`, "10");
+            if (nuevosPuntos) {
+                alert(`Puntos guardados correctamente en el sistema.`);
+            }
+        }
+    </script>
+</body>
+</html>
