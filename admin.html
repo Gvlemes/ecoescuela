@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración - Escuela Limpia</title>
+    <!-- Cargamos el motor de la gráfica directamente de la red pública 👇 -->
     <script src="https://jsdelivr.net"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
@@ -48,7 +49,6 @@
                 <div class="canvas-contenedor"><canvas id="graficaReportes"></canvas></div>
             </div>
         </div>
-
         <div class="seccion">
             <h3>📋 Tabla de Evidencias (Base de Datos Centralizada)</h3>
             <div style="overflow-x: auto;">
@@ -89,6 +89,7 @@
             const cuerpo = document.getElementById('cuerpoTabla');
             cuerpo.innerHTML = "<tr><td colspan='4' style='text-align:center;'>Consultando el servidor central...</td></tr>";
 
+            // Jalamos en tiempo real la lista unificada guardada en la nube mundial
             fetch(URL_SERVIDOR + "/latest", { headers: { "X-Master-Key": LLAVE_ACCESO }, cache: "no-store" })
             .then(res => res.json())
             .then(data => {
@@ -104,7 +105,8 @@
                 let mapaFechas = {};
 
                 historial.forEach(r => {
-                    let soloFecha = r.fecha.split(" ")[0]; // Agrupa solo por el día
+                    // Agrupamos cortando la hora para la estadística diaria
+                    let soloFecha = r.fecha.split(" ")[0];
                     mapaFechas[soloFecha] = (mapaFechas[soloFecha] || 0) + 1;
 
                     const fila = document.createElement('tr');
