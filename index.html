@@ -3,8 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escuela Limpia</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Escuela Limpia - Alumnos</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background-color: #F5F5F5; color: #333; }
+        header { background-color: #1B5E20; color: white; text-align: center; padding: 15px; }
+        optgroup { font-weight: bold; color: #1B5E20; background-color: #E8F5E9; }
+        .tab-bar { display: flex; background-color: #FFFFFF; border-bottom: 1px solid #E0E0E0; position: sticky; top: 0; z-index: 100; }
+        .tab-btn { flex: 1; background: none; border: none; padding: 12px 5px; font-size: 13px; font-weight: bold; color: #666; cursor: pointer; border-bottom: 3px solid transparent; }
+        .tab-btn.active { color: #1B5E20; border-bottom: 3px solid #1B5E20; background-color: #E8F5E9; }
+        .contenedor-principal { padding: 20px; max-width: 500px; margin: 0 auto; }
+        .tab-content { display: none; background-color: #FFFFFF; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .tab-content.active { display: block; }
+        h3 { margin-bottom: 15px; text-align: center; }
+        label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
+        select, input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #CCC; border-radius: 6px; }
+        .panel-alerta { padding: 15px; border-radius: 8px; font-size: 14px; line-height: 1.5; margin-top: 15px; }
+        .panel-alerta.verde { background-color: #E8F5E9; color: #1B5E20; }
+        .panel-alerta.naranja { background-color: #FFF3E0; color: #E65100; }
+        .cuadro-vista-previa { width: 100%; min-height: 120px; border: 2px dashed #CCC; background-color: #FAFAFA; border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; padding: 10px; color: #999; font-size: 13px; text-align: center; }
+        .btn-accion { width: 100%; padding: 12px; border: none; border-radius: 6px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .btn-accion.rojo { background-color: #D32F2F; }
+        .btn-accion.verde-oscuro { background-color: #1B5E20; }
+    </style>
 </head>
 <body>
 
@@ -12,67 +33,49 @@
         <h2>🌿 Escuela Limpia</h2>
     </header>
 
-    <!-- Barra de Navegación Móvil (TabBAR) -->
     <nav class="tab-bar">
         <button class="tab-btn active" onclick="cambiarPestana('degradacion', this)">⏱️ Degradación</button>
         <button class="tab-btn" onclick="cambiarPestana('reportar', this)">🚨 Reportar</button>
         <button class="tab-btn" onclick="cambiarPestana('calculadora', this)">🧮 Calculadora</button>
-        <button class="tab-btn" onclick="cambiarPestana('admin', this)">👑 Admin</button>
     </nav>
 
     <main class="contenedor-principal">
-        
         <!-- PESTAÑA 1: DEGRADACIÓN -->
         <section id="degradacion" class="tab-content active">
             <h3>⏱️ ¿Cuánto tardan en degradarse?</h3>
-            <label for="comboMateriales">Selecciona un material o componente por especialidad:</label>
+            <label for="comboMateriales">Selecciona un material o componente:</label>
             <select id="comboMateriales" onchange="mostrarDegradacion()">
                 <option value="">Selecciona un material...</option>
-                <optgroup label="Básicos de la Escuela">
+                <optgroup label="Básicos">
                     <option value="chicle">Chicle</option>
                     <option value="pet">Botella de PET</option>
                     <option value="aluminio">Lata de Aluminio</option>
-                    <option value="bolsa">Bolsa de Plástico</option>
-                    <option value="carton">Cartón y Papel</option>
-                    <option value="unicel">Unicel / Telgopor</option>
-                    <option value="organico">Manzana / Residuos Orgánicos</option>
                 </optgroup>
                 <optgroup label="Mecatrónica">
-                    <option value="jumpers">Cables Jumpers (Protoboard)</option>
+                    <option value="jumpers">Cables Jumpers</option>
                     <option value="pilas">Pilas y Baterías Lipo</option>
-                    <option value="pcbs">Placas Fenólicas (PCBs)</option>
-                    <option value="motores">Motores DC / Servomotores rotos</option>
-                    <option value="resistencias">Resistencias y Capacitores</option>
                 </optgroup>
                 <optgroup label="Soporte y Mantenimiento">
-                    <option value="carcasas">Carcasas de Monitores o Teclados</option>
-                    <option value="gabinetes">Gabinetes Metálicos (CPU)</option>
+                    <option value="carcasas">Carcasas de Teclados</option>
                     <option value="termica">Pasta Térmica Seca</option>
                 </optgroup>
                 <optgroup label="Programación">
-                    <option value="ethernet">Cables de Red (Ethernet UTP)</option>
-                    <option value="discos">Discos Duros Mecánicos Arruinados</option>
+                    <option value="ethernet">Cables de Red</option>
                 </optgroup>
                 <optgroup label="Proceso de Gestión Administrativa">
-                    <option value="toner">Cartuchos de Tóner Vacíos</option>
-                    <option value="carpetas">Carpetas Archivadoras de Plástico Rotas</option>
-                    <option value="hojas_calculo">Hojas de Cálculo Impresas con Error</option>
+                    <option value="toner">Cartuchos de Tóner</option>
                 </optgroup>
                 <optgroup label="Producción Industrial">
-                    <option value="virutas">Virutas de Metal con Aceite de Corte</option>
-                    <option value="bandas">Bandas Transportadoras de Caucho</option>
-                    <option value="cascos">Cascos de Seguridad Agrietados</option>
+                    <option value="virutas">Virutas de Metal</option>
                 </optgroup>
             </select>
-            
             <div id="cajaResultadoDegradacion" class="panel-alerta verde">
                 Por favor, selecciona una opción del menú para auditar su impacto ambiental.
             </div>
         </section>
-
         <!-- PESTAÑA 2: REPORTAR -->
         <section id="reportar" class="tab-content">
-            <h3>🚨 Reportar Punto Sucio</h3>
+            <h3>🚨 Reportar Punto Sucio (Offline)</h3>
             <div class="formulario">
                 <label>Descripción de la zona o desperdicio:</label>
                 <input type="text" id="txtDescripcion" placeholder="Ej: Basura acumulada en los talleres">
@@ -84,8 +87,7 @@
                     <img id="imgPrevia" src="" alt="Vista previa" style="display: none; max-width: 100%; max-height: 150px;">
                     <span id="txtPrevia">No se ha seleccionado ninguna foto</span>
                 </div>
-                
-                <button class="btn-accion rojo" onclick="enviarReporte()">📤 Enviar Reporte a la Lista</button>
+                <button class="btn-accion rojo" onclick="enviarReporteLocal()">💾 Guardar Reporte Local</button>
             </div>
         </section>
 
@@ -96,31 +98,113 @@
                 <label>¿Cuántas botellas de plástico consumes por SEMANA?</label>
                 <input type="number" id="txtCantidadPet" placeholder="Ej. 4" min="0">
                 <button class="btn-accion verde-oscuro" onclick="calcularHuella()">🍃 Calcular Impacto Anual</button>
-                
                 <div id="cajaResultadoCalculadora" class="panel-alerta naranja" style="display: none;"></div>
             </div>
         </section>
-
-        <!-- PESTAÑA 4: PANEL ADMINISTRADOR -->
-        <section id="admin" class="tab-content">
-            <div id="panelLoginAdmin">
-                <h3>🔐 Acceso de Administrador</h3>
-                <p>Introduce la clave de acceso restringido:</p>
-                <input type="password" id="txtPasswordAdmin" placeholder="Clave de seguridad">
-                <button class="btn-accion azul" onclick="comprobarAccesoAdmin()">Ingresar al Historial</button>
-            </div>
-
-            <div id="panelHistorialAdmin" style="display: none;">
-                <h3>📋 Registro General de Puntos Sucios</h3>
-                <div id="listaReportes" class="lista-items">
-                    <p class="txt-vacio">No se han registrado reportes en esta sesión aún.</p>
-                </div>
-                <button class="btn-accion gris" onclick="cerrarSesionAdmin()">🔐 Cerrar Sesión</button>
-            </div>
-        </section>
-
     </main>
 
-    <script src="script.js"></script>
+    <script>
+        let fotoBase64Global = "";
+        let detallesFotoGlobal = { peso: 0, ancho: 0, alto: 0 };
+        const PALABRAS_PROHIBIDAS = ["meme", "memes", "broma", "pack", "sexo", "porno", "pendejo", "puto", "mierda"];
+
+        function cambiarPestana(idPestana, boton) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(idPestana).classList.add('active');
+            boton.classList.add('active');
+        }
+
+        function mostrarDegradacion() {
+            const m = document.getElementById('comboMateriales').value;
+            const c = document.getElementById('cajaResultadoDegradacion');
+            const res = {
+                "chicle": "Tarda 5 años en deshacerse debido a que el oxígeno lo endurece.",
+                "pet": "Tarda de 450 a 500 años en descomponerse por completo. ¡Evita el PET plástico!",
+                "aluminio": "Tarda de 10 a 100 años en desaparecer por oxidación química natural.",
+                "jumpers": "Tardan de 200 a 300 años. El recubrimiento plástico de PVC dura siglos tirado.",
+                "pilas": "Tardan entre 500 y 1,000 años. Derraman mercurio, plomo y cadmio tóxico.",
+                "carcasas": "Tardan de 400 a 500 años. El plástico ABS rígido se fragmenta lentamente.",
+                "termica": "¡No se biodegrada! Los compuestos de silicona contaminan el suelo.",
+                "ethernet": "Tardan de 200 a 300 años. El PVC exterior protege los hilos de cobre.",
+                "toner": "Tarda de 400 a 500 años. El cartucho exterior es de plástico de alta densidad.",
+                "virutas": "Tardan de 10 a 50 años en oxidarse. El aceite de corte contamina el subsuelo."
+            };
+            c.innerHTML = res[m] || "Por favor, selecciona una opción del menú para auditar su impacto.";
+        }
+
+        function previsualizarFoto(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            detallesFotoGlobal.peso = file.size;
+            const reader = new FileReader();
+            reader.onload = function() {
+                const img = document.getElementById('imgPrevia');
+                img.src = reader.result;
+                img.onload = function() {
+                    detallesFotoGlobal.ancho = img.naturalWidth;
+                    detallesFotoGlobal.alto = img.naturalHeight;
+                };
+                img.style.display = 'block';
+                document.getElementById('txtPrevia').style.display = 'none';
+                fotoBase64Global = reader.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function enviarReporteLocal() {
+            const descInput = document.getElementById('txtDescripcion').value;
+            const desc = descInput.trim().toLowerCase();
+            
+            if (desc === "" || fotoBase64Global === "") {
+                alert("Por favor, escribe una descripción y selecciona una fotografía.");
+                return;
+            }
+
+            if (PALABRAS_PROHIBIDAS.some(p => desc.includes(p))) {
+                alert("🚨 INTENTO BLOQUEADO: Contenido o vocabulario inapropiado.");
+                document.getElementById('txtDescripcion').value = "";
+                return;
+            }
+
+            if (detallesFotoGlobal.peso < 15000 || (detallesFotoGlobal.ancho === detallesFotoGlobal.alto && detallesFotoGlobal.ancho < 800)) {
+                alert("⚠️ ALERTA: La imagen parece un meme o descarga. Por favor, toma una foto real.");
+                return;
+            }
+
+            let historialLocal = JSON.parse(localStorage.getItem('bd_escuela_limpia')) || [];
+            const nuevoReporte = {
+                id: historialLocal.length + 1,
+                fecha: new Date().toLocaleDateString(),
+                descripcion: descInput,
+                foto: fotoBase64Global
+            };
+
+            historialLocal.unshift(nuevoReporte);
+            localStorage.setItem('bd_escuela_limpia', JSON.stringify(historialLocal));
+
+            document.getElementById('txtDescripcion').value = "";
+            document.getElementById('imgPrevia').style.display = 'none';
+            document.getElementById('txtPrevia').style.display = 'block';
+            document.getElementById('inputFoto').value = "";
+            fotoBase64Global = "";
+            alert("✅ ¡Reporte guardado localmente en el teléfono!");
+        }
+
+        function calcularHuella() {
+            const cant = parseFloat(document.getElementById('txtCantidadPet').value);
+            const caja = document.getElementById('cajaResultadoCalculadora');
+            if (isNaN(cant) || cant < 0) return;
+            const anual = cant * 52; const kg = anual * 0.025;
+            if (cant === 0) {
+                caja.className = "panel-alerta verde";
+                caja.innerHTML = `🌟 <strong>¡Tu huella es perfecta!</strong> Consumes 0 botellas al año. ¡Sigue así!`;
+            } else {
+                caja.className = "panel-alerta naranja";
+                caja.innerHTML = `📊 En 1 año consumirás unas <strong>${Math.floor(anual)} botellas</strong> (${kg.toFixed(2)} kg de plástico). ¡Usa un termo escolar!`;
+            }
+            caja.style.display = 'block';
+        }
+    </script>
 </body>
 </html>
