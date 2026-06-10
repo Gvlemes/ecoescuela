@@ -23,7 +23,6 @@ function mostrarDegradacion() {
         "aluminio": "Tarda de 10 a 100 años en desaparecer por oxidación química natural.",
         "bolsa": "Tarda de 150 a 400 años. Solo se rompe en microplásticos nocivos.",
         "carton": "Tarda de 2 a 5 meses. Si se moja se degrada rápido, pero debe depositarse limpio para reciclar.",
-        "tetra": "Tarda unos 30 años en degradarse por su compleja estructura de cartón, plástico y aluminio.",
         "unicel": "¡No se degrada nunca! Es 100% permanente y fragmentable, contaminando los patios escolares.",
         "organico": "Tarda de 2 a 4 semanas. Se degrada rápido y sirve de composta, pero genera mal olor en el salón.",
         
@@ -37,13 +36,12 @@ function mostrarDegradacion() {
         // Soporte y Mantenimiento
         "carcasas": "Tardan de 400 a 500 años. El plástico ABS rígido usado en teclados y carcasas de monitores es extremadamente denso y se fragmenta lentamente en microplásticos.",
         "gabinetes": "Tardan de 50 a 100 años. La lámina de acero y metal se oxidará lentamente con la humedad del laboratorio, pero las pinturas plásticas protectoras retrasan el proceso.",
-        "termica": "¡No se biodegrada! Los compuestos de silicona y óxidos metálicos (como óxido de zinc o aluminio) se resecan y dispersan en el suelo, contaminando las capas de tierra del taller.",
-        
+        "termica": "¡No se biodegrada! Los compuestos de silicona y óxidos metálicos (como óxido de zinc o aluminio) se resecan y dispersan en el suelo, contaminando las capas de tierra del taller."
         // Programación
         "ethernet": "Tardan de 200 a 300 años. El recubrimiento exterior de PVC protege los hilos de cobre interiores contra los hongos y bacterias, durando siglos tirado en los contenedores.",
         "discos": "Tardan más de 500 años. Los platos de aluminio recubiertos de aleaciones magnéticas y los brazos mecánicos metálicos duran décadas, mientras que las tarjetas controladoras no se degradan.",
         
-        // Gestión Administrativa y Contabilidad 👇
+        // Proceso de Gestión Administrativa
         "toner": "Tarda de 400 a 500 años. El cartucho exterior es de plástico de alta densidad y el polvo negro residual contiene polímeros magnéticos, carbono y metales pesados altamente contaminantes para el agua escolar.",
         "carpetas": "Tardan de 100 a 400 años. Las cubiertas rígidas de polipropileno o PVC protegen las hojas de la humedad, pero resisten el ataque de bacterias de la tierra durante siglos al desecharse.",
         "hojas_calculo": "Tardan de 2 a 5 meses. Al ser papel blanco de oficina se degrada rápido si se moja, pero la tinta de tóner fundida con calor ralentiza el proceso y no sirve para composta.",
@@ -60,7 +58,6 @@ function mostrarDegradacion() {
         caja.innerHTML = "Por favor, selecciona una opción del menú para auditar su impacto ambiental.";
     }
 }
-
 function previsualizarFoto(event) {
     const reader = new FileReader();
     reader.onload = function() {
@@ -102,7 +99,6 @@ function enviarReporte() {
     alert("¡Reporte almacenado en el registro escolar de manera correcta!");
     actualizarTablaAdmin();
 }
-
 function calcularHuella() {
     const cantidadSemana = parseFloat(document.getElementById('txtCantidadPet').value);
     const caja = document.getElementById('cajaResultadoCalculadora');
@@ -115,15 +111,31 @@ function calcularHuella() {
 
     const anual = cantidadSemana * 52;
     const kg = anual * 0.025;
+    let fraseDinamica = "";
 
-    caja.innerHTML = `📊 <strong>Impacto estimado en 1 año:</strong><br><br>` +
-                     `• Consumirás aproximadamente <strong>${Math.floor(anual)} botellas</strong>.<br>` +
-                     `• Basura plástica acumulada: <strong>${kg.toFixed(2)} kg</strong>.<br><br>` +
-                     `💡 <em>Recomendación:</em> Reemplaza el plástico usando termos reutilizables de la escuela.`;
+    if (cantidadSemana === 0) {
+        caja.className = "panel-alerta verde";
+        fraseDinamica = `🌟 <strong>¡Increíble! Tu huella plástica es perfecta.</strong><br><br>` +
+                        `Mantienes un consumo de 0 botellas al año. Eres un ejemplo de sustentabilidad para todas las carreras de la escuela. ¡Sigue así!`;
+    } else if (cantidadSemana >= 1 && cantidadSemana <= 3) {
+        caja.className = "panel-alerta naranja";
+        fraseDinamica = `📊 <strong>Impacto Moderado:</strong> En 1 año consumirás unas <strong>${Math.floor(anual)} botellas</strong> (${kg.toFixed(2)} kg de basura).<br><br>` +
+                        `🌱 <em>Análisis:</em> Tu consumo no es crítico, pero estás a un solo paso de la meta. Reemplaza esas pocas botellas usando un termo recargable en los laboratorios.`;
+    } else if (cantidadSemana >= 4 && cantidadSemana <= 7) {
+        caja.className = "panel-alerta naranja";
+        fraseDinamica = `⚠️ <strong>Impacto Alto Detectado:</strong> Al año acumularás <strong>${Math.floor(anual)} botellas</strong>, equivalentes a <strong>${kg.toFixed(2)} kg</strong> de desecho plástico.<br><br>` +
+                        `📢 <em>Análisis:</em> Estás generando un volumen considerable de plástico permanente. Esta cantidad tarda siglos en degradarse y satura los contenedores de los talleres escolares. ¡Es hora de reducirlo!`;
+    } else {
+        caja.className = "panel-alerta naranja";
+        fraseDinamica = `🚨 <strong>¡ALERTA ROJA ECOLÓGICA!</strong> Tu consumo anual alcanzará la alarmante cifra de <strong>${Math.floor(anual)} botellas</strong>, arrojando <strong>${kg.toFixed(2)} kg</strong> de plástico directo al planeta.<br><br>` +
+                        `💀 <em>Análisis Crítico:</em> Tu huella plástica individual equivale al peso de múltiples herramientas de taller. Es urgente detener este consumo e implementar contenedores de reciclaje masivos de inmediato.`;
+    }
+
+    caja.innerHTML = fraseDinamica;
     caja.style.display = 'block';
 }
 
-function comprobarAccesoAdmin() {
+function comprobarAccessoAdmin() {
     const clave = document.getElementById('txtPasswordAdmin').value;
 
     if (clave === "mecatronica") {
