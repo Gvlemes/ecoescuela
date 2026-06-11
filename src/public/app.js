@@ -10,18 +10,25 @@ function mostrarDegradacion() {
   const res = document.getElementById("resultadoDegradacion");
   
   const datos = {
+    // Básicos
+    plastico: { tiempo: "450 años", info: "Las botellas se fragmentan lentamente en microplásticos dañinos para el medio ambiente.", tipo: "naranja" },
+    chicle: { tiempo: "5 años", info: "Contiene polímeros sintéticos. Al endurecerse atrapa bacterias de las superficies.", tipo: "naranja" },
+    lata: { tiempo: "10 años", info: "El aluminio se oxida de forma paulatina. Reciclarlo ahorra un 95% de energía.", tipo: "naranja" },
+    vidrio: { tiempo: "4,000 años", info: "Estructura mineral sumamente resistente, aunque es 100% reciclable de forma infinita.", tipo: "naranja" },
     // Mecatrónica
-    tarjeta: { tiempo: "Varias semanas a 100 años", info: "Contiene fibra de vidrio y resina epoxi. Sus metales pesados (plomo, cadmio) contaminan el subsuelo si no se reciclan en contenedores especiales de electrónica.", tipo: "naranja" },
-    soldadura: { tiempo: "No se degrada de forma natural", info: "Las aleaciones de estaño y plomo permanecen estables en el ambiente por milenios, acumulando toxicidad química en los suelos del plantel.", tipo: "naranja" },
-    // Programación / Soporte y Mantenimiento
-    disco: { tiempo: "Más de 500 años", info: "Los componentes de aluminio fundido, imanes de neodimio y bandejas de policarbonato tardan siglos en descomponerse por completo.", tipo: "naranja" },
-    cable: { tiempo: "200 a 400 años", info: "El recubrimiento plástico de PVC es altamente resistente a la humedad de los laboratorios y libera cloro gaseoso tóxico si se llega a quemar en áreas comunes.", tipo: "naranja" },
+    tarjeta: { tiempo: "100 a 500 años", info: "La combinación de fibra de vidrio, resina epoxi y metales pesados contamina gravemente los mantos acuíferos si se desecha incorrectamente.", tipo: "naranja" },
+    soldadura: { tiempo: "Permanente", info: "Las aleaciones no sufren degradación biológica y acumulan metales nocivos en el suelo de la escuela.", tipo: "naranja" },
     // Producción Industrial
-    chatarra: { tiempo: "50 a 100 años", info: "Las virutas de acero y piezas sólidas de maquinado se oxidan lentamente con el aire libre, degradando la calidad estética y segura del suelo.", tipo: "naranja" },
-    aceite: { tiempo: "Altamente persistente", info: "Un solo litro de lubricante usado de motores o fresadoras industriales puede contaminar un millón de litros de agua limpia, bloqueando el oxígeno del ecosistema.", tipo: "naranja" },
+    chatarra: { tiempo: "50 a 100 años", info: "El acero y hierro se corroen lentamente. Sus residuos afilados representan un riesgo de seguridad.", tipo: "naranja" },
+    aceite: { tiempo: "No biodegradable", info: "Forma una capa impermeable sobre el agua y suelo, asfixiando la flora y la fauna locales.", tipo: "naranja" },
+    // Soporte y Mantenimiento
+    cable: { tiempo: "200 a 400 años", info: "El revestimiento plástico de PVC no se disuelve y libera toxinas nocivas si se incinera de manera directa.", tipo: "naranja" },
+    pila: { tiempo: "1,000 años", info: "Altamente peligrosa. Una sola pila de reloj puede contaminar miles de litros de agua debido al mercurio y litio.", tipo: "naranja" },
+    // Programación
+    disco: { tiempo: "Más de 500 años", info: "Los platos mecánicos de aluminio y carcasas magnéticas requieren procesos de reciclaje tecnológico especializado.", tipo: "naranja" },
     // Procesos de Gestión Administrativa
-    toner: { tiempo: "450 años", info: "El cartucho plástico tarda casi medio milenio en desintegrarse y el polvo negro flotante daña el sistema respiratorio si se tira a basureros comunes.", tipo: "naranja" },
-    archivo: { tiempo: "1 a 3 años", info: "El papel estándar de oficina se degrada rápido si hay composta, pero los papeles químicos autocopiantes liberan resinas plásticas artificiales de lento desecho.", tipo: "verde" }
+    toner: { tiempo: "450 años", info: "Los plásticos de ingeniería del cartucho resisten la intemperie y el polvo químico es nocivo si se inhala.", tipo: "naranja" },
+    archivo: { tiempo: "1 a 3 años", info: "El papel estándar es biodegradable en composteros, pero las tintas sintéticas tardan más en disolverse.", tipo: "verde" }
   };
 
   if(!material) { res.innerHTML = ""; return; }
