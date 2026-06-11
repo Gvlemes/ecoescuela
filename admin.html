@@ -1,166 +1,133 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel de Administración - Escuela Limpia</title>
-  <script src="https://jsdelivr.net"></script>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-    body { background-color: #F4F6F9; color: #333; padding: 20px; }
-    header { background-color: #1B5E20; color: white; text-align: center; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-    .seccion { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; }
-    #login { max-width: 400px; margin: 100px auto; text-align: center; }
-    input, button { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #CCC; border-radius: 6px; font-size: 15px; }
-    button { background-color: #1B5E20; color: white; border: none; font-weight: bold; cursor: pointer; }
-    .grid-analitica { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
-    @media (max-width: 768px) { .grid-analitica { grid-template-columns: 1fr; } }
-    .canvas-contenedor { position: relative; height: 220px; width: 100%; display: flex; justify-content: center; }
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #EEE; font-size: 14px; }
-    th { background-color: #1B5E20; color: white; }
-    .img-miniatura { width: 100px; height: auto; border-radius: 4px; background-color: #EEE; min-height: 50px; display: block; }
-    .indicador-carga { text-align: center; padding: 20px; font-weight: bold; color: #1B5E20; }
-  </style>
-</head>
-<body>
-
-  <!-- Login Admin -->
-  <div id="login" class="seccion">
-    <h2>🔑 Acceso Administrativo</h2>
-    <p style="margin-bottom: 15px; color: #666;">Introduce la clave del laboratorio de Mecatrónica</p>
-    <input type="password" id="passAdmin" placeholder="Contraseña del panel">
-    <button onclick="entrarPanel()">Ingresar al Sistema</button>
-  </div>
-
-  <!-- Panel Oculto -->
-  <div id="dashboard" style="display: none;">
-    <header>
-      <h1>🌿 EcoEscuela - Panel de Analíticas</h1>
-      <p>Administración y Control de Puntos Sucios</p>
-    </header>
-
-    <div class="grid-analitica">
-      <div class="seccion">
-        <h3>📊 Estado Actual de la Escuela</h3>
-        <div class="canvas-contenedor"><canvas id="graficaPastel"></canvas></div>
-      </div>
-      <div class="seccion">
-        <h3>📈 Resumen Operativo</h3>
-        <div style="margin-top: 25px; font-size: 18px; line-height: 2;">
-          <p>✅ Zonas Recuperadas: <span id="txtLimpias" style="font-weight: bold; color: green;">0</span></p>
-          <p>⏳ Zonas por Atender: <span id="txtPendientes" style="font-weight: bold; color: red;">0</span></p>
-        </div>
-      </div>
-    </div>
-
-    <div class="seccion">
-      <h3>📋 Tabla de Evidencias Globales (Base de Datos en la Nube)</h3>
-      <div style="overflow-x: auto;">
-        <table>
-          <thead>
-            <tr>
-              <th>N° Reporte ID</th>
-              <th>Usuario</th>
-              <th>Hora y Fecha de Toma</th>
-              <th>Descripción del Desperdicio</th>
-              <th>Evidencia Visual</th>
-              <th>Estado de Zona</th>
-            </tr>
-          </thead>
-          <tbody id="cuerpoTabla"></tbody>
-        </table>
-      </div>
-      <button onclick="location.reload()" style="background-color:#757575; max-width: 150px; margin-top: 20px;">Cerrar Sesión</button>
-    </div>
-  </div>
-  <script type="module">
-    import { initializeApp } from "https://gstatic.com";
-    import { getFirestore, collection, getDocs, doc, updateDoc, query, orderBy } from "https://gstatic.com";
-
-    // ⚠️ REEMPLAZA CON TUS CREDENCIALES (DEBEN SER LAS MISMAS)
-    const firebaseConfig = {
-      apiKey: "TU_API_KEY",
-      authDomain: "TU_AUTH_DOMAIN",
-      projectId: "TU_PROJECT_ID",
-      storageBucket: "TU_STORAGE_BUCKET",
-      messagingSenderId: "TU_MESSAGING_SENDER_ID",
-      appId: "TU_APP_ID"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    let chartInstancia = null;
-
-    window.entrarPanel = function() {
-      const clave = document.getElementById('passAdmin').value;
-      if (clave === "mecatronica") {
-        document.getElementById('login').style.display = 'none';
-        document.getElementById('dashboard').style.display = 'block';
-        cargarDatosYEstadisticasFirebase();
-      } else { alert("Clave incorrecta."); document.getElementById('passAdmin').value = ""; }
-    };
-
-    function actualizarGraficas(limpias, pendientes) {
-      document.getElementById("txtLimpias").innerText = limpias;
-      document.getElementById("txtPendientes").innerText = pendientes;
-      const ctx = document.getElementById('graficaPastel').getContext('2d');
-      if (chartInstancia) { chartInstancia.destroy(); }
-      chartInstancia = new Chart(ctx, {
-        type: 'pie',
-        data: {
-          labels: ['Zonas Limpiadas ✅', 'Zonas Pendientes ⏳'],
-          datasets: [{ data: [limpias, pendientes], backgroundColor: ['#2E7D32', '#D84315'], borderWidth: 1 }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-      });
-    }
-
-    async function cargarDatosYEstadisticasFirebase() {
-      const tablaBody = document.getElementById("cuerpoTabla");
-      tablaBody.innerHTML = "<tr><td colspan='6' class='indicador-carga'>Sincronizando...</td></tr>";
+    async function consultarReportes() {
       try {
+        // Consultamos Firestore ordenando por fecha raw (ISO)
         const q = query(collection(db, "reportes"), orderBy("fechaRaw", "desc"));
         const querySnapshot = await getDocs(q);
-        if (querySnapshot.empty) { tablaBody.innerHTML = "<tr><td colspan='6'>Sin reportes 🌱</td></tr>"; actualizarGraficas(0, 0); return; }
-        tablaBody.innerHTML = "";
-        let contador = 1, contadorLimpias = 0, contadorPendientes = 0;
+        
+        listaAdmin.innerHTML = "";
+        
+        if (querySnapshot.empty) {
+          listaAdmin.innerHTML = "<p>No hay reportes registrados.</p>";
+          inicializarGrafica([]); 
+          return;
+        }
+
+        const datosParaGrafica = [];
 
         querySnapshot.forEach((docSnap) => {
-          const datos = docSnap.data();
+          const item = docSnap.data();
           const idDoc = docSnap.id;
-          if (datos.estado === "Limpiado") { contadorLimpias++; } else { contadorPendientes++; }
-          const esLimpio = datos.estado === "Limpiado";
-          const textoBoton = esLimpio ? "✅ ¡Zona Limpiada!" : "⏳ Pendiente / Limpiar";
-          const colorBoton = esLimpio ? "#2E7D32" : "#D84315";
 
-          const fila = `
-            <tr>
-              <td><strong>#${contador++}</strong><br><small style="color:#888;">(${idDoc.substring(0,5)})</small></td>
-              <td style="font-weight:600;">${datos.usuario || "Anónimo"}</td>
-              <td>${datos.fechaHora || "No indicada"}</td>
-              <td>${datos.descripcion}</td>
-              <td>${datos.fotoUrl ? `<img src="${datos.fotoUrl}" class="img-miniatura">` : '📷 Sin imagen'}</td>
-              <td>
-                <button onclick="cambiarEstadoZona('${idDoc}', '${datos.estado || 'Pendiente'}')" style="background-color: ${colorBoton}; padding: 8px 12px; font-size: 12px; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">
-                  ${textoBoton}
-                </button>
-              </td>
-            </tr>
+          // Guardamos la fecha ISO exacta para alimentar la gráfica de líneas
+          datosParaGrafica.push({
+            fecha: item.fechaRaw,
+            estado: item.estado
+          });
+
+          const div = document.createElement("div");
+          const esResuelto = item.estado === "Resuelto";
+          div.className = `item-admin ${esResuelto ? 'resuelto' : 'pendiente'}`;
+          
+          const htmlFoto = item.fotoUrl ? `<img src="${item.fotoUrl}" class="foto-reporte" alt="Evidencia">` : "";
+          
+          const botonResolver = !esResuelto 
+            ? `<button class="btn btn-resolver" onclick="marcarResuelto('${idDoc}')">Marcar Resuelto ✅</button>` 
+            : `<span class="badge resuelto">Completado</span>`;
+
+          div.innerHTML = `
+            <div class="info">
+              <strong>👤 Alumno:</strong> ${item.usuario || "Anónimo"} 
+              <span class="badge ${esResuelto ? 'resuelto' : 'pendiente'}">${item.estado || 'Pendiente'}</span>
+              <br>
+              <strong>📝 Reporte:</strong> ${item.descripcion}
+              ${htmlFoto}
+              <div class="meta">ID: ${idDoc} | Fecha: ${item.fechaHora || "Sin fecha"}</div>
+            </div>
+            <div class="acciones">
+              ${botonResolver}
+              <button class="btn btn-borrar" onclick="eliminarReporte('${idDoc}')">Eliminar 🗑️</button>
+            </div>
           `;
-          tablaBody.insertAdjacentHTML("beforeend", fila);
+          listaAdmin.appendChild(div);
         });
-        actualizarGraficas(contadorLimpias, contadorPendientes);
-      } catch (error) { tablaBody.innerHTML = "<tr><td colspan='6'>Error de red.</td></tr>"; }
+
+        // Llamamos a la gráfica enviándole la información recolectada de Firebase
+        inicializarGrafica(datosParaGrafica);
+      } catch (error) {
+        console.error("Error cargando actualizaciones de Firebase:", error);
+      }
     }
 
-    window.cambiarEstadoZona = async function(idDoc, estadoActual) {
-      const nuevoEstado = estadoActual === "Limpiado" ? "Pendiente" : "Limpiado";
+    // ARREGLADO: Extracción de fecha con [0] para Chart.js
+    function inicializarGrafica(datos) {
       try {
-        await updateDoc(doc(db, "reportes", idDoc), { estado: nuevoEstado });
-        cargarDatosYEstadisticasFirebase();
-      } catch (error) { alert("Error al actualizar."); }
-    };
+        const conteoDias = {};
+        
+        datos.forEach(item => {
+          if (!item.fecha || typeof item.fecha !== 'string') return;
+          
+          // CORRECCIÓN AQUÍ: Agregado [0] para aislar limpiamente el formato YYYY-MM-DD
+          const fechaDia = item.fecha.split("T")[0]; 
+          
+          if (!conteoDias[fechaDia]) {
+            conteoDias[fechaDia] = { obtenidos: 0, resueltos: 0 };
+          }
+          
+          conteoDias[fechaDia].obtenidos++;
+          if (item.estado === "Resuelto") {
+            conteoDias[fechaDia].resueltos++;
+          }
+        });
+
+        const diasOrdenados = Object.keys(conteoDias).sort();
+        const datosObtenidos = diasOrdenados.map(dia => conteoDias[dia].obtenidos);
+        const datosResueltos = diasOrdenados.map(dia => conteoDias[dia].resueltos);
+
+        const ctx = document.getElementById('graficaReportes').getContext('2d');
+        if (miGrafica) miGrafica.destroy();
+
+        miGrafica = new Chart(ctx, {
+          type: 'line', 
+          data: {
+            labels: diasOrdenados, 
+            datasets: [
+              { label: 'Obtenidos', data: datosObtenidos, borderColor: '#eab308', backgroundColor: 'rgba(234, 179, 8, 0.1)', tension: 0.3, borderWidth: 3, fill: true },
+              { label: 'Resueltos', data: datosResueltos, borderColor: '#22c55e', backgroundColor: 'rgba(34, 197, 94, 0.1)', tension: 0.3, borderWidth: 3, fill: true }
+            ]
+          },
+          options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            animation: false, 
+            scales: { 
+              y: { 
+                beginAtZero: true, 
+                ticks: { stepSize: 1 } 
+              } 
+            } 
+          }
+        });
+      } catch (err) { 
+        console.error("Error al renderizar el canvas de Chart.js:", err); 
+      }
+    }
+
+    window.marcarResuelto = async function(id) {
+      try {
+        await updateDoc(doc(db, "reportes", id), { estado: "Resuelto" });
+        consultarReportes();
+      } catch (err) { alert("Error al resolver."); }
+    }
+
+    window.eliminarReporte = async function(id) {
+      if (!confirm("¿Eliminar definitivamente de Firebase?")) return;
+      try {
+        await deleteDoc(doc(db, "reportes", id));
+        consultarReportes();
+      } catch (err) { alert("Error al eliminar."); }
+    }
+
+    validarAcceso();
   </script>
 </body>
 </html>
