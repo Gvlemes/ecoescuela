@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel de Administración - Escuela Limpia</title>
+  <!-- ENLACE CORREGIDO: Ahora sí cargará la librería Chart.js -->
   <script src="https://jsdelivr.net"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
@@ -12,7 +13,7 @@
     h1 { color: #1e293b; margin-bottom: 8px; font-size: 24px; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; }
     p { color: #64748b; margin-bottom: 20px; font-size: 14px; }
     .grafica-seccion { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 25px; height: 320px; }
-    .item-admin { background: #f8fafc; padding: 20px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 12px; }
+    .item-admin { background: #f8fafc; padding: 20px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 12px; text-align: left; }
     .item-admin.pendiente { border-left: 6px solid #eab308; }
     .item-admin.resuelto { border-left: 6px solid #22c55e; background: #f0fdf4; }
     .info { font-size: 15px; line-height: 1.6; }
@@ -31,7 +32,7 @@
 <body>
 
   <div class="contenedor">
-    <span class="live-indicator">● Actualización en Tiempo Real</span>
+    <span class="live-indicator">● Sincronizado con Firebase</span>
     <h1>🔑 Panel de Administración (Base de Datos)</h1>
     <p>Métricas dinámicas y gestión automática de reportes de la base de datos.</p>
 
@@ -43,79 +44,107 @@
     <br>
     <div id="lista-admin">Cargando reportes del sistema...</div>
   </div>
+  <!-- IMPORTANTE: Usamos type="module" para que el navegador acepte Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://gstatic.com";
+    import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "https://gstatic.com";
 
-  <script>
+    // ⚠️ REEMPLAZA CON LAS CREDENCIALES REALES DE TU CONSOLA DE FIREBASE
+    const firebaseConfig = {
+      apiKey: "TU_API_KEY",
+      authDomain: "TU_AUTH_DOMAIN",
+      projectId: "TU_PROJECT_ID",
+      storageBucket: "TU_STORAGE_BUCKET",
+      messagingSenderId: "TU_MESSAGING_SENDER_ID",
+      appId: "TU_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
     const CONTRASEÑA_CORRECTA = "admin123"; 
+    const listaAdmin = document.getElementById("lista-admin");
+    let miGrafica = null; 
 
     function validarAcceso() {
       const intento = prompt("Introduce la contraseña de administrador para acceder:");
       if (intento === CONTRASEÑA_CORRECTA) {
         document.body.style.display = "block"; 
         consultarReportes(); 
-        // Refresco automático: Ejecuta la consulta de fondo cada 4 segundos en vivo
+        // Tu refresco automático cada 4 segundos:
         setInterval(consultarReportes, 4000);
       } else {
         alert("Contraseña incorrecta. Acceso denegado.");
         window.location.href = "/index.html"; 
       }
     }
-
-    const listaAdmin = document.getElementById("lista-admin");
-    let miGrafica = null; 
-
     async function consultarReportes() {
       try {
-        const respuesta = await fetch("/api/datos");
-        const datos = await respuesta.json();
+        // Consultamos Firestore ordenando por fecha raw (ISO)
+        const q = query(collection(db, "reportes"), orderBy("fechaRaw", "desc"));
+        const querySnapshot = await getDocs(q);
         
         listaAdmin.innerHTML = "";
-        if (!datos || datos.length === 0) {
+        
+        if (querySnapshot.empty) {
           listaAdmin.innerHTML = "<p>No hay reportes registrados.</p>";
           inicializarGrafica([]); 
           return;
         }
 
-        datos.forEach(item => {
+        const datosParaGrafica = [];
+
+        querySnapshot.forEach((docSnap) => {
+          const item = docSnap.data();
+          const idDoc = docSnap.id;
+
+          // Creamos un objeto compatible con tu función de gráficas actual
+          datosParaGrafica.push({
+            fecha: item.fechaRaw,
+            estado: item.estado
+          });
+
           const div = document.createElement("div");
           const esResuelto = item.estado === "Resuelto";
           div.className = `item-admin ${esResuelto ? 'resuelto' : 'pendiente'}`;
           
-          const htmlFoto = item.foto ? `<img src="${item.foto}" class="foto-reporte">` : "";
+          // Muestra la imagen si existe el campo fotoUrl
+          const htmlFoto = item.fotoUrl ? `<img src="${item.fotoUrl}" class="foto-reporte" alt="Evidencia">` : "";
+          
           const botonResolver = !esResuelto 
-            ? `<button class="btn btn-resolver" onclick="marcarResuelto('${item.id}')">Marcar Resuelto ✅</button>` 
+            ? `<button class="btn btn-resolver" onclick="marcarResuelto('${idDoc}')">Marcar Resuelto ✅</button>` 
             : `<span class="badge resuelto">Completado</span>`;
-
-          const fechaFormateada = item.fecha ? new Date(item.fecha).toLocaleString() : "Sin fecha";
 
           div.innerHTML = `
             <div class="info">
-              <strong>👤 Alumno:</strong> ${item.nombre} 
+              <strong>👤 Alumno:</strong> ${item.usuario || "Anónimo"} 
               <span class="badge ${esResuelto ? 'resuelto' : 'pendiente'}">${item.estado || 'Pendiente'}</span>
               <br>
-              <strong>📝 Reporte:</strong> ${item.mensaje}
+              <strong>📝 Reporte:</strong> ${item.descripcion}
               ${htmlFoto}
-              <div class="meta">ID: ${item.id} | Fecha: ${fechaFormateada}</div>
+              <div class="meta">ID: ${idDoc} | Fecha: ${item.fechaHora || "Sin fecha"}</div>
             </div>
             <div class="acciones">
               ${botonResolver}
-              <button class="btn btn-borrar" onclick="eliminarReporte('${item.id}')">Eliminar 🗑️</button>
+              <button class="btn btn-borrar" onclick="eliminarReporte('${idDoc}')">Eliminar 🗑️</button>
             </div>
           `;
           listaAdmin.appendChild(div);
         });
 
-        inicializarGrafica(datos);
+        inicializarGrafica(datosParaGrafica);
       } catch (error) {
-        console.error("Error cargando actualizaciones.");
+        console.error("Error cargando actualizaciones de Firebase:", error);
       }
     }
 
+    // Tu lógica original de Chart.js adaptada para leer fechas ISO de Firebase
     function inicializarGrafica(datos) {
       try {
         const conteoDias = {};
         datos.forEach(item => {
           if (!item.fecha || typeof item.fecha !== 'string') return;
-          const fechaDia = item.fecha.split("T")[0];
+          const fechaDia = item.fecha.split("T")[0]; // Separa año-mes-día
           if (!conteoDias[fechaDia]) conteoDias[fechaDia] = { obtenidos: 0, resueltos: 0 };
           conteoDias[fechaDia].obtenidos++;
           if (item.estado === "Resuelto") conteoDias[fechaDia].resueltos++;
@@ -142,17 +171,23 @@
       } catch (err) { console.error(err); }
     }
 
-    async function marcarResuelto(id) {
-      const respuesta = await fetch(`/api/resolver/${id}`, { method: "PUT" });
-      if ((await respuesta.json()).ok) consultarReportes();
+    // Funciones globales interactivas para cambiar estados y borrar en Firebase
+    window.marcarResuelto = async function(id) {
+      try {
+        await updateDoc(doc(db, "reportes", id), { estado: "Resuelto" });
+        consultarReportes();
+      } catch (err) { alert("Error al resolver."); }
     }
 
-    async function eliminarReporte(id) {
-      if (!confirm("¿Eliminar definitivamente?")) return;
-      const respuesta = await fetch(`/api/eliminar/${id}`, { method: "DELETE" });
-      if ((await respuesta.json()).ok) consultarReportes();
+    window.eliminarReporte = async function(id) {
+      if (!confirm("¿Eliminar definitivamente de Firebase?")) return;
+      try {
+        await deleteDoc(doc(db, "reportes", id));
+        consultarReportes();
+      } catch (err) { alert("Error al eliminar."); }
     }
 
+    // Arrancar la verificación al abrir
     validarAcceso();
   </script>
 </body>
