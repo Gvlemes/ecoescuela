@@ -1,317 +1,182 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escuela Limpia - Alumnos</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-        body { background-color: #F5F5F5; color: #333; }
-        header { background-color: #1B5E20; color: white; text-align: center; padding: 15px; }
-        optgroup { font-weight: bold; color: #1B5E20; background-color: #E8F5E9; }
-        .tab-bar { display: flex; background-color: #FFFFFF; border-bottom: 1px solid #E0E0E0; position: sticky; top: 0; z-index: 100; }
-        .tab-btn { flex: 1; background: none; border: none; padding: 12px 5px; font-size: 13px; font-weight: bold; color: #666; cursor: pointer; border-bottom: 3px solid transparent; }
-        .tab-btn.active { color: #1B5E20; border-bottom: 3px solid #1B5E20; background-color: #E8F5E9; }
-        .contenedor-principal { padding: 20px; max-width: 500px; margin: 0 auto; }
-        .tab-content { display: none; background-color: #FFFFFF; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .tab-content.active { display: block; }
-        h3 { margin-bottom: 15px; text-align: center; }
-        label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
-        select, input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #CCC; border-radius: 6px; }
-        .panel-alerta { padding: 15px; border-radius: 8px; font-size: 14px; line-height: 1.5; margin-top: 15px; }
-        .panel-alerta.verde { background-color: #E8F5E9; color: #1B5E20; border: 1px solid #C8E6C9; }
-        .panel-alerta.naranja { background-color: #FFF3E0; color: #E65100; border: 1px solid #FFE0B2; }
-        .cuadro-vista-previa { width: 100%; min-height: 120px; border: 2px dashed #CCC; background-color: #FAFAFA; border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; padding: 10px; color: #999; font-size: 13px; text-align: center; }
-        .btn-accion { width: 100%; padding: 12px; border: none; border-radius: 6px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; }
-        .btn-accion.rojo { background-color: #D32F2F; }
-        .btn-accion.verde-oscuro { background-color: #1B5E20; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Escuela Limpia - Alumnos</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+    body { background-color: #F5F5F5; color: #333; }
+    header { background-color: #1B5E20; color: white; text-align: center; padding: 15px; }
+    optgroup { font-weight: bold; color: #1B5E20; background-color: #E8F5E9; }
+    .tab-bar { display: flex; background-color: #FFFFFF; border-bottom: 1px solid #E0E0E0; position: sticky; top: 0; z-index: 100; }
+    .tab-btn { flex: 1; background: none; border: none; padding: 12px 5px; font-size: 13px; font-weight: bold; color: #666; cursor: pointer; border-bottom: 3px solid transparent; }
+    .tab-btn.active { color: #1B5E20; border-bottom: 3px solid #1B5E20; background-color: #E8F5E9; }
+    .contenedor-principal { padding: 20px; max-width: 500px; margin: 0 auto; }
+    .tab-content { display: none; background-color: #FFFFFF; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .tab-content.active { display: block; }
+    h3 { margin-bottom: 15px; text-align: center; }
+    label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
+    select, input, textarea { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #CCC; border-radius: 6px; font-size: 14px; }
+    textarea { height: 100px; resize: vertical; }
+    .panel-alerta { padding: 15px; border-radius: 8px; font-size: 14px; line-height: 1.5; margin-top: 15px; }
+    .panel-alerta.verde { background-color: #E8F5E9; color: #1B5E20; border: 1px solid #C8E6C9; }
+    .cuadro-vista-previa { width: 100%; min-height: 120px; border: 2px dashed #CCC; background-color: #FAFAFA; border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; padding: 10px; color: #999; font-size: 13px; text-align: center; }
+    .btn-accion { width: 100%; padding: 12px; border: none; border-radius: 6px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; }
+    .btn-accion.verde-oscuro { background-color: #1B5E20; }
+  </style>
 </head>
 <body>
 
-    <header>
-        <h2>🌿 Escuela Limpia</h2>
-    </header>
+  <!-- Ventana Flotante: Nombre Obligatorio -->
+  <div id="pantalla-login" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: white; padding: 30px; border-radius: 8px; max-width: 400px; width: 100%; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+      <h3 style="color: #1B5E20; margin-bottom: 10px;">🌿 ¡Bienvenido a EcoEscuela!</h3>
+      <p style="font-size: 14px; margin-bottom: 20px; color: #666;">Introduce tu nombre o grupo para poder reportar y revisar el estado de la escuela.</p>
+      <input type="text" id="nombreAlumnoInput" placeholder="Ej. Juan Pérez - 3°A">
+      <button onclick="guardarNombreUsuario()" style="width: 100%; padding: 12px; background: #1B5E20; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Ingresar al Sistema</button>
+    </div>
+  </div>
 
-    <nav class="tab-bar">
-        <button class="tab-btn active" onclick="cambiarPestana('degradacion', this)">⏱️ Degradación</button>
-        <button class="tab-btn" onclick="cambiarPestana('reportar', this)">🚨 Reportar</button>
-        <button class="tab-btn" onclick="cambiarPestana('calculadora', this)">🧮 Calculadora</button>
-    </nav>
-    <main class="contenedor-principal">
-        <section id="degradacion" class="tab-content active">
-            <h3>⏱️ ¿Cuánto tardan en degradarse?</h3>
-            <label for="comboMateriales">Selecciona un material o componente por especialidad:</label>
-            <select id="comboMateriales" onchange="mostrarDegradacion()">
-                <option value="">Selecciona un material...</option>
-                <optgroup label="Básicos de la Escuela">
-                    <option value="chicle">Chicle</option>
-                    <option value="pet">Botella de PET</option>
-                    <option value="aluminio">Lata de Aluminio</option>
-                    <option value="bolsa">Bolsa de Plástico</option>
-                    <option value="carton">Cartón y Papel</option>
-                    <option value="unicel">Unicel / Telgopor</option>
-                    <option value="organico">Manzana / Residuos Orgánicos</option>
-                </optgroup>
-                <optgroup label="Mecatrónica">
-                    <option value="jumpers">Cables Jumpers (Protoboard)</option>
-                    <option value="pilas">Pilas y Baterías Lipo</option>
-                    <option value="pcbs">Placas Fenólicas (PCBs)</option>
-                    <option value="motores">Motores DC / Servomotores rotos</option>
-                    <option value="resistencias">Resistencias y Capacitores</option>
-                </optgroup>
-                <optgroup label="Soporte y Mantenimiento">
-                    <option value="carcasas">Carcasas de Monitores o Teclados</option>
-                    <option value="gabinetes">Gabinetes Metálicos (CPU)</option>
-                    <option value="termica">Pasta Térmica Seca</option>
-                </optgroup>
-                <optgroup label="Programación">
-                    <option value="ethernet">Cables de Red (Ethernet UTP)</option>
-                    <option value="discos">Discos Duros Mecánicos Arruinados</option>
-                </optgroup>
-                <optgroup label="Proceso de Gestión Administrativa">
-                    <option value="toner">Cartuchos de Tóner Vacíos</option>
-                    <option value="carpetas">Carpetas Archivadoras de Plástico Rotas</option>
-                    <option value="hojas_calculo">Hojas de Cálculo Impresas con Error</option>
-                </optgroup>
-                <optgroup label="Producción Industrial">
-                    <option value="virutas">Virutas de Metal con Aceite de Corte</option>
-                    <option value="bandas">Bandas Transportadoras de Caucho</option>
-                    <option value="cascos">Cascos de Seguridad Agrietados</option>
-                </optgroup>
-            </select>
-            <div id="cajaResultadoDegradacion" class="panel-alerta verde">
-                Por favor, selecciona una opción del menú para auditar su impacto ambiental.
+  <header>
+    <h2>Escuela Limpia</h2>
+    <p id="saludoUsuario" style="font-size: 13px; color: #E8F5E9; text-align: center; margin-top: 5px; font-weight: bold; display: none;"></p>
+  </header>
+
+  <!-- Navegación -->
+  <nav class="tab-bar">
+    <button class="tab-btn active" onclick="cambiarPestana('degradacion', this)">Degradación</button>
+    <button class="tab-btn" onclick="cambiarPestana('reportar', this)">Reportar</button>
+    <button class="tab-btn" onclick="cambiarPestana('calculadora', this)">Calculadora</button>
+    <button class="tab-btn" onclick="cambiarPestana('mis-reportes', this); cargarEstadoReportesAlumnos();">Estado Red</button>
+  </nav>
+
+  <main class="contenedor-principal">
+    
+    <!-- Pestaña 1 -->
+    <section id="degradacion" class="tab-content active">
+      <h3>¿Cuánto tardan en degradarse?</h3>
+      <label for="comboMateriales">Selecciona un material:</label>
+      <select id="comboMateriales">
+        <option value="organic">Residuos Orgánicos (4 semanas)</option>
+        <option value="paper">Papel y Cartón (1 año)</option>
+        <option value="plastic">Botellas de Plástico (450 años)</option>
+      </select>
+      <div class="panel-alerta verde">Conserva limpia la escuela reduciendo residuos.</div>
+    </section>
+
+    <!-- Pestaña 2 -->
+    <section id="reportar" class="tab-content">
+      <h3>Reportar Punto Sucio Global</h3>
+      <label for="txtDescripcion">Descripción de la zona o desperdicio:</label>
+      <textarea id="txtDescripcion" placeholder="Ej: Hay botellas tiradas atrás del taller de Mecatrónica..."></textarea>
+      <label>Foto de Evidencia:</label>
+      <div class="cuadro-vista-previa">📷 Aquí verás la previsualización de tu imagen</div>
+      <button class="btn-accion verde-oscuro" onclick="enviarReporteFirebase()">📤 Enviar Reporte a la Red</button>
+    </section>
+
+    <!-- Pestaña 3 -->
+    <section id="calculadora" class="tab-content">
+      <h3>Huella de Plástico Anual</h3>
+      <label for="inputBotellas">¿Cuántas botellas de plástico consumes por SEMANA?</label>
+      <input type="number" id="inputBotellas" min="0" placeholder="Ej: 5">
+      <button class="btn-accion verde-oscuro">🍃 Calcular Impacto Anual</button>
+    </section>
+
+    <!-- Pestaña 4: NUEVA -->
+    <section id="mis-reportes" class="tab-content">
+      <h3>📌 Estado de los Puntos Sucios</h3>
+      <p style="font-size: 13px; color: #666; text-align: center; margin-bottom: 15px;">Monitorea qué zonas ya atendió el equipo de administración.</p>
+      <div id="lista-reportes-alumnos" style="max-height: 420px; overflow-y: auto;"></div>
+    </section>
+
+  </main>
+
+  <script>
+    function cambiarPestana(idPestana, boton) {
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(idPestana).classList.add('active');
+      boton.classList.add('active');
+    }
+  </script>
+<script type="module">
+    import { initializeApp } from "https://gstatic.com";
+    import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://gstatic.com";
+
+    // ⚠️ REEMPLAZA CON TUS CREDENCIALES
+    const firebaseConfig = {
+      apiKey: "TU_API_KEY",
+      authDomain: "TU_AUTH_DOMAIN",
+      projectId: "TU_PROJECT_ID",
+      storageBucket: "TU_STORAGE_BUCKET",
+      messagingSenderId: "TU_MESSAGING_SENDER_ID",
+      appId: "TU_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    let nombreUsuarioActivo = "";
+
+    window.guardarNombreUsuario = function() {
+      const nombre = document.getElementById("nombreAlumnoInput").value.trim();
+      if (nombre === "") { alert("Por favor, introduce tu nombre."); return; }
+      nombreUsuarioActivo = nombre;
+      document.getElementById("pantalla-login").style.display = "none";
+      document.getElementById("saludoUsuario").innerText = `👤 Estudiante: ${nombreUsuarioActivo}`;
+      document.getElementById("saludoUsuario").style.display = "block";
+    };
+
+    window.enviarReporteFirebase = async function() {
+      const descripcion = document.getElementById("txtDescripcion").value.trim();
+      if (descripcion === "") { alert("Describe la zona."); return; }
+      const ahora = new Date();
+      try {
+        await addDoc(collection(db, "reportes"), {
+          usuario: nombreUsuarioActivo,
+          descripcion: descripcion,
+          fechaHora: ahora.toLocaleString('es-ES', { hour12: true }),
+          fechaRaw: ahora.toISOString(),
+          estado: "Pendiente",
+          fotoUrl: "" 
+        });
+        alert("¡Reporte enviado al panel de administración! 🌍");
+        document.getElementById("txtDescripcion").value = "";
+      } catch (error) { alert("Error de red."); }
+    };
+
+    async function cargarEstadoReportesAlumnos() {
+      const listaContenedor = document.getElementById("lista-reportes-alumnos");
+      listaContenedor.innerHTML = "<p style='text-align:center; padding:20px;'>Buscando reportes...</p>";
+      try {
+        const q = query(collection(db, "reportes"), orderBy("fechaRaw", "desc"));
+        const querySnapshot = await getDocs(q);
+        if (querySnapshot.empty) { listaContenedor.innerHTML = "<p style='text-align:center;'>Todo limpio 🌱</p>"; return; }
+        listaContenedor.innerHTML = "";
+        querySnapshot.forEach((docSnap) => {
+          const datos = docSnap.data();
+          const esLimpio = datos.estado === "Limpiado";
+          const colorEtiqueta = esLimpio ? "#1B5E20" : "#E65100";
+          const fondoEtiqueta = esLimpio ? "#E8F5E9" : "#FFF3E0";
+          const textoEstado = esLimpio ? "✅ Zona Limpia" : "⏳ Pendiente";
+
+          const tarjeta = `
+            <div style="background: #FAFAFA; border-left: 5px solid ${colorEtiqueta}; padding: 12px; margin-bottom: 10px; border-radius: 4px;">
+              <div style="display: flex; justify-content: space-between; font-size: 11px; color: #777; margin-bottom: 5px;">
+                <span><strong>Por:</strong> ${datos.usuario || "Anónimo"}</span>
+                <span>🕒 ${datos.fechaHora || "Reciente"}</span>
+              </div>
+              <p style="font-size: 13px; margin-bottom: 8px;">${datos.descripcion}</p>
+              <div style="background: ${fondoEtiqueta}; color: ${colorEtiqueta}; padding: 4px 8px; font-size: 11px; border-radius: 4px; font-weight: bold; display: inline-block;">
+                ${textoEstado}
+              </div>
             </div>
-        </section>
-
-        <section id="reportar" class="tab-content">
-            <h3>🚨 Reportar Punto Sucio Global</h3>
-            <div class="formulario">
-                <label>Descripción de la zona o desperdicio:</label>
-                <input type="text" id="txtDescripcion" placeholder="Ej: Basura acumulada en los talleres">
-                <label>Foto de Evidencia:</label>
-                <input type="file" id="inputFoto" accept="image/*" onchange="procesarYCompresorFoto(event)">
-                <div class="cuadro-vista-previa">
-                    <img id="imgPrevia" src="" alt="Vista previa" style="display: none; max-width: 100%; max-height: 150px;">
-                    <span id="txtPrevia">No se ha seleccionado ninguna foto</span>
-                </div>
-                <button class="btn-accion rojo" onclick="enviarReporteNube()">📤 Enviar Reporte a la Red</button>
-            </div>
-        </section>
-
-        <section id="calculadora" class="tab-content">
-            <h3>🧮 Huella de Plástico Anual</h3>
-            <div class="formulario">
-                <label>¿Cuántas botellas de plástico consumes por SEMANA?</label>
-                <input type="number" id="txtCantidadPet" placeholder="Ej. 4" min="0">
-                <button class="btn-accion verde-oscuro" onclick="calcularHuella()">🍃 Calcular Impacto Anual</button>
-                <div id="cajaResultadoCalculadora" class="panel-alerta naranja" style="display: none;"></div>
-            </div>
-        </section>
-    </main>
-    <script>
-        let fotoBase64Global = "";
-        let esValidaParaFiltro = true;
-        const PALABRAS_PROHIBIDAS = ["meme", "memes", "broma", "pack", "sexo", "porno", "pendejo", "puto", "mierda"];
-        
-        // SERVIDOR Y ACCESO CENTRAL RESTAURADO ILIMITADO
-        const URL_SERVIDOR = "https://jsonbin.io";
-        const LLAVE_ACCESO = "$2b$10$vN9vR99Xm7Q8lKxtnZ6N3.3XW.iS2Mh9S/Z1xSREvSae.g8RREfM.";
-
-        function cambiarPestana(idPestana, boton) {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(idPestana).classList.add('active');
-            boton.classList.add('active');
-        }
-
-        function mostrarDegradacion() {
-            const m = document.getElementById('comboMateriales').value;
-            const c = document.getElementById('cajaResultadoDegradacion');
-            const res = {
-                "chicle": "Tarda 5 años en deshacerse debido a que el oxígeno lo endurece y reseca.",
-                "pet": "Tarda de 450 a 500 años en descomponerse por completo. ¡Evita los refrescos plásticos!",
-                "aluminio": "Tarda de 10 a 100 años en desaparecer por de oxidación química natural.",
-                "bolsa": "Tarda de 150 a 400 años. Solo se rompe en microplásticos nocivos.",
-                "carton": "Tarda de 2 a 5 meses. Si se moja se degrada rápido, pero debe depositarse limpio para reciclar.",
-                "unicel": "¡No se degrada nunca! Es 100% permanente y fragmentable, contaminando los patios escolares.",
-                "organico": "Tarda de 2 a 4 semanas. Si se moja se degrada rápido, pero genera mal olor.",
-                "jumpers": "Tardan de 200 a 300 años. El cobre interno se oxida, pero el recubrimiento plástico de PVC dura siglos tirado.",
-                "pilas": "Tardan entre 500 y 1,000 años. Son extremadamente peligrosas; derraman mercurio, plomo y cadmio tóxico.",
-                "pcbs": "Tardan más de 500 años. La baquelita y la fibra de vidrio con resina epóxica no son biodegradables.",
-                "motores": "Tardan de 100 a 500 años. Sus carcasas plásticas y engranajes metálicos resisten décadas.",
-                "resistencias": "Tardan unos 200 a 400 años. Los cuerpos cerámicos y plásticos no se destruyen.",
-                "carcasas": "Tardan de 400 a 500 años. El plástico ABS rígido usado en teclados se fragmenta lentamente.",
-                "gabinetes": "Tardan de 50 a 100 años. La lámina de acero y metal se oxidará lentamente con la humedad.",
-                "termica": "¡No se biodegrada! Los compuestos de silicona contaminan las capas de tierra.",
-                "ethernet": "Tardan de 200 a 300 años. El recubrimiento exterior de PVC protege los hilos de cobre.",
-                "discos": "Tardan más de 500 años. Los platos de aluminio duran décadas.",
-                "toner": "Tarda de 400 a 500 años. El cartucho exterior es de plástico y el polvo negro contiene metales pesados.",
-                "carpetas": "Tardan de 100 a 400 años. Las cubiertas rígidas de polipropileno resisten siglos al desecharse.",
-                "hojas_calculo": "Tardan de 2 a 5 meses. El papel se degrada rápido, pero la tinta de tóner fundida no.",
-                "virutas": "Tardan de 10 a 50 años en oxidarse por completo. El aceite de corte contamina el agua del subsuelo.",
-                "bandas": "Tardan de 50 a 150 años. El caucho vulcanizado está diseñado para resistir fricción extrema.",
-                "cascos": "Tardan de 400 a 500 años. Fabricados con polietileno de alta densidad para resistir impactos duros."
-            };
-            c.innerHTML = res[m] || "Por favor, selecciona una opción del menú para auditar su impacto ambiental.";
-        }
-                 // 🛠️ MOTOR COMPRESOR INTEGRADO AVANZADO (Fuerza un peso pluma para almacenamiento)
-        function procesarYCompresorFoto(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            if (file.size < 3000) { esValidaParaFiltro = false; } else { esValidaParaFiltro = true; }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const imgTemporal = new Image();
-                imgTemporal.src = e.target.result;
-                
-                imgTemporal.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-
-                    const MAX_ANCHO = 350;
-                    let anchoDestino = imgTemporal.width;
-                    let altoDestino = imgTemporal.height;
-
-                    if (anchoDestino > MAX_ANCHO) {
-                        altoDestino *= MAX_ANCHO / anchoDestino;
-                        anchoDestino = MAX_ANCHO;
-                    }
-
-                    canvas.width = anchoDestino;
-                    canvas.height = altoDestino;
-                    ctx.drawImage(imgTemporal, 0, 0, anchoDestino, altoDestino);
-
-                    const fotoComprimidaBase64 = canvas.toDataURL('image/jpeg', 0.2);
-
-                    const vistaPreviaImg = document.getElementById('imgPrevia');
-                    vistaPreviaImg.src = fotoComprimidaBase64;
-                    vistaPreviaImg.style.display = 'block';
-                    document.getElementById('txtPrevia').style.display = 'none';
-
-                    fotoBase64Global = fotoComprimidaBase64;
-                };
-            };
-            reader.readAsDataURL(file);
-        }
-
-        // 📤 ENVIAR REPORTE: Sistema híbrido local blindado contra caídas de internet
-        function enviarReporteNube() {
-            const descInput = document.getElementById('txtDescripcion').value;
-            const desc = descInput.trim().toLowerCase();
-            
-            if (desc === "" || fotoBase64Global === "") {
-                alert("Por favor, escribe una descripción y selecciona una fotografía.");
-                return;
-            }
-
-            if (PALABRAS_PROHIBIDAS.some(p => desc.includes(p))) {
-                alert("🚨 INTENTO BLOQUEADO: Contenido o vocabulario inapropiado.");
-                document.getElementById('txtDescripcion').value = "";
-                return;
-            }
-
-            if (!esValidaParaFiltro) {
-                alert("⚠️ ALERTA: Sube una foto real de evidencia, las capturas o memes están prohibidos.");
-                return;
-            }
-
-            // 💾 PASO 1: GUARDADO INMEDIATO EN LA BASE DE DATOS LOCAL INTERNA DEL DISPOSITIVO
-            let historialLocal = JSON.parse(localStorage.getItem('bd_escuela_limpia')) || [];
-            
-            const nuevoReporte = {
-                id: historialLocal.length + 1,
-                fecha: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString(),
-                descripcion: descInput,
-                foto: fotoBase64Global
-            };
-            
-            historialLocal.unshift(nuevoReporte);
-            
-            // Limitamos a los últimos 20 reportes locales para optimizar el almacenamiento del celular
-            if (historialLocal.length > 20) {
-                historialLocal = historialLocal.slice(0, 20);
-            }
-            
-            localStorage.setItem('bd_escuela_limpia', JSON.stringify(historialLocal));
-
-            // Limpiamos los campos visuales de la pantalla del alumno de inmediato
-            document.getElementById('txtDescripcion').value = "";
-            document.getElementById('imgPrevia').style.display = 'none';
-            document.getElementById('txtPrevia').style.display = 'block';
-            document.getElementById('inputFoto').value = "";
-            fotoBase64Global = "";
-            
-            // Avisamos al alumno que su reporte fue guardado con éxito localmente de forma indestructible
-            alert("✅ ¡Reporte validado y guardado en la base de datos con éxito!");
-
-            // 💾 PASO 2: INTENTO DE RESPALDO SILENCIOSO EN LA NUBE (Si falla, no interrumpe al usuario)
-            const REPALDO_URL = "https://jsonbin.io";
-            const RESPALDO_LLAVE = "$2b$10$vN9vR99Xm7Q8lKxtnZ6N3.3XW.iS2Mh9S/Z1xSREvSae.g8RREfM.";
-
-            fetch(REPALDO_URL + "/latest", { headers: { "X-Master-Key": RESPALDO_LLAVE } })
-            .then(res => res.json())
-            .then(data => {
-                let servidorLista = data.record.reportes || [];
-                servidorLista.unshift(nuevoReporte);
-                if (servidorLista.length > 15) servidorLista = servidorLista.slice(0, 15);
-
-                fetch(REPALDO_URL, {
-                    method: 'PUT',
-                    headers: { 
-                        "Content-Type": "application/json", 
-                        "X-Master-Key": RESPALDO_LLAVE,
-                        "X-Bin-Meta": "false"
-                    },
-                    body: JSON.stringify({ reportes: servidorLista })
-                });
-            })
-            .catch(() => {
-                // Si el servidor de internet está caído, bloqueado o da error de red, 
-                // la consola lo registra en silencio pero el usuario jamás verá una alerta de error.
-                console.log("Respaldo en la nube pausado. Datos protegidos localmente.");
-            });
-        }
-
-        function calcularHuella() {
-            const cantidadSemana = parseFloat(document.getElementById('txtCantidadPet').value);
-            const caja = document.getElementById('cajaResultadoCalculadora');
-
-            if (isNaN(cantidadSemana) || cantidadSemana < 0) {
-                alert("Ingresa un número válido de botellas.");
-                caja.style.display = 'none';
-                return;
-            }
-
-            const anual = cantidadSemana * 52;
-            const kg = anual * 0.025;
-            let fraseDinamica = "";
-
-            if (cantidadSemana === 0) {
-                caja.className = "panel-alerta verde";
-                fraseDinamica = `🌟 <strong>¡Increíble! Tu huella plástica es perfecta.</strong><br><br>` +
-                                `• Consumo anual: <strong>0 botellas</strong> (0.00 kg de desperdicio).<br><br>` +
-                                `💡 <strong>Recomendación:</strong> ¡Eres un líder ambiental! Tu misión ahora es compartir tu hábito e inspirar a los alumnos de las otras carreras técnicas de la escuela a dejar los plásticos desechables.`;
-            } else if (cantidadSemana >= 1 && cantidadSemana <= 3) {
-                caja.className = "panel-alerta naranja";
-                fraseDinamica = `📊 <strong>Impacto Moderado:</strong> En 1 año consumirás unas <strong>${Math.floor(anual)} botellas</strong> (${kg.toFixed(2)} kg de basura).<br><br>` +
-                                `🌱 <strong>Recomendación:</strong> Estás muy cerca de una huella impecable. Te sugerimos dar el paso definitivo esta semana: adquiere un termo reutilizable en la cooperativa escolar y dile adiós al PET.`;
-            } else if (cantidadSemana >= 4 && cantidadSemana <= 7) {
-                caja.className = "panel-alerta naranja";
-                fraseDinamica = `⚠️ <strong>Impacto Alto Detectado:</strong> Al año acumularás <strong>${Math.floor(anual)} botellas</strong>, equivalentes a <strong>${kg.toFixed(2)} kg</strong> de plástico permanente.<br><br>` +
-                                `📢 <strong>Recomendación:</strong> Estás arrojando un volumen considerable de basura a las áreas verdes de la escuela. Márcate el objetivo de reducir tu consumo a la mitad a partir de mañana mismo.`;
-            } else {
-                caja.className = "panel-alerta naranja";
-                fraseDinamica = `🚨 <strong>¡ALERTA ROJA ECOLÓGICA!</strong> Tu consumo anual alcanzará la alarmante cifra de <strong>${Math.floor(anual)} botellas</strong>, tirando <strong>${kg.toFixed(2)} kg</strong> de plástico directo al planeta.<br><br>` +
-                                `💀 <strong>Recomendación Crítica:</strong> Tu nivel de residuo plástico es insostenible y satura los contenedores escolares. Es urgente que detengas la compra de botellas desechables y utilices obligatoriamente los botes de reciclaje del plantel de forma inmediata.`;
-            }
-
-            caja.innerHTML = fraseDinamica;
-            caja.style.display = 'block';
-        }
-    </script>
+          `;
+          listaContenedor.insertAdjacentHTML("beforeend", tarjeta);
+        });
+      } catch (error) { listaContenedor.innerHTML = "<p>Error de conexión.</p>"; }
+    }
+    window.cargarEstadoReportesAlumnos = cargarEstadoReportesAlumnos;
+  </script>
 </body>
 </html>
