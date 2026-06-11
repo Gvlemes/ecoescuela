@@ -43,22 +43,29 @@
 
 <main class="contenedor-principal">
   
-  <!-- PESTAÑA 1: CONCIENTIZACIÓN DE DEGRADACIÓN -->
+  <!-- PESTAÑA 1: CONCIENTIZACIÓN (MECATRÓNICA, PROGRAMACIÓN, ETC) -->
   <section id="degradacion" class="tab-content active">
-    <h3>⏳ ¿Cuánto tardan en degradarse?</h3>
-    <label for="comboMateriales">Selecciona un material:</label>
+    <h3>⏳ Degradación por Especialidad Técnica</h3>
+    <label for="comboMateriales">Selecciona un residuo tecnológico o de taller:</label>
     <select id="comboMateriales" onchange="mostrarDegradacion()">
-      <option value="">-- Seleccionar --</option>
-      <option value="plastico">Botella de Plástico</option>
-      <option value="chicle">Chicle</option>
-      <option value="lata">Lata de Aluminio</option>
-      <option value="papel">Papel o Cartón</option>
-      <option value="vidrio">Botella de Vidrio</option>
+      <option value="">-- Seleccionar Componente --</option>
+      <!-- Mecatrónica -->
+      <option value="tarjeta">⚙️ Tarjeta de Circuito / PCB (Mecatrónica)</option>
+      <option value="soldadura">⚙️ Residuos de Soldadura de Estaño (Mecatrónica)</option>
+      <!-- Programación / Soporte -->
+      <option value="disco">💻 Disco Duro Viejo / Unidad de Almacenamiento (Programación/Soporte)</option>
+      <option value="cable">💻 Aislamiento de Cables de Red / Plástico PVC (Soporte)</option>
+      <!-- Producción Industrial -->
+      <option value="chatarra">🏭 Chatarra y Virutas de Metal / Acero (Producción Industrial)</option>
+      <option value="aceite">🏭 Aceites y Lubricantes Industriales (Producción Industrial)</option>
+      <!-- Procesos de Gestión Administrativa -->
+      <option value="toner">💼 Cartuchos de Tóner e Impresora (Administración)</option>
+      <option value="archivo">💼 Archivos Muertos / Papel Químico de Copia (Administración)</option>
     </select>
     <div id="resultadoDegradacion"></div>
   </section>
 
-  <!-- PESTAÑA 2: REPORTAR CON IMAGEN -->
+  <!-- PESTAÑA 2: FORMULARIO DE REPORTES -->
   <section id="reportar" class="tab-content">
     <h3>📢 Generar Reporte</h3>
     <form id="formularioReporte">
@@ -66,7 +73,7 @@
       <input type="text" id="nombreAlumno" placeholder="Ej. Juan - 3º A" required>
       
       <label>¿Cuál es el problema?</label>
-      <textarea id="mensajeAlumno" placeholder="Ej. Hay basura tirada detrás de las canchas..." rows="3" required></textarea>
+      <textarea id="mensajeAlumno" placeholder="Ej. Dejaron componentes quemados en el taller de mecatrónica..." rows="3" required></textarea>
       
       <label>Evidencia en Foto (Opcional):</label>
       <input type="file" id="fotoInput" accept="image/*" onchange="previsualizarFoto()">
@@ -76,7 +83,7 @@
     </form>
   </section>
 
-  <!-- PESTAÑA 3: CALCULADORA ECOLÓGICA -->
+  <!-- PESTAÑA 3: CALCULADORA -->
   <section id="calculadora" class="tab-content">
     <h3>🧮 Calculadora de Desechos</h3>
     <label>¿Cuántas botellas plásticas usas a la semana?</label>
@@ -85,7 +92,7 @@
     <div id="resultadoCalculadora"></div>
   </section>
 
-  <!-- PESTAÑA 4: COMPROBAR ESTADO DEL REPORTE -->
+  <!-- PESTAÑA 4: REVISAR ESTADO -->
   <section id="estado" class="tab-content">
     <h3>🔍 Estado de mi Reporte</h3>
     <label>Escribe tu nombre para buscar tu reporte:</label>
