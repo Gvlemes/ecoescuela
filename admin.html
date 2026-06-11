@@ -1,123 +1,237 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración - Escuela Limpia</title>
-    <script src="https://jsdelivr.net"></script>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-        body { background-color: #F4F6F9; color: #333; padding: 20px; }
-        header { background-color: #1B5E20; color: white; text-align: center; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-        .seccion { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; }
-        #login { max-width: 400px; margin: 100px auto; text-align: center; }
-        input, button { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #CCC; border-radius: 6px; font-size: 15px; }
-        button { background-color: #1B5E20; color: white; border: none; font-weight: bold; cursor: pointer; }
-        .grid-analitica { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
-        @media (max-width: 768px) { .grid-analitica { grid-template-columns: 1fr; } }
-        .canvas-contenedor { position: relative; height: 220px; width: 100%; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #EEE; font-size: 14px; }
-        th { background-color: #1B5E20; color: white; }
-        .img-miniatura { width: 100px; height: auto; border-radius: 4px; background-color: #EEE; min-height: 50px; display: block; }
-        .indicador-carga { text-align: center; padding: 20px; font-weight: bold; color: #1B5E20; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administración - Escuela Limpia</title>
+  <!-- Cargamos la librería Chart.js para las gráficas estadísticas -->
+  <script src="https://jsdelivr.net"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+    body { background-color: #F4F6F9; color: #333; padding: 20px; }
+    header { background-color: #1B5E20; color: white; text-align: center; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+    .seccion { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; }
+    #login { max-width: 400px; margin: 100px auto; text-align: center; }
+    input, button { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #CCC; border-radius: 6px; font-size: 15px; }
+    button { background-color: #1B5E20; color: white; border: none; font-weight: bold; cursor: pointer; }
+    .grid-analitica { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+    @media (max-width: 768px) { .grid-analitica { grid-template-columns: 1fr; } }
+    .canvas-contenedor { position: relative; height: 250px; width: 100%; display: flex; justify-content: center; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #EEE; font-size: 14px; }
+    th { background-color: #1B5E20; color: white; }
+    .img-miniatura { width: 100px; height: auto; border-radius: 4px; background-color: #EEE; min-height: 50px; display: block; }
+    .indicador-carga { text-align: center; padding: 20px; font-weight: bold; color: #1B5E20; }
+  </style>
 </head>
 <body>
 
-            <div class="seccion">
-            <h3>📋 Tabla de Evidencias (Memoria Interna del Dispositivo)</h3>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Nº Reporte ID</th>
-                            <th>📅 Fecha de Registro</th>
-                            <th>📝 Descripción del Desperdicio</th>
-                            <th>📸 Evidencia Visual</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cuerpoTabla"></tbody>
-                </table>
-            </div>
-            <button onclick="location.reload()" style="background-color:#757575; max-width: 150px; margin-top: 20px;">Cerrar Sesión</button>
+  <!-- Vista 1: Login de Acceso Protegido -->
+  <div id="login" class="seccion">
+    <h2>🔑 Acceso Administrativo</h2>
+    <p style="margin-bottom: 15px; color: #666;">Introduce la clave del laboratorio de Mecatrónica</p>
+    <input type="password" id="passAdmin" placeholder="Contraseña del panel">
+    <button onclick="entrarPanel()">Ingresar al Sistema</button>
+  </div>
+
+  <!-- Vista 2: Panel de Control Oculto al Inicio -->
+  <div id="dashboard" style="display: none;">
+    <header>
+      <h1>🌿 EcoEscuela - Panel de Analíticas</h1>
+      <p>Administración y Control de Puntos Sucios</p>
+    </header>
+
+    <!-- Zona de Estadísticas Dinámicas -->
+    <div class="grid-analitica">
+      <div class="seccion">
+        <h3>📊 Estado Actual de la Escuela</h3>
+        <div class="canvas-contenedor">
+          <canvas id="graficaPastel"></canvas>
         </div>
+      </div>
+      <div class="seccion">
+        <h3>📈 Resumen Operativo</h3>
+        <div style="margin-top: 20px; font-size: 18px;">
+          <p>✅ Zonas Recuperadas: <span id="txtLimpias" style="font-weight: bold; color: green;">0</span></p>
+          <br>
+          <p>⏳ Zonas por Atender: <span id="txtPendientes" style="font-weight: bold; color: red;">0</span></p>
+        </div>
+      </div>
     </div>
 
-    <script>
-        let chartInstancia = null;
+    <!-- Tabla con las nuevas columnas solicitadas -->
+    <div class="seccion">
+      <h3>📋 Tabla de Evidencias Globales (Base de Datos en Tiempo Real)</h3>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>N° Reporte ID</th>
+              <th>Usuario</th>
+              <th>Hora y Fecha de Toma</th>
+              <th>Descripción del Desperdicio</th>
+              <th>Evidencia Visual</th>
+              <th>Estado de Zona</th>
+            </tr>
+          </thead>
+          <tbody id="cuerpoTabla"></tbody>
+        </table>
+      </div>
+      <button onclick="location.reload()" style="background-color:#757575; max-width: 150px; margin-top: 20px;">Cerrar Sesión</button>
+    </div>
+  </div>
 
-        function entrarPanel() {
-            const clave = document.getElementById('passAdmin').value;
-            if (clave === "mecatronica") {
-                document.getElementById('login').style.display = 'none';
-                document.getElementById('dashboard').style.display = 'block';
-                cargarDatosYEstadisticasLocales(); // Llama al motor de memoria interna nativa
-            } else {
-                alert("Clave incorrecta.");
-                document.getElementById('passAdmin').value = "";
-            }
-        }
-
-        // 💾 MOTOR 100% OFFLINE: Lee el almacenamiento seguro del navegador
-        function cargarDatosYEstadisticasLocales() {
-            const cuerpo = document.getElementById('cuerpoTabla');
-            const contador = document.getElementById('totalContador');
-            
-            cuerpo.innerHTML = "";
-
-            // Jalamos el archivo JSON guardado por index.html en el LocalStorage del teléfono
-            const historialLocal = JSON.parse(localStorage.getItem('bd_escuela_limpia')) || [];
-            
-            contador.innerText = historialLocal.length;
-
-            if (historialLocal.length === 0) {
-                cuerpo.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#999; padding:20px;">No hay misiones registradas de forma local en este dispositivo todavía.</td></tr>`;
-                return;
-            }
-
-            let mapaFechasLocal = {};
-
-            // 📋 LLENAMOS LA TABLA CON LOS DATOS LOCALES REALES
-            historialLocal.forEach(r => {
-                // Filtramos la fecha para agrupar los reportes por día en el gráfico
-                let soloFecha = r.fecha.split(" ")[0] || r.fecha;
-                mapaFechasLocal[soloFecha] = (mapaFechasLocal[soloFecha] || 0) + 1;
-
-                const fila = document.createElement('tr');
-                const fotoTag = r.foto ? `<img src="${r.foto}" class="img-miniatura" onclick="window.open(this.src)">` : `<div class='img-miniatura' style='text-align:center;line-height:50px;font-size:11px;color:#999;'>Sin Imagen</div>`;
-                
-                fila.innerHTML = `<td><strong>#${r.id}</strong></td>` +
-                                 `<td>${r.fecha}</td>` +
-                                 `<td>${r.descripcion}</td>` +
-                                 `<td>${fotoTag}</td>`;
-                cuerpo.appendChild(fila);
-            });
-
-            // Mandamos los picos de días calculados al motor gráfico de Chart.js
-            dibujarGrafica(mapaFechasLocal);
-        }
-
-        function dibujarGrafica(mapaFechas) {
-            const ctx = document.getElementById('graficaReportes').getContext('2d');
-            if (chartInstancia) chartInstancia.destroy();
-
-            chartInstancia = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(mapaFechas),
-                    datasets: [{
-                        label: 'Cantidad de Reportes Diarios',
-                        data: Object.values(mapaFechas),
-                        backgroundColor: 'rgba(27, 94, 32, 0.3)',
-                        borderColor: 'rgba(27, 94, 32, 1)',
-                        borderWidth: 2,
-                        borderRadius: 4
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
-            });
-        }
-    </script>
 </body>
 </html>
+<script type="module">
+  // Importar funciones modulares del SDK Web Oficial de Firebase
+  import { initializeApp } from "https://gstatic.com";
+  import { getFirestore, collection, getDocs, doc, updateDoc, query, orderBy } from "https://gstatic.com";
+
+  // ⚠️ REEMPLAZA ESTO CON TUS CREDENCIALES REALES DE FIREBASE
+  const firebaseConfig = {
+    apiKey: "TU_API_KEY",
+    authDomain: "TU_AUTH_DOMAIN",
+    projectId: "TU_PROJECT_ID",
+    storageBucket: "TU_STORAGE_BUCKET",
+    messagingSenderId: "TU_MESSAGING_SENDER_ID",
+    appId: "TU_APP_ID"
+  };
+
+  // Inicializar las conexiones
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  let chartInstancia = null; // Control para borrar y redibujar la gráfica sin errores
+
+  // Validación de acceso escolar
+  window.entrarPanel = function() {
+    const clave = document.getElementById('passAdmin').value;
+    if (clave === "mecatronica") {
+      document.getElementById('login').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      cargarDatosYEstadisticasFirebase(); // Llama al motor en la nube
+    } else {
+      alert("Clave incorrecta del departamento.");
+      document.getElementById('passAdmin').value = "";
+    }
+  }
+
+  // Motor Estadístico: Crea o actualiza el gráfico de pastel
+  function actualizarGraficas(limpias, pendientes) {
+    // Actualizar los textos numéricos informativos
+    document.getElementById("txtLimpias").innerText = limpias;
+    document.getElementById("txtPendientes").innerText = pendientes;
+
+    const ctx = document.getElementById('graficaPastel').getContext('2d');
+    
+    // Si la gráfica ya existía de una carga previa, la destruimos para evitar parpadeos
+    if (chartInstancia) {
+      chartInstancia.destroy();
+    }
+
+    // Dibujar la gráfica con Chart.js
+    chartInstancia = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Zonas Limpiadas ✅', 'Zonas Pendientes ⏳'],
+        datasets: [{
+          data: [limpias, pendientes],
+          backgroundColor: ['#2E7D32', '#D84315'],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false
+      }
+    });
+  }
+  // Motor de Datos: Consulta Firestore e inyecta la información en la tabla
+  async function cargarDatosYEstadisticasFirebase() {
+    const tablaBody = document.getElementById("cuerpoTabla");
+    tablaBody.innerHTML = "<tr><td colspan='6' class='indicador-carga'>Consultando la red de EcoEscuela...</td></tr>";
+
+    try {
+      // Consultamos los reportes ordenándolos por fecha (requiere que guardes el campo "fechaRaw")
+      const q = query(collection(db, "reportes"), orderBy("fechaRaw", "desc"));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        tablaBody.innerHTML = "<tr><td colspan='6' style='text-align:center;'>No hay reportes registrados en la escuela. 🌱</td></tr>";
+        actualizarGraficas(0, 0);
+        return;
+      }
+
+      tablaBody.innerHTML = ""; // Limpiar mensaje de espera
+      let contador = 1;
+      let contadorLimpias = 0;
+      let contadorPendientes = 0;
+
+      querySnapshot.forEach((docSnap) => {
+        const datos = docSnap.data();
+        const idDocumento = docSnap.id;
+
+        // Clasificación para las estadísticas del instituto
+        if (datos.estado === "Limpiado") {
+          contadorLimpias++;
+        } else {
+          contadorPendientes++;
+        }
+
+        // Configuración visual inteligente para el botón de estado
+        const esLimpio = datos.estado === "Limpiado";
+        const textoBoton = esLimpio ? "✅ ¡Zona Limpiada!" : "⏳ Pendiente / Limpiar";
+        const colorBoton = esLimpio ? "#2E7D32" : "#D84315";
+
+        // Estructura de fila adaptada con ID, Usuario, Fecha y Hora de toma
+        const fila = `
+          <tr>
+            <td><strong>#${contador++}</strong><br><small style="color:#888;">(ID: ${idDocumento.substring(0,6)})</small></td>
+            <td>style="font-weight:600;"${datos.usuario || "Estudiante Anónimo"}</td>
+            <td>${datos.fechaHora || "No indicada"}</td>
+            <td>${datos.descripcion}</td>
+            <td>
+              ${datos.fotoUrl ? `<img src="${datos.fotoUrl}" class="img-miniatura" alt="Evidencia">` : '📷 Sin imagen'}
+            </td>
+            <td>
+              <button 
+                onclick="cambiarEstadoZona('${idDocumento}', '${datos.estado || 'Pendiente'}')" 
+                style="background-color: ${colorBoton}; padding: 8px 12px; font-size: 12px; margin: 0; border-radius:4px; width:auto;"
+              >
+                ${textoBoton}
+              </button>
+            </td>
+          </tr>
+        `;
+        tablaBody.insertAdjacentHTML("beforeend", fila);
+      });
+
+      // Renderizar el balance gráfico final
+      actualizarGraficas(contadorLimpias, contadorPendientes);
+
+    } catch (error) {
+      console.error("Error al obtener datos de Firebase:", error);
+      tablaBody.innerHTML = "<tr><td colspan='6' style='text-align:center; color:red;'>Error de credenciales o conexión de red.</td></tr>";
+    }
+  }
+
+  // Permite al administrador alternar el estado de la zona con un solo clic
+  window.cambiarEstadoZona = async function(idDoc, estadoActual) {
+    const nuevoEstado = estadoActual === "Limpiado" ? "Pendiente" : "Limpiado";
+    
+    try {
+      const documentoRef = doc(db, "reportes", idDoc);
+      // Modifica el estado únicamente en los servidores de Firebase
+      await updateDoc(documentoRef, {
+        estado: nuevoEstado
+      });
+      
+      // Recarga el panel completo automáticamente para actualizar la tabla y la gráfica
+      cargarDatosYEstadisticasFirebase();
+    } catch (error) {
+      alert("Ocurrió un error al actualizar el estado en la nube.");
+      console.error(error);
+    }
+  };
+</script>
