@@ -29,11 +29,11 @@
     .btn-borrar:hover { background-color: #dc2626; }
   </style>
 </head>
-<body>
+<body onload="validarAcceso()">
 
   <div class="contenedor">
     <h1>🔑 Panel de Administración (Base de Datos)</h1>
-    <p>Monitorea las métricas del proyecto, revisa las evidencias enviadas y gestiona los estados de los reportes.</p>
+    <p>Monitorea las métricas del proyecto, revisa las evidencias enviadas y gestiona los estados de los reportes. (Actualización automática activa)</p>
 
     <div class="grafica-seccion">
       <canvas id="graficaReportes"></canvas>
@@ -52,6 +52,9 @@
       if (intento === CONTRASEÑA_CORRECTA) {
         document.body.style.display = "block"; 
         consultarReportes(); 
+        
+        // ACTUALIZACIÓN AUTOMÁTICA: Ejecuta la consulta cada 10,000 milisegundos (10 segundos)
+        setInterval(consultarReportes, 10000); 
       } else {
         alert("Contraseña incorrecta. Acceso denegado.");
         window.location.href = "/index.html"; 
@@ -84,7 +87,6 @@
             ? `<button class="btn btn-resolver" onclick="marcarResuelto('${item.id}')">Marcar Resuelto ✅</button>` 
             : `<span class="badge resuelto">Completado</span>`;
 
-          // Manejar fechas inexistentes de pruebas viejas de forma segura
           const fechaFormateada = item.fecha ? new Date(item.fecha).toLocaleString() : "Sin fecha registrada";
 
           div.innerHTML = `
@@ -107,8 +109,7 @@
         inicializarGrafica(datos);
 
       } catch (error) {
-        console.error(error);
-        listaAdmin.innerHTML = "<p style='color:red;'>Error al procesar la información o conectar con el servidor.</p>";
+        console.error("Error al consultar reportes automáticamente:", error);
       }
     }
 
@@ -117,10 +118,9 @@
         const conteoDias = {};
 
         datos.forEach(item => {
-          // Validamos de forma estricta que la fecha sea un string válido para evitar caídas
           if (!item.fecha || typeof item.fecha !== 'string') return;
           
-          const fechaDia = item.fecha.split("T")[0]; // Filtramos solo el día (Año-Mes-Día)
+          const fechaDia = item.fecha.split("T")[0]; 
           
           if (!conteoDias[fechaDia]) {
             conteoDias[fechaDia] = { obtenidos: 0, resueltos: 0 };
@@ -203,18 +203,17 @@
       try {
         const respuesta = await fetch(`/api/eliminar/${id}`, { method: "DELETE" });
         const resultado = await respuesta.json();
-
+        
         if (resultado.ok) {
           consultarReportes(); 
         } else {
-          alert("No se pudo eliminar: " + resultado.error);
+          alert("Error al eliminar el reporte: " + (resultado.error || "Error desconocido"));
         }
       } catch (error) {
-        alert("Error en la petición de borrado.");
+        console.error(error);
+        alert("Error en la petición de eliminación.");
       }
     }
-
-    validarAcceso();
   </script>
 </body>
 </html>
