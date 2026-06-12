@@ -1,9 +1,9 @@
-// ==========================================
-// VARIABLES GLOBALES Y ENLACE DE PESTAÑAS
-// ==========================================
 let baseDatosReportes = [];
 let fotoBase64Global = "";
 
+// ==========================================
+// 1. NAVEGACIÓN ENTRE PESTAÑAS
+// ==========================================
 function cambiarPestana(idPestana, boton) {
     document.querySelectorAll('.tab-content').forEach(content => {
         content.classList.remove('active');
@@ -14,6 +14,7 @@ function cambiarPestana(idPestana, boton) {
     document.getElementById(idPestana).classList.add('active');
     boton.classList.add('active');
 }
+
 // ==========================================
 // 2. CONCIENTIZACIÓN DE DEGRADACIÓN
 // ==========================================
@@ -36,11 +37,11 @@ function mostrarDegradacion() {
         "resistencias": "Tardan unos 200 a 400 años. Sus terminales metálicas se oxidan rápido, pero los cuerpos cerámicos y plásticos no.",
         "carcasas": "Tardan de 400 a 500 años. El plástico ABS rígido usado en teclados y carcasas de monitores es extremadamente denso y se fragmenta lentamente en microplásticos.",
         "gabinetes": "Tardan de 50 a 100 años. La lámina de acero y metal se oxidará lentamente con la humedad del laboratorio, pero las pinturas plásticas protectoras retrasan el proceso.",
-        "termica": "¡No se biodegrada! Los compuestos de silicona y óxidos metálicos (como óxido de zinc o aluminio) se resecan y dispersan en el suelo, contaminando las capas de tierra del taller.",
+        "termica": "¡No se biodegrada! Los compuestos de silicona y óxidos metálicos (como óxido de zinc o aluminio) se resecan and dispersan en el suelo, contaminando las capas de tierra del taller.",
         "ethernet": "Tardan de 200 a 300 años. El recubrimiento exterior de PVC protege los hilos de cobre interiores contra los hongos y bacterias, durando siglos tirado en los contenedores.",
         "discos": "Tardan más de 500 años. Los platos de aluminio recubiertos de aleaciones magnéticas y los brazos mecánicos metálicos duran décadas, mientras que las tarjetas controladoras no se degradan.",
         "toner": "Tarda de 400 a 500 años. El cartucho exterior es de plástico de alta densidad y el polvo negro residual contiene polímeros magnéticos, carbono y metales pesados altamente contaminantes para el agua escolar.",
-        "carpetas": "Tardan de 100 a 400 años. Las cubiertas rígidas de polipropileno o PVC profesen las hojas de la humedad, pero resisten el ataque de bacterias de la tierra durante siglos al desecharse.",
+        "carpetas": "Tardan de 100 a 400 años. Las cubiertas rígidas de polipropileno o PVC protegen las hojas de la humedad, pero resisten el ataque de bacterias de la tierra durante siglos al desecharse.",
         "hojas_calculo": "Tardan de 2 a 5 meses. Al ser papel blanco de oficina se degrada rápido si se moja, pero la tinta de tóner fundida con calor ralentiza el proceso y no sirve para composta.",
         "virutas": "Tardan de 10 a 50 años en oxidarse por completo. Sin embargo, al estar impregnadas con aceite de corte (soluble o refrigerante), este aceite drena al suelo matando plantas y contaminando el agua del subsuelo.",
         "bandas": "Tardan de 50 a 150 años. El caucho vulcanizado reforzado con hilos textiles o de acero está diseñado para resistir fricción extrema, por lo que el ambiente tarde décadas en agrietarlo.",
@@ -53,6 +54,7 @@ function mostrarDegradacion() {
         caja.innerHTML = "Por favor, selecciona una opción del menú para auditar su impacto ambiental.";
     }
 }
+
 // ==========================================
 // 3. PREVISUALIZAR FOTOGRAFÍA (OPTIMIZADA)
 // ==========================================
@@ -89,6 +91,7 @@ function previsualizarFoto(event) {
         reader.readAsDataURL(event.target.files[0]);
     }
 }
+
 // ==========================================
 // 3. ENVIAR REPORTE AL ADMINISTRADOR
 // ==========================================
@@ -126,8 +129,13 @@ async function enviarReporte() {
             document.getElementById('imgPrevia').style.display = 'none';
             document.getElementById('imgPrevia').src = "";
             document.getElementById('txtPrevia').style.display = 'block';
-            document.getElementById('inputFoto').value = "";
-            if (document.getElementById('txtNombreAlumno')) document.getElementById('txtNombreAlumno').value = "";
+            
+            if (document.getElementById('inputFoto')) {
+                document.getElementById('inputFoto').value = "";
+            }
+            if (document.getElementById('txtNombreAlumno')) {
+                document.getElementById('txtNombreAlumno').value = "";
+            }
             fotoBase64Global = "";
 
             alert("¡Reporte almacenado en el registro escolar de manera correcta!");
@@ -139,6 +147,7 @@ async function enviarReporte() {
         alert("Hubo un problema de conexión para enviar el reporte.");
     }
 }
+
 // ==========================================
 // 4. CALCULADORA ECOLÓGICA (PROYECCIÓN PET)
 // ==========================================
@@ -210,6 +219,7 @@ async function buscarMisReportes() {
             let descFinal = item.descripcion || item.mensaje || "Sin detalles";
             let fechaFinal = item.fecha ? new Date(item.fecha).toLocaleDateString() : "Reciente";
 
+            // CORRECCIÓN: Se colocaron las comillas de plantilla (backticks) obligatorias
             let tarjetaHTML = `
                 <div class="status-card ${claseEstado}">
                     <strong>${icono} Estado: ${item.estado || 'Pendiente'}</strong><br>
