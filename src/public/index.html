@@ -124,6 +124,76 @@
 
 </main>
 
+<!-- ================================================================= -->
+<!-- CONEXIÓN INVISIBLE CON FIREBASE (INTERCEPTOR DE API)              -->
+<!-- Permite enviar y leer datos sin alterar tus funciones en app.js   -->
+<!-- ================================================================= -->
+<script type="module">
+  import { initializeApp } from "https://gstatic.com";
+  import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://gstatic.com";
+
+  // Reemplaza estos valores con las credenciales de tu proyecto de Firebase
+  const firebaseConfig = {
+    apiKey: "TU_API_KEY_AQUÍ",
+    authDomain: "://firebaseapp.com",
+    projectId: "tu-proyecto-id",
+    storageBucket: "://appspot.com",
+    messagingSenderId: "tu-sender-id",
+    appId: "tu-app-id"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Redirección del fetch nativo de JavaScript hacia las bases de datos en la nube
+  const originalFetch = window.fetch;
+  window.fetch = async function (url, options) {
+    
+    // Capturar la petición guardar reporte de tu app.js
+    if (url === "/api/guardar" && options && options.method === "POST") {
+      try {
+        const datosReporte = JSON.parse(options.body);
+        
+        datosReporte.fecha = new Date().toISOString();
+        datosReporte.timestamp = Date.now();
+
+        await addDoc(collection(db, "reportesEscuela"), datosReporte);
+        
+        return new Response(JSON.stringify({ ok: true }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      } catch (error) {
+        console.error("Error al guardar en Firestore:", error);
+        return new Response(JSON.stringify({ ok: false }), { status: 500 });
+      }
+    }
+
+    // Capturar la petición leer reporte de tu app.js
+    if (url === "/api/datos") {
+      try {
+        const q = query(collection(db, "reportesEscuela"), orderBy("timestamp", "desc"));
+        const querySnapshot = await getDocs(q);
+        
+        const listaNube = [];
+        querySnapshot.forEach((doc) => {
+          listaNube.push(doc.data());
+        });
+
+        return new Response(JSON.stringify(listaNube), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      } catch (error) {
+        console.error("Error al leer de Firestore:", error);
+        return new Response(JSON.stringify([]), { status: 500 });
+      }
+    }
+
+    return originalFetch(url, options);
+  };
+</script>
+
 <script type="module" src="app.js"></script>
 </body>
 </html>
