@@ -27,7 +27,6 @@
     .btn-accion { width: 100%; padding: 12px; border: none; border-radius: 6px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; }
     .btn-accion.verde-oscuro { background-color: #1B5E20; }
     .item-reporte { border-left: 4px solid #1B5E20; background: #F9F9F9; padding: 12px; margin-top: 12px; border-radius: 0 6px 6px 0; font-size: 13px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    .img-reporte { max-width: 100%; max-height: 150px; border-radius: 4px; margin-top: 8px; display: block; }
     .badge-estado { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-top: 5px; }
     .badge-pendiente { background-color: #FFF3E0; color: #E65100; }
     .badge-solucionado { background-color: #E8F5E9; color: #1B5E20; }
@@ -46,7 +45,7 @@
 </nav>
 
 <main class="contenedor-principal">
-    <!-- SECCIÓN 1: DEGRADACIÓN (CON TUS FUNCIONES Y ALERTAS ORIGINALES) -->
+    <!-- DEGRADACIÓN -->
     <section id="degradacion" class="tab-content active">
         <h3>⏳ ¿Cuánto tardan en degradarse?</h3>
         <label for="comboMateriales">Selecciona un material o componente por especialidad:</label>
@@ -65,7 +64,7 @@
         <div id="resultadoDegradacion"></div>
     </section>
 
-    <!-- SECCIÓN 2: REPORTAR (CON SUBIDA DE FOTO) -->
+    <!-- REPORTAR -->
     <section id="reportar" class="tab-content">
         <h3>📢 Generar Reporte</h3>
         <form id="formReporte">
@@ -76,27 +75,25 @@
             <textarea id="problema" placeholder="Describe la situación de limpieza..." required></textarea>
             
             <label for="fotoProblema">Evidencia Fotográfica (Opcional):</label>
-            <!-- Input oculto para estilizar o directo -->
             <input type="file" id="fotoProblema" accept="image/*" onchange="previsualizarFoto(this)">
             
-            <div id="vistaPrevia" class="cuadro-vista-previa">
-                Ninguna imagen seleccionada
-            </div>
+            <div id="vistaPrevia" class="cuadro-vista-previa">Ninguna imagen seleccionada</div>
             
             <button type="submit" class="btn-accion verde-oscuro">Enviar Reporte a la Escuela</button>
         </form>
         <div id="mensajeEnvio"></div>
     </section>
 
-    <!-- SECCIÓN 3: MIS REPORTES (SEGUIMIENTO DE ESTADOS) -->
+    <!-- MIS REPORTES -->
     <section id="mis-reportes" class="tab-content">
         <h3>🔍 Historial y Estados</h3>
-        <label for="busquedaNombre">Busca por tu Nombre o Grupo para revisar tus estados:</label>
+        <label for="busquedaNombre">Busca por tu Nombre o Grupo:</label>
         <input type="text" id="busquedaNombre" placeholder="Escribe tu grupo o nombre..." oninput="buscarMisReportes()">
         <div id="listaMisReportes"></div>
     </section>
 </main>
 
-<script src="app.js"></script>
+<!-- IMPORTANTE: El type="module" es obligatorio para usar Firebase -->
+<script type="module" src="app.js"></script>
 </body>
 </html>
