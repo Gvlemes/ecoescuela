@@ -53,7 +53,7 @@ function mostrarDegradacion() {
 // ==========================================
 let base64Foto = "";
 function previsualizarFoto() {
-  // CORRECCIÓN: Se restauró el [0] para que lea correctamente el archivo seleccionado
+  // SOLUCIÓN: Agregado el [0] correcto para capturar el archivo sin romper la ejecución
   const file = document.getElementById("fotoInput").files[0];
   const preview = document.getElementById("preview");
   if (!file) return;
@@ -115,13 +115,14 @@ function calcularImpacto() {
     recomendacion = "🚨 <strong>¡Alerta Ecológica!</strong> Tu consumo es muy alto. Recuerda que cada botella tarda siglos en degradarse. ¡Es momento de cambiar a un termo hoy mismo!";
   }
   
+  // SOLUCIÓN: Se limpió la sintaxis de la variable para evitar errores de asignación inválida
   document.getElementById("resultadoCalculadora").innerHTML = `
     <div class="panel-alerta ${claseAlerta}">
       📊 <strong>Tu impacto estimado:</strong><br>
       Desechas unas <strong>${totalAnual} botellas</strong> de plástico al año.<br>
       Esa basura acumulada tardará más de <strong>${tiempoDegradacion}</strong> en desaparecer de la Tierra si no se recicla.<br><br>
       🌱 <strong>Recomendación para ti:</strong><br>
-      ${recommendation = recomendacion}
+      ${recomendacion}
     </div>`;
 }
 
