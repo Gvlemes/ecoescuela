@@ -62,6 +62,7 @@ function previsualizarFoto() {
     return;
   }
 
+  // SOLUCIÓN: Agregado el índice [0] obligatorio para leer el archivo seleccionado correctamente
   const file = input.files[0];
   const reader = new FileReader();
 
@@ -70,9 +71,8 @@ function previsualizarFoto() {
     img.src = e.target.result;
 
     img.onload = function () {
-      // Usamos un Canvas invisible para encoger las fotos pesadas de cámaras/celulares
       const canvas = document.createElement("canvas");
-      const MAX_WIDTH = 600; // Limita el ancho para que pese muy pocos KB
+      const MAX_WIDTH = 500; // Reduce la resolución para que no supere el límite de Firestore
       let width = img.width;
       let height = img.height;
 
@@ -87,8 +87,8 @@ function previsualizarFoto() {
       const ctx = canvas.getContext("2d");
       ctx.drawImage(img, 0, 0, width, height);
 
-      // Guardamos la versión ligera comprimida al 70% de calidad en JPEG
-      base64Foto = canvas.toDataURL("image/jpeg", 0.7);
+      // Comprime la imagen en JPEG para reducir drásticamente el tamaño en KB
+      base64Foto = canvas.toDataURL("image/jpeg", 0.6);
       preview.src = base64Foto;
       preview.style.display = "block";
     };
