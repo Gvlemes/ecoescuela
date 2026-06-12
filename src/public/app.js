@@ -1,9 +1,8 @@
-// ==========================================
-// 1. CONFIGURACIÓN Y PROTOCOLO DE SEGURIDAD FIREBASE
-// ==========================================
+// CONFIGURACIÓN DE FIREBASE CON URL EXPLÍCITA
 const firebaseConfig = {
   apiKey: "AIzaSyCCVjAAdkiNMIB3odwWXDUBbGurE9bgZYM",
   authDomain: "://firebaseapp.com",
+  // Se define de forma explícita la ruta de tu Realtime Database de Google
   databaseURL: "https://firebaseio.com",
   projectId: "escuelalimpia",
   storageBucket: "escuelalimpia.firebasestorage.app",
@@ -15,60 +14,38 @@ const firebaseConfig = {
 let db = null;
 let fotoBase64Global = ""; 
 
-// Inicialización ultra-segura: Si Firebase falla, la interfaz NO se rompe
 try {
     if (typeof firebase !== 'undefined') {
+        // Inicializa pasando la configuración de forma directa
         firebase.initializeApp(firebaseConfig);
-        db = firebase.database();
-        console.log("Firebase conectado exitosamente.");
-    } else {
-        console.warn("Librería de Firebase no detectada en el HTML. Trabajando en modo local.");
+        // Forzamos la conexión explícita pasando la URL del cluster en el constructor
+        db = firebase.database("https://firebaseio.com");
+        console.log("Conexión explícita establecida con Realtime Database.");
     }
 } catch (error) {
-    console.error("Error al inicializar Firebase:", error);
+    console.error("Error crítico al enlazar Firebase:", error);
 }
 
-// Inicializar funciones automáticas al cargar el documento
 document.addEventListener('DOMContentLoaded', () => {
-    // Si Firebase está activo, empezamos a escuchar los reportes en tiempo real
     if (db) {
         escucharReportesAdmin();
         escucharMisReportes();
     }
 });
 
-// ==========================================
-// 2. CONTROL DE INTERFACES Y PESTAÑAS (Fijo, nunca falla)
-// ==========================================
+// PESTAÑAS
 function cambiarPestana(idSeccion, botonActivo) {
-    // 1. Ocultar todas las secciones
-    document.querySelectorAll('.tab-content').forEach(seccion => {
-        seccion.classList.remove('active');
-    });
+    document.querySelectorAll('.tab-content').forEach(seccion => seccion.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     
-    // 2. Quitar color activo a todos los botones
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    // 3. Mostrar la sección seleccionada y activar su botón
     const elemento = document.getElementById(idSeccion);
-    if (elemento) {
-        elemento.classList.add('active');
-    }
-    if (botonActivo) {
-        botonActivo.classList.add('active');
-    }
+    if (elemento) elemento.classList.add('active');
+    if (botonActivo) botonActivo.classList.add('active');
     
-    // Si entra a mis reportes, refrescar la lista
-    if (idSeccion === 'mis-reportes' && db) {
-        escucharMisReportes();
-    }
+    if (idSeccion === 'mis-reportes' && db) escucharMisReportes();
 }
 
-// ==========================================
-// 3. LÓGICA DE TU INTERFAZ (DEGRADACIÓN Y CALCULADORA)
-// ==========================================
+// DEGRADACIÓN
 function mostrarDegradacion() {
     const combo = document.getElementById('comboMateriales');
     const resultado = document.getElementById('resultadoDegradacion');
@@ -76,8 +53,8 @@ function mostrarDegradacion() {
 
     if (combo.value) {
         const datos = combo.value.split('|');
-        const tipoAlerta = datos[1]; // COLOR (verde o naranja)
-        const tiempo = datos[2];     // TIEMPO (ej. 1 año)
+        const tipoAlerta = datos[1]; 
+        const tiempo = datos[2];     
 
         resultado.innerHTML = `<div class="panel-alerta ${tipoAlerta}">
             Este componente tarda aproximadamente <strong>${tiempo}</strong> en degradarse en el entorno escolar.
@@ -87,6 +64,7 @@ function mostrarDegradacion() {
     }
 }
 
+// CALCULADORA
 function calcularImpacto() {
     const botellas = parseInt(document.getElementById('cantBotellas').value) || 0;
     const totalAnual = botellas * 52;
@@ -102,9 +80,7 @@ function calcularImpacto() {
     }
 }
 
-// ==========================================
-// 4. PROCESAMIENTO DE IMÁGENES Y ENVÍOS
-// ==========================================
+// PREVISUALIZAR FOTO
 function previsualizarFoto(input) {
     const vistaPrevia = document.getElementById('vistaPrevia');
     if (input.files && input.files[0]) {
@@ -120,10 +96,16 @@ function previsualizarFoto(input) {
     }
 }
 
+// ENVÍO DE REPORTE A LA URL EXPLICITA
 function guardarReporteFirebase(event) {
-    if (event) event.preventDefault(); // Detiene por completo cualquier recarga de página
-    
+    if (event) event.preventDefault();
     const msg = document.getElementById('mensajeEnvio');
+    
+    if (!db) {
+        if (msg) msg.innerHTML = `<div class="panel-alerta naranja">Error: No hay conexión con la base de datos de Firebase.</div>`;
+        return;
+    }
+
     const nombre = document.getElementById('nombreGrupo').value.trim();
     const problema = document.getElementById('problema').value.trim();
     
@@ -134,12 +116,6 @@ function guardarReporteFirebase(event) {
         fecha: new Date().toLocaleString(),
         solucionado: false 
     };
-
-    // Validar si la base de datos está en línea antes de empujar los datos
-    if (!db) {
-        if (msg) msg.innerHTML = `<div class="panel-alerta naranja">Error: No hay conexión con la base de datos de Firebase.</div>`;
-        return;
-    }
 
     db.ref('reportes').push(nuevoReporte)
         .then(() => {
@@ -153,14 +129,12 @@ function guardarReporteFirebase(event) {
             }
         })
         .catch((error) => {
-            console.error("Error Firebase:", error);
+            console.error("Error de escritura en Firebase:", error);
             if (msg) msg.innerHTML = `<div class="panel-alerta naranja">Error de red al guardar en la base de datos.</div>`;
         });
 }
 
-// ==========================================
-// 5. BANDEJAS DE ENTRADA Y LECTURAS EN TIEMPO REAL
-// ==========================================
+// LISTA DE REPORTES (ALUMNO)
 function escucharMisReportes() {
     const contenedor = document.getElementById('listaMisReportes');
     if (!contenedor || !db) return;
@@ -196,6 +170,7 @@ function escucharMisReportes() {
     });
 }
 
+// BANDEJA DE ENTRADA (ADMIN)
 function escucharReportesAdmin() {
     const contenedorAdmin = document.getElementById('contenedorReportesAdmin');
     if (!contenedorAdmin || !db) return;
@@ -230,9 +205,7 @@ function escucharReportesAdmin() {
 }
 
 function cambiarEstadoReporte(key, nuevoEstado) {
-    if (db) {
-        db.ref('reportes/' + key).update({ solucionado: nuevoEstado });
-    }
+    if (db) db.ref('reportes/' + key).update({ solucionado: nuevoEstado });
 }
 
 function borrarHistorialTotal() {
