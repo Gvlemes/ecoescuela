@@ -28,7 +28,7 @@
     .status-pendiente { border-left-color: #ffc107; background-color: #fffde7; }
   </style>
 
-  <!-- CONEXIONES WEB OBLIGATORIAS DE FIREBASE -->
+  <!-- LIBRERÍAS DE FIREBASE -->
   <script src="https://gstatic.com"></script>
   <script src="https://gstatic.com"></script>
 </head>
@@ -47,7 +47,7 @@
 
 <main class="contenedor-principal">
   
-  <!-- PESTAÑA 1: TIEMPOS DE DEGRADACIÓN -->
+  <!-- PESTAÑA 1: CONCIENTIZACIÓN -->
   <section id="degradacion" class="tab-content active">
     <h3>⏳ ¿Cuánto tardan en degradarse?</h3>
     <label for="comboMateriales">Selecciona un material:</label>
@@ -62,25 +62,26 @@
     <div id="resultadoDegradacion"></div>
   </section>
 
-  <!-- PESTAÑA 2: REPORTAR CON IMAGEN (FIJADO EL ONSUBMIT) -->
+  <!-- PESTAÑA 2: REPORTE -->
   <section id="reportar" class="tab-content">
     <h3>📢 Generar Reporte</h3>
-    <form id="formularioReporte" onsubmit="event.preventDefault(); enviarReporte(); return false;">
+    <form id="formularioReporte" onsubmit="return false;">
       <label>Tu Nombre o Grupo:</label>
       <input type="text" id="nombreAlumno" placeholder="Ej. Juan - 3º A" required>
       
       <label>¿Cuál es el problema?</label>
-      <textarea id="mensajeAlumno" placeholder="Ej. Hay basura tirada detrás de las canchas..." rows="3" required></textarea>
+      <textarea id="mensajeAlumno" placeholder="Ej. Hay basura tirada..." rows="3" required></textarea>
       
       <label>Evidencia en Foto (Opcional):</label>
-      <input type="file" id="fotoInput" accept="image/*" onchange="previsualizarFoto()">
+      <input type="file" id="fotoInput" accept="image/*" onchange="previsualizarFoto(event)">
       <img id="preview" class="preview-img" style="display:none;">
 
-      <button type="submit" class="btn-accion">Enviar Reporte a la Escuela</button>
+      <!-- CAMBIO CLAVE: Llamada directa onclick para evitar bloqueos del navegador -->
+      <button type="button" class="btn-accion" onclick="enviarReporte()">Enviar Reporte a la Escuela</button>
     </form>
   </section>
 
-  <!-- PESTAÑA 3: CALCULADORA ECOLOGÍCA -->
+  <!-- PESTAÑA 3: CALCULADORA -->
   <section id="calculadora" class="tab-content">
     <h3>🧮 Calculadora de Desechos</h3>
     <label>¿Cuántas botellas plásticas usas a la semana?</label>
@@ -89,7 +90,7 @@
     <div id="resultadoCalculadora"></div>
   </section>
 
-  <!-- PESTAÑA 4: COMPROBAR ESTADO DEL REPORTE -->
+  <!-- PESTAÑA 4: HISTORIAL -->
   <section id="estado" class="tab-content">
     <h3>🔍 Estado de mi Reporte</h3>
     <label>Escribe tu nombre para buscar tu reporte:</label>
@@ -97,7 +98,9 @@
     <button class="btn-accion" onclick="buscarMisReportes()">Buscar Historial</button>
     <div id="listaMisReportes" style="margin-top: 15px;"></div>
   </section>
-  <script>
+
+</main>
+<script>
   const firebaseConfig = {
     apiKey: "AIzaSyCCVjAAdkiNMIB3odwWXDUBbGurE9bgZYM",
     authDomain: "://firebaseapp.com",
@@ -147,8 +150,9 @@
     res.innerHTML = `<div class="panel-alerta ${data.tipo}"><strong>Tiempo de degradación:</strong> ${data.tiempo}<br><small>${data.info}</small></div>`;
   }
 
-  function previsualizarFoto() {
-    const input = document.getElementById("fotoInput");
+  // FUNCIÓN REPARADA: Lee la foto usando el índice [0] de forma correcta sin congelar la página
+  function previsualizarFoto(event) {
+    const input = event.target;
     const preview = document.getElementById("preview");
     
     if (!input.files || input.files.length === 0) {
@@ -189,14 +193,13 @@
     reader.readAsDataURL(file);
   }
 
-  // FUNCIÓN SOLUCIONADA: Se ejecuta al presionar el botón sin recargar el navegador
+  // FUNCIÓN CENTRAL REPARADA: Responde al clic instantáneamente
   async function enviarReporte() {
     const nombre = document.getElementById("nombreAlumno").value.trim();
     const mensaje = document.getElementById("mensajeAlumno").value.trim();
-    const fotoAEnviar = base64Foto || "";
 
     if (!nombre || !mensaje) {
-      alert("Por favor llena los campos obligatorios.");
+      alert("Por favor llena los campos de Nombre y Problema.");
       return;
     }
 
@@ -204,7 +207,7 @@
       await db.collection("reportes").add({
         nombre: nombre,
         mensaje: mensaje,
-        foto: fotoAEnviar,
+        foto: base64Foto,
         estado: "Pendiente",
         fecha: firebase.firestore.FieldValue.serverTimestamp()
       });
@@ -306,6 +309,3 @@
 </script>
 </body>
 </html>
-
-
-</main>
