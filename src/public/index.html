@@ -47,7 +47,7 @@
 
 <main class="contenedor-principal">
   
-  <!-- PESTAÑA 1: CONCIENTIZACIÓN DE DEGRADACIÓN -->
+  <!-- PESTAÑA 1: TIEMPOS DE DEGRADACIÓN -->
   <section id="degradacion" class="tab-content active">
     <h3>⏳ ¿Cuánto tardan en degradarse?</h3>
     <label for="comboMateriales">Selecciona un material:</label>
@@ -62,10 +62,10 @@
     <div id="resultadoDegradacion"></div>
   </section>
 
-  <!-- PESTAÑA 2: REPORTAR CON IMAGEN -->
+  <!-- PESTAÑA 2: REPORTAR CON IMAGEN (FIJADO EL ONSUBMIT) -->
   <section id="reportar" class="tab-content">
     <h3>📢 Generar Reporte</h3>
-    <form id="formularioReporte">
+    <form id="formularioReporte" onsubmit="event.preventDefault(); enviarReporte(); return false;">
       <label>Tu Nombre o Grupo:</label>
       <input type="text" id="nombreAlumno" placeholder="Ej. Juan - 3º A" required>
       
@@ -97,10 +97,7 @@
     <button class="btn-accion" onclick="buscarMisReportes()">Buscar Historial</button>
     <div id="listaMisReportes" style="margin-top: 15px;"></div>
   </section>
-
-</main>
-<script>
-  // Credenciales públicas de tu proyecto Escuela Limpia
+  <script>
   const firebaseConfig = {
     apiKey: "AIzaSyCCVjAAdkiNMIB3odwWXDUBbGurE9bgZYM",
     authDomain: "://firebaseapp.com",
@@ -112,23 +109,26 @@
     measurementId: "G-KV3Y0V117P"
   };
 
-  // Inicializar base de datos de manera nativa
   if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
   }
   const db = firebase.firestore();
-  let base64Foto = ""; // Variable global para guardar la imagen comprimida
-  // 1. NAVEGACIÓN ENTRE PESTAÑAS
+  let base64Foto = ""; 
   function cambiarPestana(idPestana, boton) {
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => {
+      c.classList.remove('active');
+      c.style.display = "none";
+    });
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     
     const activa = document.getElementById(idPestana);
-    if (activa) { activa.classList.add('active'); }
+    if (activa) {
+      activa.classList.add('active');
+      activa.style.display = "block";
+    }
     if (boton) { boton.classList.add('active'); }
   }
 
-  // 2. CONCIENTIZACIÓN DE DEGRADACIÓN
   function mostrarDegradacion() {
     const material = document.getElementById("comboMateriales").value;
     const res = document.getElementById("resultadoDegradacion");
@@ -147,7 +147,6 @@
     res.innerHTML = `<div class="panel-alerta ${data.tipo}"><strong>Tiempo de degradación:</strong> ${data.tiempo}<br><small>${data.info}</small></div>`;
   }
 
-  // 3. PREVISUALIZAR Y COMPRIMIR FOTO
   function previsualizarFoto() {
     const input = document.getElementById("fotoInput");
     const preview = document.getElementById("preview");
@@ -190,15 +189,18 @@
     reader.readAsDataURL(file);
   }
 
-  // 4. ESCUCHA DE ENVÍO DIRECTO A FIRESTORE (LA FUNCIÓN QUE QUERÍAS)
-  document.getElementById("formularioReporte").addEventListener("submit", async (e) => {
-    e.preventDefault();
+  // FUNCIÓN SOLUCIONADA: Se ejecuta al presionar el botón sin recargar el navegador
+  async function enviarReporte() {
     const nombre = document.getElementById("nombreAlumno").value.trim();
     const mensaje = document.getElementById("mensajeAlumno").value.trim();
     const fotoAEnviar = base64Foto || "";
 
+    if (!nombre || !mensaje) {
+      alert("Por favor llena los campos obligatorios.");
+      return;
+    }
+
     try {
-      // Sube la información directo a la colección de reportes en Firebase
       await db.collection("reportes").add({
         nombre: nombre,
         mensaje: mensaje,
@@ -209,7 +211,6 @@
 
       alert("¡Reporte enviado con éxito! Puedes consultar su estado en la sección 'Mi Reporte' usando tu nombre.");
       
-      // Limpieza automática del formulario
       document.getElementById("formularioReporte").reset();
       document.getElementById("preview").style.display = "none";
       base64Foto = "";
@@ -218,9 +219,8 @@
       console.error("Error al guardar en Firestore:", error);
       alert("Hubo un problema de conexión para enviar el reporte.");
     }
-  });
+  }
 
-  // 5. CALCULADORA ECOLOGÍCA
   function calcularImpacto() {
     const botellas = parseInt(document.getElementById("calcBotellas").value) || 0;
     const totalAnual = botellas * 52;
@@ -255,7 +255,6 @@
       </div>`;
   }
 
-  // 6. BUSCADOR DE HISTORIAL EN TIEMPO REAL
   async function buscarMisReportes() {
     const nombreBuscar = document.getElementById("busquedaNombre").value.trim().toLowerCase();
     const contenedor = document.getElementById("listaMisReportes");
@@ -307,3 +306,6 @@
 </script>
 </body>
 </html>
+
+
+</main>
