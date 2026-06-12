@@ -1,7 +1,8 @@
-import { initializeApp } from "https://escuelalimpia.onrender.com/";
-import { getDatabase, ref, push, onValue, update, remove } from "https://escuelalimpia.onrender.com/admin";
+// 1. IMPORTACIONES CORREGIDAS (Deben apuntar siempre a gstatic.com)
+import { initializeApp } from "https://gstatic.com";
+import { getDatabase, ref, push, onValue, update, remove } from "https://gstatic.com";
 
-// 1. CONFIGURACIÓN DE FIREBASE (Reemplaza con los datos reales de tu Firebase Console)
+// Tu configuración real de Firebase Console
 const firebaseConfig = {
   apiKey: "AIzaSyCCVjAAdkiNMIB3odwWXDUBbGurE9bgZYM",
   authDomain: "escuelalimpia.firebaseapp.com",
