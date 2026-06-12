@@ -199,6 +199,9 @@
   }
 
   // 4. ENVÍO DE REPORTE INMEDIATO Y UNIVERSAL
+    // ==========================================
+  // FUNCIÓN ENVIAR REPORTE CORREGIDA Y DIRECTA
+  // ==========================================
   async function enviarReporte() {
     const nombre = document.getElementById("nombreAlumno").value.trim();
     const mensaje = document.getElementById("mensajeAlumno").value.trim();
@@ -209,18 +212,23 @@
     }
 
     try {
+      // CORRECCIÓN DIRECTA: Usamos una fecha ISO de texto plano idéntica a tu base de datos
+      const fechaHoy = new Date().toISOString();
+
       await db.collection("reportes").add({
         nombre: nombre,
         mensaje: mensaje,
         foto: base64Foto || "",
         estado: "Pendiente",
-        fecha: firebase.firestore.FieldValue.serverTimestamp()
+        fecha: fechaHoy
       });
 
       alert("¡Reporte enviado con éxito! Ya se guardó en tu base de datos.");
       
+      // Limpia la pantalla para el próximo envío
       document.getElementById("formularioReporte").reset();
-      document.getElementById("preview").style.display = "none";
+      const previewImg = document.getElementById("preview");
+      if (previewImg) previewImg.style.display = "none";
       base64Foto = "";
 
     } catch (error) {
@@ -228,6 +236,7 @@
       alert("Hubo un problema de conexión para enviar el reporte.");
     }
   }
+
 
   // 5. CALCULADORA ECOLOGÍCA
 function calcularImpacto() {
