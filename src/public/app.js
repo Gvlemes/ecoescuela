@@ -79,7 +79,6 @@ window.enviarReporteNuevo = async function(event) {
     return;
   }
 
-  // Detecta automáticamente si estás en localhost o en ://onrender.com
   const urlBase = window.location.origin;
 
   try {
@@ -111,7 +110,7 @@ window.enviarReporteNuevo = async function(event) {
 };
 
 // ==========================================
-// 4. CALCULADORA ECOLÓGICA CON RECOMENDACIONES DINÁMICAS
+// 4. CALCULADORA ECOLÓGICA (CORREGIDA)
 // ==========================================
 window.calcularImpacto = function() {
   const botellas = parseInt(document.getElementById("calcBotellas").value) || 0;
@@ -129,7 +128,8 @@ window.calcularImpacto = function() {
     recomendacion = "👍 <strong>¡Buen trabajo!</strong> Tu consumo es bajo. Intenta sustituirlas por completo usando un termo reutilizable en la escuela.";
   } else if (botellas >= 4 && botellas <= 7) {
     claseAlerta = "naranja";
-    recommendation = "⚠️ <strong>¡Atención!</strong> Estás usando casi una botella diaria. Te sugerimos organizar con tu grupo un reto para usar cantimploras de agua.";
+    // CORREGIDO: Se cambió 'recommendation' por 'recomendacion' en español
+    recomendacion = "⚠️ <strong>¡Atención!</strong> Estás usando casi una botella diaria. Te sugerimos organizar con tu grupo un reto para usar cantimploras de agua.";
   } else {
     claseAlerta = "naranja";
     recomendacion = "🚨 <strong>¡Alerta Ecológica!</strong> Tu consumo es muy alto. Recuerda que cada botella tarda siglos en degradarse. ¡Es momento de cambiar a un termo hoy mismo!";
