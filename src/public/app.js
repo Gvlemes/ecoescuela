@@ -1,6 +1,4 @@
-// ==========================================
-// 1. CONFIGURACIÓN DE FIREBASE (MÉTODO COMPATIBLE)
-// ==========================================
+// CONFIGURACIÓN DE FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyCCVjAAdkiNMIB3odwWXDUBbGurE9bgZYM",
   authDomain: "://firebaseapp.com",
@@ -32,9 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// ==========================================
-// 2. CONTROL DE PESTAÑAS
-// ==========================================
+// PESTAÑAS
 function cambiarPestana(idSeccion, botonActivo) {
     document.querySelectorAll('.tab-content').forEach(seccion => seccion.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -46,9 +42,7 @@ function cambiarPestana(idSeccion, botonActivo) {
     if (idSeccion === 'mis-reportes' && db) escucharMisReportes();
 }
 
-// ==========================================
-// 3. DEGRADACIÓN (CORREGIDA CON SUS ÍNDICES REALES)
-// ==========================================
+// DEGRADACIÓN
 function mostrarDegradacion() {
     const combo = document.getElementById('comboMateriales');
     const resultado = document.getElementById('resultadoDegradacion');
@@ -56,8 +50,8 @@ function mostrarDegradacion() {
 
     if (combo.value) {
         const datos = combo.value.split('|');
-        const tipoAlerta = datos[1]; // Posición 1: verde o naranja
-        const tiempo = datos[2];     // Posición 2: tiempo de degradación
+        const tipoAlerta = datos[1]; 
+        const tiempo = datos[2];     
 
         resultado.innerHTML = `<div class="panel-alerta ${tipoAlerta}">
             Este componente tarda aproximadamente <strong>${tiempo}</strong> en degradarse en el entorno escolar.
@@ -67,9 +61,7 @@ function mostrarDegradacion() {
     }
 }
 
-// ==========================================
-// 4. CALCULADORA DE IMPACTO
-// ==========================================
+// CALCULADORA
 function calcularImpacto() {
     const botellas = parseInt(document.getElementById('cantBotellas').value) || 0;
     const totalAnual = botellas * 52;
@@ -85,17 +77,32 @@ function calcularImpacto() {
     }
 }
 
-// ==========================================
-// 5. PROCESAMIENTO DE IMÁGENES
-// ==========================================
+// 🚨 FUNCIÓN COMPRESORA: Reduce el tamaño de la foto para que Firebase la acepte
 function previsualizarFoto(input) {
     const vistaPrevia = document.getElementById('vistaPrevia');
     if (input.files && input.files[0]) {
         const lector = new FileReader();
         lector.onload = function(e) {
-            vistaPrevia.innerHTML = `<img src="${e.target.result}" alt="Vista previa" style="max-width: 100%; max-height: 120px;">`;
-            fotoBase64Global = e.target.result; 
-        }
+            const img = new Image();
+            img.src = e.target.result;
+            img.onload = function() {
+                // Crear un lienzo (canvas) para reducir la imagen
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 400; // Reducimos el ancho máximo a 400px para que sea ultra ligera
+                const scaleSize = MAX_WIDTH / img.width;
+                canvas.width = MAX_WIDTH;
+                canvas.height = img.height * scaleSize;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                // Convertir a Base64 optimizado con calidad media (0.6)
+                const dataUrlOptimizada = canvas.toDataURL('image/jpeg', 0.6);
+                
+                vistaPrevia.innerHTML = `<img src="${dataUrlOptimizada}" alt="Vista previa" style="max-width: 100%; max-height: 120px;">`;
+                fotoBase64Global = dataUrlOptimizada; // Guardamos la foto ya ligera
+            };
+        };
         lector.readAsDataURL(input.files[0]);
     } else {
         vistaPrevia.innerHTML = "Ninguna imagen seleccionada";
@@ -103,9 +110,7 @@ function previsualizarFoto(input) {
     }
 }
 
-// ==========================================
-// 6. GUARDAR REPORTE EN FIREBASE
-// ==========================================
+// GUARDAR REPORTE
 function guardarReporteFirebase(event) {
     if (event) event.preventDefault();
     const msg = document.getElementById('mensajeEnvio');
@@ -121,7 +126,7 @@ function guardarReporteFirebase(event) {
     const nuevoReporte = {
         nombre: nombre,
         problema: problema,
-        foto: fotoBase64Global,
+        foto: fotoBase64Global, // Envía la foto comprimida y segura
         fecha: new Date().toLocaleString(),
         solucionado: false 
     };
@@ -138,14 +143,12 @@ function guardarReporteFirebase(event) {
             }
         })
         .catch((error) => {
-            console.error("Error al guardar en Firebase:", error);
-            if (msg) msg.innerHTML = `<div class="panel-alerta naranja">Error de red al guardar en la base de datos.</div>`;
+            console.error("Error Firebase:", error);
+            if (msg) msg.innerHTML = `<div class="panel-alerta naranja">Error al guardar. Archivo demasiado pesado o error de red.</div>`;
         });
 }
 
-// ==========================================
-// 7. LECTURA DE REPORTES EN TIEMPO REAL
-// ==========================================
+// ESCUCHAS
 function escucharMisReportes() {
     const contenedor = document.getElementById('listaMisReportes');
     if (!contenedor || !db) return;
@@ -223,3 +226,6 @@ function borrarHistorialTotal() {
         db.ref('reportes').remove();
     }
 }
+Usa el código con precaución.🚀 Sube la actualización finalReemplaza tu archivo app.js local, guarda los cambios y mándalos a producción:bashgit add .
+git commit -m "Fix: Compresión de imágenes integrada para evitar bloqueos en Firebase"
+git push origin main
