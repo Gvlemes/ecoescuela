@@ -25,11 +25,20 @@ window.mostrarDegradacion = function() {
     chicle: { tiempo: "5 años", info: "Contiene resinas sintéticas que los pájaros confunden con comida.", tipo: "naranja" },
     lata: { tiempo: "10 años", info: "El aluminio se oxida lentamente, requiere mucha energía reciclarlo.", tipo: "naranja" },
     papel: { tiempo: "1 año", info: "Se degrada rápido si hay humedad, pero evitemos desperdiciarlo.", tipo: "verde" },
-    vidrio: { tiempo: "4,000 años", info: "Es 100% reciclable de forma infinita, pero tarda milenios en la naturaleza.", tipo: "naranja" }
+    vidrio: { tiempo: "4,000 años", info: "Es 100% reciclable de forma infinita, pero tarda milenios en la naturaleza.", tipo: "naranja" },
+    tarjeta: { tiempo: "Más de 500 años", info: "Contiene fibra de vidrio, polímeros y metales pesados.", tipo: "naranja" },
+    soldadura: { tiempo: "Indefinido", info: "Los metales como el estaño y plomo saturan el suelo de toxicidad.", tipo: "naranja" },
+    chatarra: { tiempo: "3 a 10 años", info: "Se oxida con facilidad en presencia de humedad.", tipo: "verde" },
+    aceite: { tiempo: "Altamente persistente", info: "Un solo litro contamina hasta un millón de litros de agua dulce.", tipo: "naranja" },
+    cable: { tiempo: "100 a 400 años", info: "El recubrimiento de PVC no se descompone biológicamente.", tipo: "naranja" },
+    pila: { tiempo: "1000 años", info: "Altamente peligrosa; mercurio y litio pueden filtrarse a mantos acuíferos.", tipo: "naranja" },
+    disco: { tiempo: "Más de 200 años", info: "Compuesto de aluminio fundido y recubrimientos magnéticos complejos.", tipo: "naranja" },
+    toner: { tiempo: "450 años", info: "Los polímeros plásticos del cartucho tardan siglos en desintegrarse.", tipo: "naranja" },
+    archivo: { tiempo: "2 a 5 semanas", info: "El papel estándar se degrada rápido, pero tintas químicas retrasan el proceso.", tipo: "verde" }
   };
 
   if (!material) { res.innerHTML = ""; return; }
-  const data = datos[material];
+  const data = datos[material] || { tiempo: "Desconocido", info: "No hay información de este elemento.", tipo: "naranja" };
   
   res.innerHTML = `<div class="panel-alerta ${data.tipo}"><strong>Tiempo de degradación:</strong> ${data.tiempo}<br><small>${data.info}</small></div>`;
 };
@@ -49,16 +58,15 @@ window.previsualizarFoto = function() {
 
   const reader = new FileReader();
   reader.onloadend = function () {
-    base64Foto = reader.result; // Guarda la imagen codificada en Base64
+    base64Foto = reader.result; 
     preview.src = base64Foto;
     preview.style.display = "block";
   };
   reader.readAsDataURL(file);
 };
 
-// FUNCIÓN INMANEJABLE ATADA AL BOTÓN ENVIAR POR CLICK
 window.enviarReporteNuevo = async function(event) {
-  event.preventDefault(); // Detiene la recarga automática de la página
+  event.preventDefault(); 
 
   const nombreInput = document.getElementById("nombreAlumno");
   const mensajeInput = document.getElementById("mensajeAlumno");
@@ -66,20 +74,22 @@ window.enviarReporteNuevo = async function(event) {
   const nombre = nombreInput.value.trim();
   const mensaje = mensajeInput.value.trim();
 
-  // Validamos campos obligatorios antes de disparar la petición HTTP
   if (!nombre || !mensaje) {
     alert("Por favor, llena los campos obligatorios (Nombre y Problema).");
     return;
   }
 
+  // Detecta automáticamente si estás en localhost o en ://onrender.com
+  const urlBase = window.location.origin;
+
   try {
-    const respuesta = await fetch("/api/guardar", {
+    const respuesta = await fetch(`${urlBase}/api/guardar`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ 
         nombre: nombre, 
         mensaje: mensaje, 
-        foto: base64Foto, // Envía el string largo de la foto
+        foto: base64Foto, 
         estado: "Pendiente"
       })
     });
@@ -90,13 +100,13 @@ window.enviarReporteNuevo = async function(event) {
       alert("¡Reporte enviado con éxito! Puedes consultar su estado en la sección 'Mi Reporte' usando tu nombre.");
       document.getElementById("formularioReporte").reset();
       document.getElementById("preview").style.display = "none";
-      base64Foto = ""; // Limpieza de la variable
+      base64Foto = ""; 
     } else {
       alert("Error al enviar el reporte: " + (res.error || "Falla interna."));
     }
   } catch (err) {
     console.error("Error capturado:", err);
-    alert("No se pudo conectar con el servidor. Asegúrate de encender tu backend con 'npm start'.");
+    alert("No se pudo conectar con el servidor. Si acabas de abrir la página en Render, espera 1 minuto a que el servidor termine de encender de fondo e inténtalo de nuevo.");
   }
 };
 
@@ -119,7 +129,7 @@ window.calcularImpacto = function() {
     recomendacion = "👍 <strong>¡Buen trabajo!</strong> Tu consumo es bajo. Intenta sustituirlas por completo usando un termo reutilizable en la escuela.";
   } else if (botellas >= 4 && botellas <= 7) {
     claseAlerta = "naranja";
-    recomendacion = "⚠️ <strong>¡Atención!</strong> Estás usando casi una botella diaria. Te sugerimos organizar con tu grupo un reto para usar cantimploras de agua.";
+    recommendation = "⚠️ <strong>¡Atención!</strong> Estás usando casi una botella diaria. Te sugerimos organizar con tu grupo un reto para usar cantimploras de agua.";
   } else {
     claseAlerta = "naranja";
     recomendacion = "🚨 <strong>¡Alerta Ecológica!</strong> Tu consumo es muy alto. Recuerda que cada botella tarda siglos en degradarse. ¡Es momento de cambiar a un termo hoy mismo!";
@@ -145,7 +155,9 @@ window.buscarMisReportes = function() {
 
   contenedor.innerHTML = "Buscando...";
   
-  fetch("/api/datos")
+  const urlBase = window.location.origin;
+
+  fetch(`${urlBase}/api/datos`)
     .then(respuesta => respuesta.json())
     .then(datos => {
       const filtrados = datos.filter(item => item.nombre && item.nombre.toLowerCase().includes(nombreBuscar));
@@ -174,6 +186,6 @@ window.buscarMisReportes = function() {
     })
     .catch(error => {
       console.error("Error en consulta:", error);
-      contenedor.innerHTML = "<p style='color:red;'>Error al conectar con la base de datos externa.</p>";
+      contenedor.innerHTML = "<p style='color:red;'>Error al conectar con la base de datos.</p>";
     });
 };
