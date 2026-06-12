@@ -1,160 +1,137 @@
-// Base de datos local de materiales y residuos
-const datosDegradacion = {
-  plastico: { tiempo: "450 años", info: "Altamente contaminante, se fragmenta en microplásticos nocivos.", clase: "naranja" },
-  chicle: { tiempo: "5 años", info: "Se endurece y degrada lentamente por acción del oxígeno.", clase: "naranja" },
-  lata: { tiempo: "10 a 100 años", info: "El aluminio requiere mucho tiempo para oxidarse por completo.", clase: "naranja" },
-  vidrio: { tiempo: "4000 años", info: "Es reciclable al 100% pero en la naturaleza tarda milenios.", clase: "verde" },
-  tarjeta: { tiempo: "Más de 500 años", info: "Contiene fibra de vidrio, polímeros y metales pesados.", clase: "naranja" },
-  soldadura: { tiempo: "Indefinido", info: "Los metales como el estaño y plomo saturan el suelo de toxicidad.", clase: "naranja" },
-  chatarra: { tiempo: "3 a 10 años", info: "Se oxida con facilidad en presencia de humedad.", clase: "verde" },
-  aceite: { tiempo: "Altamente persistente", info: "Un solo litro contamina hasta un millón de litros de agua dulce.", clase: "naranja" },
-  cable: { tiempo: "100 a 400 años", info: "El recubrimiento de PVC no se descompone biológicamente.", clase: "naranja" },
-  pila: { tiempo: "1000 años", info: "Altamente peligrosa; mercurio y litio pueden filtrarse a mantos acuíferos.", clase: "naranja" },
-  disco: { tiempo: "Más de 200 años", info: "Compuesto de aluminio fundido y recubrimientos magnéticos complejos.", clase: "naranja" },
-  toner: { tiempo: "450 años", info: "Los polímeros plásticos del cartucho tardan siglos en desintegrarse.", clase: "naranja" },
-  archivo: { tiempo: "2 a 5 semanas", info: "El papel estándar se degrada rápido, pero tintas químicas retrasan el proceso.", clase: "verde" }
-};
+// ==========================================
+// 1. NAVEGACIÓN ENTRE PESTAÑAS
+// ==========================================
+function cambiarPestana(idPestana, boton) {
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(idPestana).classList.add('active');
+  boton.classList.add('active');
+}
 
-// 2. MOSTRAR INFORMACIÓN DE DEGRADACIÓN
-window.mostrarDegradacion = function() {
-  const seleccion = document.getElementById("comboMateriales").value;
-  const contenedor = document.getElementById("resultadoDegradacion");
-
-  // Si no hay selección válida, limpiamos el recuadro
-  if (!seleccion || !datosDegradacion[seleccion]) {
-    contenedor.innerHTML = "";
-    return;
-  }
-
-  const { tiempo, info, clase } = datosDegradacion[seleccion];
+// ==========================================
+// 2. CONCIENTIZACIÓN DE DEGRADACIÓN
+// ==========================================
+function mostrarDegradacion() {
+  const material = document.getElementById("comboMateriales").value;
+  const res = document.getElementById("resultadoDegradacion");
   
-  // Renderizamos la alerta con los estilos originales
-  contenedor.innerHTML = `
-    <div class="panel-alerta ${clase}" style="margin-top: 15px;">
-      <strong>⏱️ Tiempo estimado:</strong> ${tiempo}<br>
-      <p style="margin-top:5px; color:inherit; font-size:13px;">${info}</p>
-    </div>
-  `;
-};
-// 3. PREVISUALIZAR LA FOTO Y TRANSFORMARLA A CADENA BASE64
-window.previsualizarFoto = function() {
-  const input = document.getElementById("fotoInput");
+  const datos = {
+    plastico: { tiempo: "450 años", info: "Las botellas se fragmentan en microplásticos dañinos para el suelo.", tipo: "naranja" },
+    chicle: { tiempo: "5 años", info: "Contiene resinas sintéticas que los pájaros confunden con comida.", tipo: "naranja" },
+    lata: { tiempo: "10 años", info: "El aluminio se oxida lentamente, requiere mucha energía reciclarlo.", tipo: "naranja" },
+    papel: { tiempo: "1 año", info: "Se degrada rápido si hay humedad, pero evitemos desperdiciarlo.", tipo: "verde" },
+    vidrio: { tiempo: "4,000 años", info: "Es 100% reciclable de forma infinita, pero tarda milenios en la naturaleza.", tipo: "naranja" }
+  };
+
+  if(!material) { res.innerHTML = ""; return; }
+  const data = datos[material];
+  res.innerHTML = `<div class="panel-alerta ${data.type}"><strong>Tiempo de degradación:</strong> ${data.tiempo}<br><small>${data.info}</small></div>`;
+}
+
+// ==========================================
+// 3. REPORTAR CON IMAGEN (BASE64)
+// ==========================================
+let base64Foto = "";
+function previsualizarFoto() {
+  const file = document.getElementById("fotoInput").files[0];
   const preview = document.getElementById("preview");
-  
-  if (input.files && input.files[0]) {
-    const lector = new FileReader();
-    
-    lector.onload = function(e) {
-      preview.src = e.target.result;
-      preview.style.display = "block"; // Muestra la foto en miniatura
-      fotoBase64 = e.target.result;    // Guarda la cadena de texto de la imagen
-    };
-    
-    lector.readAsDataURL(input.files[0]);
-  } else {
-    preview.style.display = "none";
-    fotoBase64 = "";
-  }
-};
+  if (!file) return;
 
-// INTERCEPTOR DEL FORMULARIO DE ENVÍO
-document.addEventListener("DOMContentLoaded", () => {
-  const formulario = document.getElementById("formularioReporte");
-  if (formulario) {
-    formulario.addEventListener("submit", async (e) => {
-      e.preventDefault(); // Evita que la página se refresque sola
-      
-      const nombre = document.getElementById("nombreAlumno").value;
-      const mensaje = document.getElementById("mensajeAlumno").value;
-      
-      try {
-        const respuesta = await fetch("/api/datos", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            nombre: nombre,
-            mensaje: mensaje,
-            foto: fotoBase64, // Mandamos el texto de la imagen directamente a Firestore
-            fecha: new Date().toISOString(),
-            estado: "Pendiente"
-          })
-        });
-        
-        if (respuesta.ok) {
-          alert("¡Reporte enviado exitosamente a la escuela! 🎉");
-          formulario.reset();
-          document.getElementById("preview").style.display = "none";
-          fotoBase64 = ""; // Reseteamos la variable
-        } else {
-          alert("Error en el servidor al intentar procesar el reporte.");
-        }
-      } catch (err) {
-        console.error(err);
-        alert("No se pudo establecer conexión con el servidor.");
-      }
-    });
+  const reader = new FileReader();
+  reader.onloadend = function () {
+    base64Foto = reader.result;
+    preview.src = base64Foto;
+    preview.style.display = "block";
+  }
+  reader.readAsDataURL(file);
+}
+
+document.getElementById("formularioReporte").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const nombre = document.getElementById("nombreAlumno").value;
+  const mensaje = document.getElementById("mensajeAlumno").value;
+
+  const respuesta = await fetch("/api/guardar", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nombre, mensaje, foto: base64Foto, estado: "Pendiente" })
+  });
+
+  const res = await respuesta.json();
+  if (res.ok) {
+    alert("¡Reporte enviado con éxito! Puedes consultar su estado en la sección 'Mi Reporte' usando tu nombre.");
+    document.getElementById("formularioReporte").reset();
+    document.getElementById("preview").style.display = "none";
+    base64Foto = "";
+  } else {
+    alert("Error al enviar el reporte.");
   }
 });
-/ 4. CALCULADORA DE DESECHOS PLÁSTICOS
-window.calcularImpacto = function() {
+
+// ==========================================
+// 4. CALCULADORA ECOLÓGICA CON RECOMENDACIONES DINÁMICAS
+// ==========================================
+function calcularImpacto() {
   const botellas = parseInt(document.getElementById("calcBotellas").value) || 0;
-  const contenedor = document.getElementById("resultadoCalculadora");
+  const totalAnual = botellas * 52;
+  const tiempoDegradacion = totalAnual > 0 ? "450 años" : "0 años";
+  
+  let recomendacion = "";
+  let claseAlerta = "";
 
-  const alAnio = botellas * 52;
-  const tiempoTotal = alAnio * 450;
+  // Lógica dinámica basada en la cantidad ingresada
+  if (botellas === 0) {
+    claseAlerta = "verde";
+    recomendacion = "🌟 <strong>¡Increíble, nivel Héroe Ecológico!</strong> Sigue así, estás cuidando al planeta al máximo al no generar estos residuos.";
+  } else if (botellas >= 1 && botellas <= 3) {
+    claseAlerta = "verde";
+    recomendacion = "👍 <strong>¡Buen trabajo!</strong> Tu consumo es bajo. Intenta sustituirlas por completo usando un termo reutilizable en la escuela.";
+  } else if (botellas >= 4 && botellas <= 7) {
+    claseAlerta = "naranja";
+    recomendacion = "⚠️ <strong>¡Atención!</strong> Estás usando casi una botella diaria. Te sugerimos organizar con tu grupo un reto para usar cantimploras de agua.";
+  } else {
+    claseAlerta = "naranja";
+    recomendacion = "🚨 <strong>¡Alerta Ecológica!</strong> Tu consumo es muy alto. Recuerda que cada botella tarda siglos en degradarse. ¡Es momento de cambiar a un termo hoy mismo!";
+  }
+  
+  document.getElementById("resultadoCalculadora").innerHTML = `
+    <div class="panel-alerta ${claseAlerta}">
+      📊 <strong>Tu impacto estimado:</strong><br>
+      Desechas unas <strong>${totalAnual} botellas</strong> de plástico al año.<br>
+      Esa basura acumulada tardará más de <strong>${tiempoDegradacion}</strong> en desaparecer de la Tierra si no se recicla.<br><br>
+      🌱 <strong>Recomendación para ti:</strong><br>
+      ${recomendacion}
+    </div>`;
+}
 
-  contenedor.innerHTML = `
-    <div class="panel-alerta naranja" style="margin-top: 15px;">
-      Al año consumes aproximadamente <strong>${alAnio} botellas</strong>.<br>
-      Tus desperdicios anuales tardarán un equivalente de <strong>${tiempoTotal} años</strong> en desaparecer por completo.
-    </div>
-  `;
-};
-Usa el código con precaución.Parte 5: Buscador del Historial de EstadosEsta función realiza una petición de tipo GET a tu API, busca coincidencias por el nombre del alumno y dibuja la lista de sus reportes mostrando el estado actual ("Pendiente" o "Resuelto") junto con la foto que envió.javascript// 5. CONSULTAR HISTORIAL Y ESTADO DE REPORTES
-window.buscarMisReportes = async function() {
-  const nombreBusqueda = document.getElementById("busquedaNombre").value.trim().toLowerCase();
-  const contenedorResultados = document.getElementById("listaMisReportes");
+// ==========================================
+// 5. CONSULTAR ESTADO DE MIS REPORTES
+// ==========================================
+async function buscarMisReportes() {
+  const nombreBuscar = document.getElementById("busquedaNombre").value.trim().toLowerCase();
+  const contenedor = document.getElementById("listaMisReportes");
+  if (!nombreBuscar) { alert("Escribe un nombre para buscar."); return; }
 
-  if (!nombreBusqueda) {
-    alert("Por favor, introduce tu nombre o grupo para buscar.");
+  contenedor.innerHTML = "Buscando...";
+  const respuesta = await fetch("/api/datos");
+  const datos = await respuesta.json();
+
+  const filtrados = datos.filter(item => item.nombre.toLowerCase().includes(nombreBuscar));
+
+  contenedor.innerHTML = "";
+  if (filtrados.length === 0) {
+    contenedor.innerHTML = "<p>No encontramos reportes con ese nombre.</p>";
     return;
   }
 
-  contenedorResultados.innerHTML = "Buscando en los registros escolares...";
-
-  try {
-    const respuesta = await fetch("/api/datos");
-    const reportes = await respuesta.json();
-
-    // Filtramos los documentos de Firestore que contengan el nombre del alumno
-    const filtrados = reportes.filter(r => r.nombre && r.nombre.toLowerCase().includes(nombreBusqueda));
-
-    contenedorResultados.innerHTML = "";
-
-    if (filtrados.length === 0) {
-      contenedorResultados.innerHTML = "<p style='font-size: 14px; color: #666;'>No se encontraron reportes con ese nombre.</p>";
-      return;
-    }
-
-    filtrados.forEach(rep => {
-      const div = document.createElement("div");
-      const esResuelto = rep.estado === "Resuelto";
-      div.className = `status-card ${esResuelto ? 'status-resuelto' : 'status-pendiente'}`;
-
-      // Si el reporte contiene el String de la foto, lo dibujamos en miniatura
-      const tagFoto = rep.foto ? `<img src="${rep.foto}" style="max-width: 100px; display: block; margin-top: 8px; border-radius: 4px;" alt="Evidencia">` : "";
-
-      div.innerHTML = `
-        <strong>Estado: ${rep.estado || "Pendiente"}</strong><br>
-        <span style="font-size: 13px; color: #555;">${rep.mensaje}</span><br>
-        ${tagFoto}
-        <small style="display: block; margin-top: 5px; color: #888;">Fecha: ${rep.fecha ? new Date(rep.fecha).toLocaleDateString() : 'No registrada'}</small>
-      `;
-      contenedorResultados.appendChild(div);
-    });
-
-  } catch (error) {
-    console.error(error);
-    contenedorResultados.innerHTML = "<p style='color: red; font-size: 14px;'>Error al conectar con el servidor.</p>";
-  }
-};
+  filtrados.forEach(item => {
+    const claseEstado = item.estado === "Resuelto" ? "status-resuelto" : "status-pendiente";
+    const icono = item.estado === "Resuelto" ? "✅" : "⏳";
+    contenedor.innerHTML += `
+      <div class="status-card ${claseEstado}">
+        <strong>${icono} Estado: ${item.estado}</strong><br>
+        <small>Detalle: ${item.mensaje}</small><br>
+        <small style="color:#777;">Fecha: ${new Date(item.fecha).toLocaleDateString()}</small>
+      </div>`;
+  });
+}
