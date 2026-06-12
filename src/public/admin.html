@@ -37,8 +37,7 @@
     .btn-borrar { background-color: #ef4444; color: white; }
     .btn-borrar:hover { background-color: #dc2626; }
     .btn-login { background-color: #1e293b; color: white; width: 100%; padding: 12px; border-radius: 6px; font-weight: bold; margin-top: 10px; }
-    .btn-actualizar { background-color: #0284c7; color: white; margin-bottom: 20px; font-size: 14px; }
-    .btn-actualizar:hover { background-color: #0369a1; }
+    .live-indicator { float: right; font-size: 12px; background: #22c55e; padding: 4px 10px; border-radius: 20px; color: white; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -51,26 +50,25 @@
     <button class="btn btn-login" onclick="validarAcceso()">Ingresar al Sistema</button>
   </div>
 
-  <!-- Contenedor Principal (Sin gráfica) -->
+  <!-- Contenedor Principal (Sin gráfica y con indicador en vivo) -->
   <div class="contenedor" id="panel-principal" style="display: none;">
+    <span class="live-indicator">● AUTOMÁTICO EN VIVO</span>
     <h1>🔑 Panel de Administración (Base de Datos)</h1>
-    <p>Revisa las evidencias enviadas y gestiona los estados de los reportes escolares de la escuela de forma manual.</p>
-    
-    <!-- Botón Manual de Carga -->
-    <button class="btn btn-actualizar" onclick="consultarReportes()">🔄 Actualizar Listado Manualmente</button>
+    <p>Las evidencias y estados de los reportes escolares se gestionan y actualizan automáticamente en tiempo real.</p>
+    <br>
 
     <h2>📋 Listado General de Reportes</h2>
     <br>
-    <div id="lista-admin">Presiona el botón para descargar los datos de la red...</div>
+    <div id="lista-admin">Conectando de forma segura con Firebase...</div>
     <br>
     <button class="btn btn-borrar" onclick="location.reload()" style="max-width: 150px;">Salir del Panel</button>
   </div>
-  <script type="module">
+    <script type="module">
     import { initializeApp } from "https://gstatic.com";
-    import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "https://gstatic.com";
+    import { getFirestore, collection, doc, updateDoc, deleteDoc, query, orderBy, onSnapshot } from "https://gstatic.com";
 
     // ⚠️ REEMPLAZA ESTO CON TUS CREDENCIALES REALES DE FIREBASE
-    const firebaseConfig = {
+     const firebaseConfig = {
       apiKey: "TU_API_KEY",
       authDomain: "TU_AUTH_DOMAIN",
       projectId: "TU_PROJECT_ID",
@@ -91,19 +89,18 @@
         document.getElementById("login-seccion").style.display = "none"; 
         document.getElementById("panel-principal").style.display = "block"; 
         
-        // Hacemos la primera consulta manual al entrar
-        consultarReportes();
+        // Encendemos el oyente en tiempo real automático
+        activarEscuchadorEnTiempoReal();
       } else {
         alert("Contraseña incorrecta. Acceso denegado.");
         document.getElementById("passAdmin").value = "";
       }
     }
-    async function consultarReportes() {
-      listaAdmin.innerHTML = "<p>Descargando reportes de la nube...</p>";
-      try {
-        const q = query(collection(db, "reportes"), orderBy("fechaRaw", "desc"));
-        const querySnapshot = await getDocs(q);
-        
+       function activarEscuchadorEnTiempoReal() {
+      const q = query(collection(db, "reportes"), orderBy("fechaRaw", "desc"));
+
+      // onSnapshot escucha los cambios en vivo de forma pasiva (gasta poquísima memoria)
+      onSnapshot(q, (querySnapshot) => {
         listaAdmin.innerHTML = "";
         
         if (querySnapshot.empty) {
@@ -119,7 +116,7 @@
           const esResuelto = item.estado === "Resuelto";
           div.className = `item-admin ${esResuelto ? 'resuelto' : 'pendiente'}`;
           
-          // Lector de Foto: Inyecta la imagen adjunta en tamaño grande y claro
+          // Lector de Foto: Inyecta la imagen adjunta en tamaño grande y claro automáticamente
           const htmlFoto = item.fotoUrl ? `<img src="${item.fotoUrl}" class="foto-reporte" alt="Evidencia Visual">` : "<p style='color:#94a3b8; font-size:12px; margin-top:5px;'>📷 Sin evidencia fotográfica adjunta</p>";
           
           const botonResolver = !esResuelto 
@@ -142,37 +139,35 @@
           `;
           listaAdmin.appendChild(div);
         });
-      } catch (error) {
-        console.error("Error al consultar la base de datos:", error);
-        listaAdmin.innerHTML = "<p style='color:red;'>Error de red al consultar Firebase. Revisa las llaves.</p>";
-      }
+      }, (error) => {
+        console.error("Error en el canal de tiempo real:", error);
+        listaAdmin.innerHTML = "<p style='color:red;'>Error de comunicación con Firebase. Revisa las llaves.</p>";
+      });
     }
 
-    // Actualizar estados de forma manual
+    // Actualizar estados directamente en la nube
     window.marcarResuelto = async function(id) {
       try {
         await updateDoc(doc(db, "reportes", id), { estado: "Resuelto" });
-        alert("¡Reporte marcado como resuelto con éxito!");
-        consultarReportes(); // Refresca tras el cambio
+        // No hace falta recargar manualmente, onSnapshot se da cuenta solo y lo redibuja
       } catch (error) {
         alert("No se pudo actualizar el estado.");
       }
     }
 
-    // Eliminar documentos de la base de datos
+    // Eliminar documentos de la base de datos de Google
     window.eliminarReporte = async function(id) {
       if (!confirm("¿Deseas remover de forma definitiva este reporte de Firebase?")) return;
       try {
         await deleteDoc(doc(db, "reportes", id));
-        consultarReportes(); // Refresca tras el cambio
+        // No hace falta recargar manualmente, onSnapshot lo quita de la pantalla solo
       } catch (error) {
         alert("Error al intentar eliminar.");
       }
     }
 
-    // Exponer las funciones para enlazarlas al HTML
+    // Exponer la función de inicio al botón de HTML
     window.validarAcceso = validarAcceso;
-    window.consultarReportes = consultarReportes;
 
   </script>
 </body>
