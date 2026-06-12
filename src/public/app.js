@@ -76,8 +76,8 @@ function mostrarDegradacion() {
 
     if (combo.value) {
         const datos = combo.value.split('|');
-        const tipoAlerta = datos[1]; // verde o naranja
-        const tiempo = datos[2];     // tiempo de degradación
+        const tipoAlerta = datos[1]; // COLOR (verde o naranja)
+        const tiempo = datos[2];     // TIEMPO (ej. 1 año)
 
         resultado.innerHTML = `<div class="panel-alerta ${tipoAlerta}">
             Este componente tarda aproximadamente <strong>${tiempo}</strong> en degradarse en el entorno escolar.
