@@ -142,3 +142,94 @@ async function enviarReporte() {
         alert("Hubo un problema de conexión para enviar el reporte.");
     }
 }
+// ==========================================
+// 4. CALCULADORA ECOLÓGICA (PROYECCIÓN PET)
+// ==========================================
+function calcularHuella() {
+    const cantidadSemana = parseFloat(document.getElementById('txtCantidadPet').value);
+    const caja = document.getElementById('cajaResultadoCalculadora');
+
+    if (isNaN(cantidadSemana) || cantidadSemana < 0) {
+        alert("Ingresa un número válido de botellas.");
+        caja.style.display = 'none';
+        return;
+    }
+
+    caja.style.display = 'block';
+    const anual = cantidadSemana * 52;
+    const kg = anual * 0.025;
+    let fraseDinamica = "";
+
+    if (cantidadSemana === 0) {
+        caja.className = "panel-alerta verde";
+        fraseDinamica = `🌟 <strong>¡Increíble! Tu huella plástica es perfecta.</strong><br><br>` +
+                        `• Consumo anual: <strong>0 botellas</strong> (0.00 kg de desperdicio).<br><br>` +
+                        `💡 <strong>Recomendación:</strong> ¡Eres un líder ambiental! Tu misión ahora es compartir tu hábito e inspirar a los alumnos de las otras carreras técnicas de la escuela a dejar los plásticos desechables.`;
+    } else if (cantidadSemana >= 1 && cantidadSemana <= 3) {
+        caja.className = "panel-alerta naranja";
+        fraseDinamica = `📊 <strong>Impacto Moderado:</strong> En 1 año consumirás unas <strong>${Math.floor(anual)} botellas</strong> (${kg.toFixed(2)} kg de basura).<br><br>` +
+                        `🌱 <strong>Recomendación:</strong> Estás muy cerca de una huella impecable. Te sugerimos dar el paso definitivo esta semana: adquiere un termo reutilizable en la cooperativa escolar y dile adiós al PET.`;
+    } else if (cantidadSemana >= 4 && cantidadSemana <= 7) {
+        caja.className = "panel-alerta naranja";
+        fraseDinamica = `⚠️ <strong>Impacto Alto Detectado:</strong> Al año acumularás <strong>${Math.floor(anual)} botellas</strong>, equivalentes a <strong>${kg.toFixed(2)} kg</strong> de plástico permanente.<br><br>` +
+                        `📢 <strong>Recomendación:</strong> Estás arrojando un volumen considerable de basura a las áreas verdes de la escuela. Márcate el objetivo de reducir tu consumo a la mitad a partir de mañana mismo.`;
+    } else {
+        caja.className = "panel-alerta naranja";
+        fraseDinamica = `🚨 <strong>¡ALERTA ROJA ECOLÓGICA!</strong> Tu consumo anual alcanzará la alarmante cifra de <strong>${Math.floor(anual)} botellas</strong>, tirando <strong>${kg.toFixed(2)} kg</strong> de plástico denso al ecosistema.<br><br>` +
+                        `💡 <strong>Recomendación Crítica:</strong> Estás generando un impacto severo e irreversible en los patios del plantel. Requieres sustituir tus botellas PET por cantimploras de acero inoxidable hoy mismo.`;
+    }
+    caja.innerHTML = fraseDinamica;
+}
+
+// ==========================================
+// 5. CONSULTAR ESTADO DE MIS REPORTES (CLOUD)
+// ==========================================
+async function buscarMisReportes() {
+    const nombreBuscar = document.getElementById("busquedaNombre").value.trim().toLowerCase();
+    const contenedor = document.getElementById("listaMisReportes");
+    if (!nombreBuscar) { alert("Escribe un nombre para buscar."); return; }
+
+    contenedor.innerHTML = "Buscando...";
+    
+    try {
+        const respuesta = await fetch("/api/datos");
+        const datos = await respuesta.json();
+
+        const filtrados = datos.filter(item => 
+            (item.nombre && item.nombre.toLowerCase().includes(nombreBuscar)) || 
+            (item.descripcion && item.descripcion.toLowerCase().includes(nombreBuscar))
+        );
+
+        contenedor.innerHTML = "";
+        if (filtrados.length === 0) {
+            contenedor.innerHTML = "<p>No encontramos reportes con ese nombre.</p>";
+            return;
+        }
+
+        filtrados.forEach(item => {
+            const claseEstado = item.estado === "Resuelto" ? "status-resuelto" : "status-pendiente";
+            const icono = item.estado === "Resuelto" ? "✅" : "⏳";
+            
+            let descFinal = item.descripcion || item.mensaje || "Sin detalles";
+            let fechaFinal = item.fecha ? new Date(item.fecha).toLocaleDateString() : "Reciente";
+
+            let tarjetaHTML = `
+                <div class="status-card ${claseEstado}">
+                    <strong>${icono} Estado: ${item.estado || 'Pendiente'}</strong><br>
+                    <small>De: ${item.nombre || 'Anónimo'}</small><br>
+                    <small>Detalle: ${descFinal}</small><br>
+                    <small style="color:#777;">Fecha: ${fechaFinal}</small>
+            `;
+
+            if (item.foto) {
+                tarjetaHTML += `<br><img src="${item.foto}" style="max-width:80px; margin-top:8px; border-radius:4px; display:block;">`;
+            }
+
+            tarjetaHTML += `</div>`;
+            contenedor.innerHTML += tarjetaHTML;
+        });
+    } catch (error) {
+        console.error("Error al buscar:", error);
+        contenedor.innerHTML = "<p style='color:red;'>Error al cargar el historial.</p>";
+    }
+}
