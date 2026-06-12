@@ -15,7 +15,7 @@
     #login-seccion { max-width: 400px; margin: 100px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; }
     #login-seccion input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 15px; text-align: center; }
     
-    /* Tarjetas de Reportes Sincronizados */
+    /* Tarjetas de Reportes */
     .item-admin { background: #f8fafc; padding: 20px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 12px; text-align: left; }
     .item-admin.pendiente { border-left: 6px solid #eab308; }
     .item-admin.resuelto { border-left: 6px solid #22c55e; background: #f0fdf4; }
@@ -26,43 +26,48 @@
     .badge.pendiente { background: #fef9c3; color: #854d0e; }
     .badge.resuelto { background: #dcfce7; color: #166534; }
     
-    /* Imagen Escalada: Visualización perfecta de la evidencia */
+    /* FOTOS ENVIADAS: Nítidas, grandes y escaladas de forma correcta */
     .foto-reporte { max-width: 100%; max-height: 250px; border-radius: 8px; border: 1px solid #cbd5e1; margin-top: 10px; display: block; object-fit: contain; background: #fff; }
     .acciones { display: flex; gap: 10px; margin-top: 5px; justify-content: flex-end; }
     
-    .btn { padding: 8px 16px; font-size: 13px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; }
+    /* Botones */
+    .btn { padding: 8px 16px; font-size: 13px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
     .btn-resolver { background-color: #22c55e; color: white; }
+    .btn-resolver:hover { background-color: #16a34a; }
     .btn-borrar { background-color: #ef4444; color: white; }
-    .btn-login { background-color: #1e293b; color: white; width: 100%; padding: 12px; border-radius: 6px; font-weight: bold; }
-    .live-indicator { float: right; font-size: 12px; background: #22c55e; padding: 4px 10px; border-radius: 20px; color: white; font-weight: bold; }
+    .btn-borrar:hover { background-color: #dc2626; }
+    .btn-login { background-color: #1e293b; color: white; width: 100%; padding: 12px; border-radius: 6px; font-weight: bold; margin-top: 10px; }
+    .btn-actualizar { background-color: #0284c7; color: white; margin-bottom: 20px; font-size: 14px; }
+    .btn-actualizar:hover { background-color: #0369a1; }
   </style>
 </head>
 <body>
 
   <!-- Formulario de Acceso -->
   <div id="login-seccion">
-    <h2 style="color: #1e293b;">🔑 Panel de Control</h2>
+    <h2>🔑 Panel de Control</h2>
     <p style="margin-top: 5px;">Introduce la clave administrativa de la escuela</p>
     <input type="password" id="passAdmin" placeholder="Contraseña de acceso">
     <button class="btn btn-login" onclick="validarAcceso()">Ingresar al Sistema</button>
   </div>
 
-  <!-- Dashboard de Reportes -->
+  <!-- Contenedor Principal (Sin gráfica) -->
   <div class="contenedor" id="panel-principal" style="display: none;">
-    <span class="live-indicator">● EN VIVO</span>
-    <h1>🌿 Panel de Administración (Base de Datos)</h1>
-    <p>Gestión automática y sincronización en tiempo real de reportes escolares.</p>
-    <br>
+    <h1>🔑 Panel de Administración (Base de Datos)</h1>
+    <p>Revisa las evidencias enviadas y gestiona los estados de los reportes escolares de la escuela de forma manual.</p>
+    
+    <!-- Botón Manual de Carga -->
+    <button class="btn btn-actualizar" onclick="consultarReportes()">🔄 Actualizar Listado Manualmente</button>
 
     <h2>📋 Listado General de Reportes</h2>
     <br>
-    <div id="lista-admin">Conectando con la base de datos de Google...</div>
+    <div id="lista-admin">Presiona el botón para descargar los datos de la red...</div>
     <br>
     <button class="btn btn-borrar" onclick="location.reload()" style="max-width: 150px;">Salir del Panel</button>
   </div>
   <script type="module">
     import { initializeApp } from "https://gstatic.com";
-    import { getFirestore, collection, doc, updateDoc, deleteDoc, query, orderBy, onSnapshot } from "https://gstatic.com";
+    import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "https://gstatic.com";
 
     // ⚠️ REEMPLAZA ESTO CON TUS CREDENCIALES REALES DE FIREBASE
     const firebaseConfig = {
@@ -86,22 +91,23 @@
         document.getElementById("login-seccion").style.display = "none"; 
         document.getElementById("panel-principal").style.display = "block"; 
         
-        // Iniciamos el receptor de eventos vivo
-        activarEscuchadorEnTiempoReal();
+        // Hacemos la primera consulta manual al entrar
+        consultarReportes();
       } else {
         alert("Contraseña incorrecta. Acceso denegado.");
         document.getElementById("passAdmin").value = "";
       }
     }
-    function activarEscuchadorEnTiempoReal() {
-      const q = query(collection(db, "reportes"), orderBy("fechaRaw", "desc"));
-
-      // El oyente renderiza las tarjetas de forma independiente sin tocar variables externas
-      onSnapshot(q, (querySnapshot) => {
+    async function consultarReportes() {
+      listaAdmin.innerHTML = "<p>Descargando reportes de la nube...</p>";
+      try {
+        const q = query(collection(db, "reportes"), orderBy("fechaRaw", "desc"));
+        const querySnapshot = await getDocs(q);
+        
         listaAdmin.innerHTML = "";
         
         if (querySnapshot.empty) {
-          listaAdmin.innerHTML = "<p style='text-align:center;'>No hay reportes registrados en la red escolar. ¡Todo limpio! 🌱</p>";
+          listaAdmin.innerHTML = "<p style='text-align:center;'>No hay reportes registrados en la base de datos escolar. 🌱</p>";
           return;
         }
 
@@ -113,8 +119,8 @@
           const esResuelto = item.estado === "Resuelto";
           div.className = `item-admin ${esResuelto ? 'resuelto' : 'pendiente'}`;
           
-          // Verificación e inyección de la fotografía adjunta por el estudiante
-          const htmlFoto = item.fotoUrl ? `<img src="${item.fotoUrl}" class="foto-reporte" alt="Evidencia Visual">` : "<p style='color:#94a3b8; font-size:12px; margin-top:5px;'>📷 Sin imagen adjunta</p>";
+          // Lector de Foto: Inyecta la imagen adjunta en tamaño grande y claro
+          const htmlFoto = item.fotoUrl ? `<img src="${item.fotoUrl}" class="foto-reporte" alt="Evidencia Visual">` : "<p style='color:#94a3b8; font-size:12px; margin-top:5px;'>📷 Sin evidencia fotográfica adjunta</p>";
           
           const botonResolver = !esResuelto 
             ? `<button class="btn btn-resolver" onclick="marcarResuelto('${idDoc}')">Marcar Resuelto ✅</button>` 
@@ -127,7 +133,7 @@
               <br>
               <strong>📝 Reporte:</strong> ${item.descripcion}
               ${htmlFoto}
-              <div class="meta">ID: ${idDoc} | Fecha: ${item.fechaHora || "Reciente"}</div>
+              <div class="meta">ID: ${idDoc} | Fecha: ${item.fechaHora || "Sin fecha"}</div>
             </div>
             <div class="acciones">
               ${botonResolver}
@@ -136,30 +142,37 @@
           `;
           listaAdmin.appendChild(div);
         });
-      }, (error) => {
-        console.error("Error en comunicación en vivo:", error);
-      });
+      } catch (error) {
+        console.error("Error al consultar la base de datos:", error);
+        listaAdmin.innerHTML = "<p style='color:red;'>Error de red al consultar Firebase. Revisa las llaves.</p>";
+      }
     }
 
-    // Funciones globales interactivas conectadas a Firestore
+    // Actualizar estados de forma manual
     window.marcarResuelto = async function(id) {
       try {
         await updateDoc(doc(db, "reportes", id), { estado: "Resuelto" });
+        alert("¡Reporte marcado como resuelto con éxito!");
+        consultarReportes(); // Refresca tras el cambio
       } catch (error) {
         alert("No se pudo actualizar el estado.");
       }
     }
 
+    // Eliminar documentos de la base de datos
     window.eliminarReporte = async function(id) {
-      if (!confirm("¿Eliminar definitivamente este reporte de la base de datos de Google?")) return;
+      if (!confirm("¿Deseas remover de forma definitiva este reporte de Firebase?")) return;
       try {
         await deleteDoc(doc(db, "reportes", id));
+        consultarReportes(); // Refresca tras el cambio
       } catch (error) {
         alert("Error al intentar eliminar.");
       }
     }
 
+    // Exponer las funciones para enlazarlas al HTML
     window.validarAcceso = validarAcceso;
+    window.consultarReportes = consultarReportes;
 
   </script>
 </body>
