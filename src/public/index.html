@@ -1,29 +1,37 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escuela Limpia - Alumnos</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-        body { background-color: #F5F5F5; color: #333; }
-        header { background-color: #1B5E20; color: white; text-align: center; padding: 15px; }
-        .tab-bar { display: flex; background-color: #FFFFFF; border-bottom: 1px solid #E0E0E0; position: sticky; top: 0; z-index: 100; }
-        .tab-btn { flex: 1; background: none; border: none; padding: 12px 5px; font-size: 13px; font-weight: bold; color: #666; cursor: pointer; border-bottom: 3px solid transparent; }
-        .tab-btn.active { color: #1B5E20; border-bottom: 3px solid #1B5E20; background-color: #E8F5E9; }
-        .contenedor-principal { padding: 20px; max-width: 500px; margin: 0 auto; }
-        .tab-content { display: none; background-color: #FFFFFF; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .tab-content.active { display: block; }
-        h3 { margin-bottom: 15px; text-align: center; }
-        label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
-        select, input, textarea { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #CCC; border-radius: 6px; font-size: 14px; }
-        textarea { resize: vertical; min-height: 80px; }
-        .panel-alerta { padding: 15px; border-radius: 8px; font-size: 14px; line-height: 1.5; margin-top: 15px; }
-        .panel-alerta.verde { background-color: #E8F5E9; color: #1B5E20; border: 1px solid #C8E6C9; }
-        .panel-alerta.naranja { background-color: #FFF3E0; color: #E65100; border: 1px solid #FFE0B2; }
-        .btn-accion { width: 100%; padding: 12px; border: none; border-radius: 6px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; }
-        .btn-accion.verde-oscuro { background-color: #1B5E20; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escuela Limpia - Alumnos</title>
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+    body { background-color: #F5F5F5; color: #333; }
+    header { background-color: #1B5E20; color: white; text-align: center; padding: 15px; }
+    optgroup { font-weight: bold; color: #1B5E20; background-color: #E8F5E9; }
+    .tab-bar { display: flex; background-color: #FFFFFF; border-bottom: 1px solid #E0E0E0; position: sticky; top: 0; z-index: 100; }
+    .tab-btn { flex: 1; background: none; border: none; padding: 12px 5px; font-size: 13px; font-weight: bold; color: #666; cursor: pointer; border-bottom: 3px solid transparent; }
+    .tab-btn.active { color: #1B5E20; border-bottom: 3px solid #1B5E20; background-color: #E8F5E9; }
+    .contenedor-principal { padding: 20px; max-width: 500px; margin: 0 auto; }
+    .tab-content { display: none; background-color: #FFFFFF; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .tab-content.active { display: block; }
+    h3 { margin-bottom: 15px; text-align: center; }
+    label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
+    select, input, textarea { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #CCC; border-radius: 6px; font-size: 14px; }
+    textarea { resize: vertical; min-height: 80px; }
+    .panel-alerta { padding: 15px; border-radius: 8px; font-size: 14px; line-height: 1.5; margin-top: 15px; }
+    .panel-alerta.verde { background-color: #E8F5E9; color: #1B5E20; border: 1px solid #C8E6C9; }
+    .panel-alerta.naranja { background-color: #FFF3E0; color: #E65100; border: 1px solid #FFE0B2; }
+    .cuadro-vista-previa { width: 100%; min-height: 120px; border: 2px dashed #CCC; background-color: #FAFAFA; border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; padding: 10px; color: #999; font-size: 13px; text-align: center; overflow: hidden; }
+    .cuadro-vista-previa img { max-width: 100%; max-height: 120px; border-radius: 4px; }
+    .btn-accion { width: 100%; padding: 12px; border: none; border-radius: 6px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; }
+    .btn-accion.verde-oscuro { background-color: #1B5E20; }
+    .item-reporte { border-left: 4px solid #1B5E20; background: #F9F9F9; padding: 12px; margin-top: 12px; border-radius: 0 6px 6px 0; font-size: 13px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .img-reporte { max-width: 100%; max-height: 150px; border-radius: 4px; margin-top: 8px; display: block; }
+    .badge-estado { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-top: 5px; }
+    .badge-pendiente { background-color: #FFF3E0; color: #E65100; }
+    .badge-solucionado { background-color: #E8F5E9; color: #1B5E20; }
+</style>
 </head>
 <body>
 
@@ -34,29 +42,32 @@
 <nav class="tab-bar">
     <button class="tab-btn active" onclick="cambiarPestana('degradacion', this)">Degradación</button>
     <button class="tab-btn" onclick="cambiarPestana('reportar', this)">Reportar</button>
-    <button class="tab-btn" onclick="cambiarPestana('calculadora', this)">Calculadora</button>
+    <button class="tab-btn" onclick="cambiarPestana('mis-reportes', this)">Mis Reportes</button>
 </nav>
 
 <main class="contenedor-principal">
-    <!-- PESTAÑA DEGRADACIÓN -->
+    <!-- SECCIÓN 1: DEGRADACIÓN (CON TUS FUNCIONES Y ALERTAS ORIGINALES) -->
     <section id="degradacion" class="tab-content active">
         <h3>⏳ ¿Cuánto tardan en degradarse?</h3>
-        <label for="comboMateriales">Selecciona un material:</label>
+        <label for="comboMateriales">Selecciona un material o componente por especialidad:</label>
         <select id="comboMateriales" onchange="mostrarDegradacion()">
-            <option value="">-- Seleccionar --</option>
-            <option value="450 años">Botella de Plástico</option>
-            <option value="5 años">Chicle</option>
-            <option value="10 años">Lata de Aluminio</option>
-            <option value="1 año">Papel o Cartón</option>
-            <option value="4000 años">Botella de Vidrio</option>
+            <option value="">-- Elige un material --</option>
+            <optgroup label="Oficina y Papelería">
+                <option value="papel|verde|1 año">Hojas de Papel / Cartón</option>
+                <option value="chicle|naranja|5 años">Chicle</option>
+            </optgroup>
+            <optgroup label="Envases y Plásticos">
+                <option value="lata|naranja|10 años">Lata de Aluminio</option>
+                <option value="botella|naranja|450 años">Botella de Plástico</option>
+                <option value="vidrio|naranja|4000 años">Botella de Vidrio</option>
+            </optgroup>
         </select>
         <div id="resultadoDegradacion"></div>
     </section>
 
-    <!-- PESTAÑA REPORTAR -->
+    <!-- SECCIÓN 2: REPORTAR (CON SUBIDA DE FOTO) -->
     <section id="reportar" class="tab-content">
         <h3>📢 Generar Reporte</h3>
-        <!-- El id="formReporte" conecta directamente con app.js -->
         <form id="formReporte">
             <label for="nombreGrupo">Tu Nombre o Grupo:</label>
             <input type="text" id="nombreGrupo" placeholder="Ej. Juan Pérez / 3º B" required>
@@ -64,22 +75,28 @@
             <label for="problema">¿Cuál es el problema?</label>
             <textarea id="problema" placeholder="Describe la situación de limpieza..." required></textarea>
             
-            <button type="submit" class="btn-accion verde-oscuro">Enviar Reporte</button>
+            <label for="fotoProblema">Evidencia Fotográfica (Opcional):</label>
+            <!-- Input oculto para estilizar o directo -->
+            <input type="file" id="fotoProblema" accept="image/*" onchange="previsualizarFoto(this)">
+            
+            <div id="vistaPrevia" class="cuadro-vista-previa">
+                Ninguna imagen seleccionada
+            </div>
+            
+            <button type="submit" class="btn-accion verde-oscuro">Enviar Reporte a la Escuela</button>
         </form>
         <div id="mensajeEnvio"></div>
     </section>
 
-    <!-- PESTAÑA CALCULADORA -->
-    <section id="calculadora" class="tab-content">
-        <h3>🧮 Calculadora de Desechos</h3>
-        <label for="cantBotellas">¿Cuántas botellas plásticas usas a la semana?</label>
-        <input type="number" id="cantBotellas" min="0" value="0">
-        <button class="btn-accion verde-oscuro" onclick="calcularImpacto()">Calcular Impacto</button>
-        <div id="resultadoCalculo"></div>
+    <!-- SECCIÓN 3: MIS REPORTES (SEGUIMIENTO DE ESTADOS) -->
+    <section id="mis-reportes" class="tab-content">
+        <h3>🔍 Historial y Estados</h3>
+        <label for="busquedaNombre">Busca por tu Nombre o Grupo para revisar tus estados:</label>
+        <input type="text" id="busquedaNombre" placeholder="Escribe tu grupo o nombre..." oninput="buscarMisReportes()">
+        <div id="listaMisReportes"></div>
     </section>
 </main>
 
-<!-- IMPORTANTE: Conexión con tu archivo app.js -->
 <script src="app.js"></script>
 </body>
 </html>
