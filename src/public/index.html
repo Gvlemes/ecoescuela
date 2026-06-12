@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Escuela Limpia - Alumnos</title>
-<!-- LIBRERÍAS DE FIREBASE COMPATIBLES (Permiten trabajar sin type="module") -->
+<!-- LIBRERÍAS DE FIREBASE COMPATIBLES -->
 <script src="https://gstatic.com"></script>
 <script src="https://gstatic.com"></script>
 <style>
@@ -44,6 +44,7 @@
 <nav class="tab-bar">
     <button class="tab-btn active" onclick="cambiarPestana('degradacion', this)">Degradación</button>
     <button class="tab-btn" onclick="cambiarPestana('reportar', this)">Reportar</button>
+    <button class="tab-btn" onclick="cambiarPestana('calculadora', this)">Calculadora</button>
     <button class="tab-btn" onclick="cambiarPestana('mis-reportes', this)">Mis Reportes</button>
 </nav>
 
@@ -70,7 +71,7 @@
     <!-- REPORTAR -->
     <section id="reportar" class="tab-content">
         <h3>📢 Generar Reporte</h3>
-        <form id="formReporte" onsubmit="guardarReporteFirebase(event)">
+        <form id="formReporte">
             <label for="nombreGrupo">Tu Nombre o Grupo:</label>
             <input type="text" id="nombreGrupo" placeholder="Ej. Juan Pérez / 3º B" required>
             
@@ -87,6 +88,15 @@
         <div id="mensajeEnvio"></div>
     </section>
 
+    <!-- CALCULADORA (REINTEGRADA) -->
+    <section id="calculadora" class="tab-content">
+        <h3>🧮 Calculadora de Desechos</h3>
+        <label for="cantBotellas">¿Cuántas botellas plásticas usas a la semana?</label>
+        <input type="number" id="cantBotellas" min="0" value="0">
+        <button class="btn-accion verde-oscuro" onclick="calcularImpacto()">Calcular mi Impacto</button>
+        <div id="resultadoCalculo"></div>
+    </section>
+
     <!-- MIS REPORTES -->
     <section id="mis-reportes" class="tab-content">
         <h3>🔍 Historial y Estados</h3>
@@ -96,7 +106,6 @@
     </section>
 </main>
 
-<!-- USANDO TU APP.JS NORMAL SIN SER MODULO -->
 <script src="app.js"></script>
 </body>
 </html>
