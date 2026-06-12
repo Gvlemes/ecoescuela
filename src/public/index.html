@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Escuela Limpia - Alumnos</title>
+<!-- LIBRERÍAS DE FIREBASE COMPATIBLES (Permiten trabajar sin type="module") -->
+<script src="https://gstatic.com"></script>
+<script src="https://gstatic.com"></script>
 <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
     body { background-color: #F5F5F5; color: #333; }
@@ -39,10 +42,9 @@
 </header>
 
 <nav class="tab-bar">
-    <!-- Removidos los atributos onclick inline para evitar errores en Render -->
-    <button id="btn-pestana-degradacion" class="tab-btn active" data-target="degradacion">Degradación</button>
-    <button id="btn-pestana-reportar" class="tab-btn" data-target="reportar">Reportar</button>
-    <button id="btn-pestana-misreportes" class="tab-btn" data-target="mis-reportes">Mis Reportes</button>
+    <button class="tab-btn active" onclick="cambiarPestana('degradacion', this)">Degradación</button>
+    <button class="tab-btn" onclick="cambiarPestana('reportar', this)">Reportar</button>
+    <button class="tab-btn" onclick="cambiarPestana('mis-reportes', this)">Mis Reportes</button>
 </nav>
 
 <main class="contenedor-principal">
@@ -50,7 +52,7 @@
     <section id="degradacion" class="tab-content active">
         <h3>⏳ ¿Cuánto tardan en degradarse?</h3>
         <label for="comboMateriales">Selecciona un material o componente por especialidad:</label>
-        <select id="comboMateriales">
+        <select id="comboMateriales" onchange="mostrarDegradacion()">
             <option value="">-- Elige un material --</option>
             <optgroup label="Oficina y Papelería">
                 <option value="papel|verde|1 año">Hojas de Papel / Cartón</option>
@@ -68,7 +70,7 @@
     <!-- REPORTAR -->
     <section id="reportar" class="tab-content">
         <h3>📢 Generar Reporte</h3>
-        <form id="formReporte">
+        <form id="formReporte" onsubmit="guardarReporteFirebase(event)">
             <label for="nombreGrupo">Tu Nombre o Grupo:</label>
             <input type="text" id="nombreGrupo" placeholder="Ej. Juan Pérez / 3º B" required>
             
@@ -76,7 +78,7 @@
             <textarea id="problema" placeholder="Describe la situación de limpieza..." required></textarea>
             
             <label for="fotoProblema">Evidencia Fotográfica (Opcional):</label>
-            <input type="file" id="fotoProblema" accept="image/*">
+            <input type="file" id="fotoProblema" accept="image/*" onchange="previsualizarFoto(this)">
             
             <div id="vistaPrevia" class="cuadro-vista-previa">Ninguna imagen seleccionada</div>
             
@@ -89,12 +91,12 @@
     <section id="mis-reportes" class="tab-content">
         <h3>🔍 Historial y Estados</h3>
         <label for="busquedaNombre">Busca por tu Nombre o Grupo:</label>
-        <input type="text" id="busquedaNombre" placeholder="Escribe tu grupo o nombre...">
+        <input type="text" id="busquedaNombre" placeholder="Escribe tu grupo o nombre..." oninput="escucharMisReportes()">
         <div id="listaMisReportes"></div>
     </section>
 </main>
 
-<!-- type="module" asegura la integración total con Firebase -->
-<script type="module" src="app.js"></script>
+<!-- USANDO TU APP.JS NORMAL SIN SER MODULO -->
+<script src="app.js"></script>
 </body>
 </html>
