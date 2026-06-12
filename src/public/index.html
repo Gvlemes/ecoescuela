@@ -30,13 +30,12 @@
     .status-pendiente { border-left-color: #ffc107; background-color: #fffde7; }
   </style>
 
-  <!-- LIBRERÍAS DE FIREBASE CORREGIDAS -->
+  <!-- LIBRERÍAS DE FIREBASE COMPATIBLES -->
   <script src="https://gstatic.com"></script>
   <script src="https://gstatic.com"></script>
 </head>
 <body>
-
-<header>
+  <header>
   <h2>🌱 Escuela Limpia</h2>
 </header>
 
@@ -136,7 +135,7 @@
 
 </main>
 <script>
-  // Configuración de las llaves del proyecto Firebase
+  // Configuración de tu base de datos Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyCCVjAAdkiNMIB3odwWXDUBbGurE9bgZYM",
     authDomain: "://firebaseapp.com",
@@ -153,23 +152,30 @@
     firebase.initializeApp(firebaseConfig);
   }
   const db = firebase.firestore();
-  let base64Foto = ""; // Variable para almacenar la imagen temporalmente
-  // ==========================================
+  let base64Foto = ""; // Almacenará la imagen optimizada
   // 1. NAVEGACIÓN ENTRE PESTAÑAS
-  // ==========================================
   function cambiarPestana(idPestana, boton) {
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => {
+      c.classList.remove('active');
+      c.style.display = "none"; 
+    });
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(idPestana).classList.add('active');
-    boton.classList.add('active');
+    
+    const pestanaActiva = document.getElementById(idPestana);
+    if (pestanaActiva) {
+      pestanaActiva.classList.add('active');
+      pestanaActiva.style.display = "block";
+    }
+    if (boton) {
+      boton.classList.add('active');
+    }
   }
 
-  // ==========================================
   // 2. CONCIENTIZACIÓN DE DEGRADACIÓN
-  // ==========================================
   function mostrarDegradacion() {
     const material = document.getElementById("comboMateriales").value;
     const res = document.getElementById("cajaResultadoDegradacion");
+    if (!res) return;
     
     const datos = {
       pet: { tiempo: "450 años", info: "Las botellas se fragmentan en microplásticos dañinos para el suelo.", tipo: "naranja" },
@@ -210,9 +216,7 @@
     res.innerHTML = `<strong>Tiempo de degradación:</strong> ${data.tiempo}<br><small>${data.info}</small>`;
   }
 
-  // ==========================================
-  // 3. REPORTAR CON IMAGEN (BASE64 OPTIMIZADA)
-  // ==========================================
+  // 3. PREVISUALIZAR Y OPTIMIZAR FOTO
   function previsualizarFoto(event) {
     const input = event.target;
     const preview = document.getElementById("imgPrevia");
@@ -220,15 +224,15 @@
     
     if (!input.files || input.files.length === 0) {
       preview.style.display = "none";
-      txtPrevia.innerText = "Ninguna foto seleccionada";
+      if(txtPrevia) txtPrevia.innerText = "Ninguna foto seleccionada";
       base64Foto = "";
       return;
     }
 
     const archivo = input.files[0];
-    txtPrevia.innerText = archivo.name;
+    if(txtPrevia) txtPrevia.innerText = archivo.name;
+    
     const reader = new FileReader();
-
     reader.onload = function (e) {
       const img = new Image();
       img.src = e.target.result;
@@ -251,14 +255,16 @@
         ctx.drawImage(img, 0, 0, width, height);
 
         base64Foto = canvas.toDataURL("image/jpeg", 0.6);
-        preview.src = base64Foto;
-        preview.style.display = "block";
+        if(preview) {
+          preview.src = base64Foto;
+          preview.style.display = "block";
+        }
       };
     };
-
     reader.readAsDataURL(archivo);
   }
 
+  // 4. GUARDAR EN LA BASE DE DATOS FIRESTORE
   async function enviarReporte() {
     const nombre = document.getElementById("txtNombreAlumno").value.trim();
     const mensaje = document.getElementById("txtDescripcion").value.trim();
@@ -270,7 +276,6 @@
     }
 
     try {
-      // Envío directo a Cloud Firestore
       await db.collection("reportes").add({
         nombre: nombre,
         mensaje: mensaje,
@@ -281,10 +286,9 @@
 
       alert("¡Reporte enviado con éxito! Puedes consultar su estado en la sección 'Mi Reporte' usando tu nombre.");
       
-      // Limpieza del formulario
       document.getElementById("formularioReporte").reset();
-      document.getElementById("imgPrevia").style.display = "none";
-      document.getElementById("txtPrevia").innerText = "Ninguna foto seleccionada";
+      if(document.getElementById("imgPrevia")) document.getElementById("imgPrevia").style.display = "none";
+      if(document.getElementById("txtPrevia")) document.getElementById("txtPrevia").innerText = "Ninguna foto seleccionada";
       base64Foto = "";
 
     } catch (error) {
@@ -293,14 +297,13 @@
     }
   }
 
-  // ==========================================
-  // 4. CALCULADORA ECOLÓGICA
-  // ==========================================
+  // 5. CALCULADORA ECOLOGÍCA
   function calcularHuella() {
     const botellas = parseInt(document.getElementById("txtCantidadPet").value) || 0;
     const totalAnual = botellas * 52;
     const tiempoDegradacion = totalAnual > 0 ? "450 años" : "0 años";
     const contenedor = document.getElementById("cajaResultadoCalculadora");
+    if (!contenedor) return;
     
     let recomendacion = "";
     let claseAlerta = "";
@@ -330,12 +333,11 @@
       </div>`;
   }
 
-  // ==========================================
-  // 5. CONSULTAR ESTADO DE MIS REPORTES
-  // ==========================================
+  // 6. CONSULTAR HISTORIAL DESDE FIRESTORE
   async function buscarMisReportes() {
     const nombreBuscar = document.getElementById("busquedaNombre").value.trim().toLowerCase();
     const contenedor = document.getElementById("listaMisReportes");
+    if (!contenedor) return;
     if (!nombreBuscar) { alert("Escribe un nombre para buscar."); return; }
 
     contenedor.innerHTML = "<p>Buscando en la base de datos...</p>";
@@ -343,17 +345,16 @@
     try {
       const snapshot = await db.collection("reportes").get();
       contenedor.innerHTML = "";
-      
       let encontrados = 0;
 
       snapshot.forEach(doc => {
         const item = doc.data();
         if (item.nombre && item.nombre.toLowerCase().includes(nombreBuscar)) {
           encontrados++;
-const div = document.createElement("div");
+          const div = document.createElement("div");
           
           let claseEstado = "status-pendiente";
-          if (item.estado && item.estado.toLowerCase() === "resuelto") {
+if (item.estado && item.estado.toLowerCase() === "resuelto") {
             claseEstado = "status-resuelto";
           }
 
@@ -369,14 +370,4 @@ const div = document.createElement("div");
             ${htmlFoto}
           `;
           contenedor.appendChild(div);
-        }
-      });
-
-      if (encontrados === 0) {
-        contenedor.innerHTML = "<p>No se encontraron reportes registrados para este nombre.</p>";
-      }
-
-    } catch (error) {
-      console.error("Error al obtener los reportes:", error);
-      contenedor.innerHTML = "<p>Hubo un problema al conectar con la base de datos.</p>";
-    }
+        });
