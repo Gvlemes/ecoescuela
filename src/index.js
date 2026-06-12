@@ -6,7 +6,7 @@ import { db } from "./admin.js";
 
 dotenv.config();
 
-// Inicializamos la variable app
+// Inicializamos la variable app (Debe ir AQUÍ, antes de usarla)
 const app = express();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -38,19 +38,13 @@ app.post("/api/guardar", async (req, res) => {
   }
 });
 
-// RUTA 2: Obtener todos los datos almacenados (CORREGIDA)
+// RUTA 2: Obtener todos los datos almacenados
 app.get("/api/datos", async (req, res) => {
   try {
-    // CORRECCIÓN: Traemos los datos de la colección de forma directa sin activar la restricción de índices de Firestore
-    const snapshot = await db.collection("reportes").get();
+    const snapshot = await db.collection("reportes").orderBy("fecha", "desc").get();
     const datos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    
-    // Ordenamos de forma segura mediante Node.js (Más recientes primero)
-    datos.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-    
     res.status(200).json(datos);
   } catch (error) {
-    console.error("Error en RUTA 2 /api/datos:", error.message);
     res.status(500).json({ ok: false, error: error.message });
   }
 });
