@@ -17,8 +17,6 @@
     h3 { margin-bottom: 15px; text-align: center; color: #1B5E20; }
     label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
     select, input, textarea { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #CCC; border-radius: 6px; font-size: 14px; }
-    optgroup { font-weight: bold; color: #1B5E20; background: #f4f4f4; }
-    option { font-weight: normal; color: #333; background: #fff; }
     .panel-alerta { padding: 15px; border-radius: 8px; font-size: 14px; line-height: 1.5; margin-top: 15px; }
     .panel-alerta.verde { background-color: #E8F5E9; color: #1B5E20; border: 1px solid #C8E6C9; }
     .panel-alerta.naranja { background-color: #FFF3E0; color: #E65100; border: 1px solid #FFE0B2; }
@@ -30,12 +28,13 @@
     .status-pendiente { border-left-color: #ffc107; background-color: #fffde7; }
   </style>
 
-  <!-- LIBRERÍAS DE FIREBASE COMPATIBLES -->
+  <!-- CONEXIONES WEB OBLIGATORIAS DE FIREBASE -->
   <script src="https://gstatic.com"></script>
   <script src="https://gstatic.com"></script>
 </head>
 <body>
-  <header>
+
+<header>
   <h2>🌱 Escuela Limpia</h2>
 </header>
 
@@ -48,83 +47,49 @@
 
 <main class="contenedor-principal">
   
-  <!-- PESTAÑA 1: TIEMPOS DE DEGRADACIÓN -->
+  <!-- PESTAÑA 1: CONCIENTIZACIÓN DE DEGRADACIÓN -->
   <section id="degradacion" class="tab-content active">
-    <h3>⏳ Tiempos de Degradación</h3>
-    <label for="comboMateriales">Selecciona un residuo escolar o técnico:</label>
+    <h3>⏳ ¿Cuánto tardan en degradarse?</h3>
+    <label for="comboMateriales">Selecciona un material:</label>
     <select id="comboMateriales" onchange="mostrarDegradacion()">
-      <option value="">-- Seleccionar Elemento --</option>
-      <optgroup label="📋 Componentes Básicos / Comunes">
-        <option value="pet">Botella de Plástico</option>
-        <option value="chicle">Chicle de Goma</option>
-        <option value="aluminio">Lata de Aluminio</option>
-        <option value="vidrio">Botella de Vidrio</option>
-        <option value="carton">Cartón o Papel</option>
-        <option value="bolsa">Bolsa Plástica</option>
-        <option value="unicel">Contenedor de Unicel</option>
-        <option value="organico">Desechos Orgánicos</option>
-      </optgroup>
-      <optgroup label="⚙️ Mecatrónica">
-        <option value="pcbs">Tarjeta de Circuito / PCB</option>
-        <option value="soldadura">Residuos de Soldadura</option>
-        <option value="jumpers">Cables Jumpers de Conexión</option>
-        <option value="motores">Motores DC / Servomotores</option>
-        <option value="resistencias">Componentes / Resistencias</option>
-      </optgroup>
-      <optgroup label="🏭 Producción Industrial">
-        <option value="virutas">Virutas de Metal con Aceite</option>
-        <option value="bandas">Bandas de Transmisión de Goma</option>
-        <option value="cascos">Cascos de Seguridad Industrial</option>
-      </optgroup>
-      <optgroup label="💻 Soporte y Mantenimiento">
-        <option value="ethernet">Aislamiento Cable Ethernet (PVC)</option>
-        <option value="pilas">Pilas de Reloj / Motherboard</option>
-        <option value="carcasas">Carcasas de Plástico Rígido ABS</option>
-        <option value="gabinetes">Gabinetes de Computadoras</option>
-        <option value="termica">Pasta Térmica Usada</option>
-      </optgroup>
-      <optgroup label="💾 Programación">
-        <option value="discos">Discos Duros Dañados</option>
-      </optgroup>
-      <optgroup label="💼 Procesos de Gestión Administrativa">
-        <option value="toner">Cartuchos de Tóner</option>
-        <option value="carpetas">Carpetas Plásticas Archivadoras</option>
-        <option value="hojas_calculo">Hojas de Cálculo Impresas</option>
-      </optgroup>
+      <option value="">-- Seleccionar --</option>
+      <option value="plastico">Botella de Plástico</option>
+      <option value="chicle">Chicle</option>
+      <option value="lata">Lata de Aluminio</option>
+      <option value="papel">Papel o Cartón</option>
+      <option value="vidrio">Botella de Vidrio</option>
     </select>
-    <div id="cajaResultadoDegradacion" class="panel-alerta verde" style="margin-top:15px;">Por favor, selecciona una opción del menú para auditar su impacto ambiental.</div>
+    <div id="resultadoDegradacion"></div>
   </section>
 
-  <!-- PESTAÑA 2: FORMULARIO DE REPORTES -->
+  <!-- PESTAÑA 2: REPORTAR CON IMAGEN -->
   <section id="reportar" class="tab-content">
     <h3>📢 Generar Reporte</h3>
-    <form id="formularioReporte" onsubmit="event.preventDefault(); enviarReporte(); return false;">
+    <form id="formularioReporte">
       <label>Tu Nombre o Grupo:</label>
-      <input type="text" id="txtNombreAlumno" placeholder="Ej. Juan - 3º A" required>
+      <input type="text" id="nombreAlumno" placeholder="Ej. Juan - 3º A" required>
       
       <label>¿Cuál es el problema?</label>
-      <textarea id="txtDescripcion" placeholder="Ej. Hay residuos tirados en el taller..." rows="3" required></textarea>
+      <textarea id="mensajeAlumno" placeholder="Ej. Hay basura tirada detrás de las canchas..." rows="3" required></textarea>
       
       <label>Evidencia en Foto (Opcional):</label>
-      <input type="file" id="inputFoto" accept="image/*" onchange="previsualizarFoto(event)">
-      
-      <div id="txtPrevia" style="font-size:12px; color:#666; text-align:center; margin:10px 0;">Ninguna foto seleccionada</div>
-      <img id="imgPrevia" class="preview-img" style="display:none;">
+      <input type="file" id="fotoInput" accept="image/*" onchange="previsualizarFoto()">
+      <img id="preview" class="preview-img" style="display:none;">
 
       <button type="submit" class="btn-accion">Enviar Reporte a la Escuela</button>
     </form>
   </section>
 
-  <!-- PESTAÑA 3: CALCULADORA -->
+  <!-- PESTAÑA 3: CALCULADORA ECOLOGÍCA -->
   <section id="calculadora" class="tab-content">
     <h3>🧮 Calculadora de Desechos</h3>
     <label>¿Cuántas botellas plásticas usas a la semana?</label>
-    <input type="number" id="txtCantidadPet" min="0" value="0">
-    <button class="btn-accion" onclick="calcularHuella()">Calcular mi Impacto</button>
-    <div id="cajaResultadoCalculadora" style="display:none;"></div>
+    <input type="number" id="calcBotellas" min="0" value="0">
+    <button class="btn-accion" onclick="calcularImpacto()">Calcular mi Impacto</button>
+    <div id="resultadoCalculadora"></div>
   </section>
 
-  <!-- PESTAÑA 4: REVISAR ESTADO -->
+  <!-- PESTAÑA 4: COMPROBAR ESTADO DEL REPORTE -->
   <section id="estado" class="tab-content">
     <h3>🔍 Estado de mi Reporte</h3>
     <label>Escribe tu nombre para buscar tu reporte:</label>
@@ -135,7 +100,7 @@
 
 </main>
 <script>
-  // Configuración de tu Firebase provista
+  // Credenciales públicas de tu proyecto Escuela Limpia
   const firebaseConfig = {
     apiKey: "AIzaSyCCVjAAdkiNMIB3odwWXDUBbGurE9bgZYM",
     authDomain: "://firebaseapp.com",
@@ -147,92 +112,55 @@
     measurementId: "G-KV3Y0V117P"
   };
 
-  // Inicialización de la base de datos de forma segura
+  // Inicializar base de datos de manera nativa
   if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
   }
   const db = firebase.firestore();
-  let base64Foto = ""; 
+  let base64Foto = ""; // Variable global para guardar la imagen comprimida
   // 1. NAVEGACIÓN ENTRE PESTAÑAS
   function cambiarPestana(idPestana, boton) {
-    document.querySelectorAll('.tab-content').forEach(c => {
-      c.classList.remove('active');
-      c.style.display = "none"; 
-    });
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     
-    const pestanaActiva = document.getElementById(idPestana);
-    if (pestanaActiva) {
-      pestanaActiva.classList.add('active');
-      pestanaActiva.style.display = "block";
-    }
-    if (boton) {
-      boton.classList.add('active');
-    }
+    const activa = document.getElementById(idPestana);
+    if (activa) { activa.classList.add('active'); }
+    if (boton) { boton.classList.add('active'); }
   }
 
   // 2. CONCIENTIZACIÓN DE DEGRADACIÓN
   function mostrarDegradacion() {
     const material = document.getElementById("comboMateriales").value;
-    const res = document.getElementById("cajaResultadoDegradacion");
+    const res = document.getElementById("resultadoDegradacion");
     if (!res) return;
     
     const datos = {
-      pet: { tiempo: "450 años", info: "Las botellas se fragmentan en microplásticos dañinos para el suelo.", tipo: "naranja" },
+      plastico: { tiempo: "450 años", info: "Las botellas se fragmentan en microplásticos dañinos para el suelo.", tipo: "naranja" },
       chicle: { tiempo: "5 años", info: "Contiene resinas sintéticas que los pájaros confunden con comida.", tipo: "naranja" },
-      aluminio: { tiempo: "10 años", info: "El aluminio se oxida lentamente, requiere mucha energía reciclarlo.", tipo: "naranja" },
-      vidrio: { tiempo: "4,000 años", info: "Es 100% reciclable de forma infinita, pero tarda milenios en la naturaleza.", tipo: "naranja" },
-      carton: { tiempo: "1 año", info: "Se degrada rápido si hay humedad, pero evitemos desperdiciarlo.", tipo: "verde" },
-      bolsa: { tiempo: "150 a 500 años", info: "Se fragmentan obstruyendo alcantarillas y dañando fauna.", tipo: "naranja" },
-      unicel: { tiempo: "500 años o más", info: "El unicel no se biodegrada y divide su tamaño eternamente.", tipo: "naranja" },
-      organico: { tiempo: "4 semanas", info: "Se descompone velozmente. ¡Ideal para la composta de la escuela!", tipo: "verde" },
-      pcbs: { tiempo: "Más de 1,000 años", info: "Las PCBs contienen fibra de vidrio y resinas epóxicas. Requieren reciclaje electrónico.", tipo: "naranja" },
-      soldadura: { tiempo: "Indefinido", info: "Contiene metales pesados que pueden contaminar mantos acuíferos si se tiran al suelo.", tipo: "naranja" },
-      jumpers: { tiempo: "100 a 400 años", info: "Su aislamiento exterior es plástico duradero. El cobre interno es reciclable.", tipo: "naranja" },
-      motores: { tiempo: "Siglos", info: "Contienen imanes, cobre y acero. Deben desarmarse de forma segura.", tipo: "naranja" },
-      resistencias: { tiempo: "Indefinido", info: "Los recubrimientos cerámicos y de carbón resisten mucho tiempo a la intemperie.", tipo: "naranja" },
-      virutas: { tiempo: "50 a 100 años", info: "Las virutas metálicas se oxidan lentamente. Se pueden reutilizar en fundición.", tipo: "naranja" },
-      bandas: { tiempo: "50 años", info: "El caucho sintético vulcanizado tarda décadas en perder elasticidad.", tipo: "naranja" },
-      cascos: { tiempo: "Varios siglos", info: "El polietileno de alta densidad resiste impactos directos y climas extremos.", tipo: "naranja" },
-      ethernet: { tiempo: "100 a 400 años", info: "El aislamiento de PVC libera toxinas si se quema. Separa el cobre de forma segura.", tipo: "naranja" },
-      pilas: { tiempo: "500 a 1,000 años", info: "Las pilas de botón contienen mercurio o litio altamente tóxicos.", tipo: "naranja" },
-      carcasas: { tiempo: "Varios siglos", info: "El plástico ABS tarda muchísimo en degradarse y acumula toxinas.", tipo: "naranja" },
-      gabinetes: { tiempo: "50 a 100 años", info: "Son láminas de acero o aluminio que se oxidan, pero son reciclables.", tipo: "naranja" },
-      termica: { tiempo: "Altamente persistente", info: "Contiene siliconas y óxidos metálicos que no se disuelven en agua.", tipo: "naranja" },
-      discos: { tiempo: "Varios siglos", info: "Los platos magnéticos y carcasas de aluminio pueden ser procesados por separado.", tipo: "naranja" },
-      toner: { tiempo: "450 años", info: "El polvo de tóner es un peligro respiratorio y su carcasa plástica dura siglos.", tipo: "naranja" },
-      carpetas: { tiempo: "Varios siglos", info: "El plástico de PVC rígido o polipropileno tarda generaciones en desaparecer.", tipo: "naranja" },
-      hojas_calculo: { tiempo: "1 año", info: "Papel común. Se degrada rápido pero representa desperdicio de celulosa.", tipo: "verde" }
+      lata: { tiempo: "10 años", info: "El aluminio se oxida lentamente, requiere mucha energía reciclarlo.", tipo: "naranja" },
+      vidrio: { tiempo: "4,000 años", info: "Es 100% reciclable de forma infinita, pero tarda milenios.", tipo: "naranja" },
+      papel: { tiempo: "1 año", info: "Se degrada rápido si hay humedad, pero evitemos desperdiciarlo.", tipo: "verde" }
     };
 
-    if(!material) { 
-      res.className = "panel-alerta verde";
-      res.innerHTML = "Por favor, selecciona una opción del menú para auditar su impacto ambiental."; 
-      return; 
-    }
-    
+    if(!material) { res.innerHTML = ""; return; }
     const data = datos[material];
-    res.className = `panel-alerta ${data.tipo}`;
-    res.innerHTML = `<strong>Tiempo de degradación:</strong> ${data.tiempo}<br><small>${data.info}</small>`;
+    res.innerHTML = `<div class="panel-alerta ${data.tipo}"><strong>Tiempo de degradación:</strong> ${data.tiempo}<br><small>${data.info}</small></div>`;
   }
 
-  // 3. PREVISUALIZAR Y OPTIMIZAR FOTO
-  function previsualizarFoto(event) {
-    const input = event.target;
-    const preview = document.getElementById("imgPrevia");
-    const txtPrevia = document.getElementById("txtPrevia");
+  // 3. PREVISUALIZAR Y COMPRIMIR FOTO
+  function previsualizarFoto() {
+    const input = document.getElementById("fotoInput");
+    const preview = document.getElementById("preview");
     
     if (!input.files || input.files.length === 0) {
       preview.style.display = "none";
-      if(txtPrevia) txtPrevia.innerText = "Ninguna foto seleccionada";
       base64Foto = "";
       return;
     }
 
-    const archivo = input.files[0]; 
-    if(txtPrevia) txtPrevia.innerText = archivo.name;
-    
+    const file = input.files[0];
     const reader = new FileReader();
+
     reader.onload = function (e) {
       const img = new Image();
       img.src = e.target.result;
@@ -255,27 +183,22 @@
         ctx.drawImage(img, 0, 0, width, height);
 
         base64Foto = canvas.toDataURL("image/jpeg", 0.6);
-        if(preview) {
-          preview.src = base64Foto;
-          preview.style.display = "block";
-        }
+        preview.src = base64Foto;
+        preview.style.display = "block";
       };
     };
-    reader.readAsDataURL(archivo);
+    reader.readAsDataURL(file);
   }
 
-  // 4. GUARDAR EN LA BASE DE DATOS FIRESTORE
-  async function enviarReporte() {
-    const nombre = document.getElementById("txtNombreAlumno").value.trim();
-    const mensaje = document.getElementById("txtDescripcion").value.trim();
+  // 4. ESCUCHA DE ENVÍO DIRECTO A FIRESTORE (LA FUNCIÓN QUE QUERÍAS)
+  document.getElementById("formularioReporte").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const nombre = document.getElementById("nombreAlumno").value.trim();
+    const mensaje = document.getElementById("mensajeAlumno").value.trim();
     const fotoAEnviar = base64Foto || "";
 
-    if (!nombre || !mensaje) {
-      alert("Por favor llena los campos requeridos.");
-      return;
-    }
-
     try {
+      // Sube la información directo a la colección de reportes en Firebase
       await db.collection("reportes").add({
         nombre: nombre,
         mensaje: mensaje,
@@ -286,54 +209,53 @@
 
       alert("¡Reporte enviado con éxito! Puedes consultar su estado en la sección 'Mi Reporte' usando tu nombre.");
       
+      // Limpieza automática del formulario
       document.getElementById("formularioReporte").reset();
-      if(document.getElementById("imgPrevia")) document.getElementById("imgPrevia").style.display = "none";
-      if(document.getElementById("txtPrevia")) document.getElementById("txtPrevia").innerText = "Ninguna foto seleccionada";
+      document.getElementById("preview").style.display = "none";
       base64Foto = "";
 
     } catch (error) {
       console.error("Error al guardar en Firestore:", error);
-      alert("Hubo un problema de conexión para guardar el reporte.");
+      alert("Hubo un problema de conexión para enviar el reporte.");
     }
-  }
+  });
 
   // 5. CALCULADORA ECOLOGÍCA
-  function calcularHuella() {
-    const botellas = parseInt(document.getElementById("txtCantidadPet").value) || 0;
+  function calcularImpacto() {
+    const botellas = parseInt(document.getElementById("calcBotellas").value) || 0;
     const totalAnual = botellas * 52;
     const tiempoDegradacion = totalAnual > 0 ? "450 años" : "0 años";
-    const contenedor = document.getElementById("cajaResultadoCalculadora");
-    if (!contenedor) return;
+    const res = document.getElementById("resultadoCalculadora");
+    if (!res) return;
     
     let recomendacion = "";
     let claseAlerta = "";
 
     if (botellas === 0) {
       claseAlerta = "verde";
-      recomendacion = "🌟 <strong>¡Increíble, nivel Héroe Ecológico!</strong> Sigue así, estás cuidando al planeta al máximo al no generar estos residuos.";
+      recomendacion = "🌟 <strong>¡Increíble, nivel Héroe Ecológico!</strong> Sigue así, estás cuidando al planeta al máximo.";
     } else if (botellas >= 1 && botellas <= 3) {
       claseAlerta = "verde";
-      recomendacion = "👍 <strong>¡Buen trabajo!</strong> Tu consumo es bajo. Intenta sustituirlas por completo usando un termo reutilizable en la escuela.";
+      recomendacion = "👍 <strong>¡Buen trabajo!</strong> Tu consumo es bajo. Intenta usar un termo reutilizable en la escuela.";
     } else if (botellas >= 4 && botellas <= 7) {
       claseAlerta = "naranja";
-      recomendacion = "⚠️ <strong>¡Atención!</strong> Estás usando casi una botella diaria. Te sugerimos organizar con tu grupo un reto para usar cantimploras de agua.";
+      recomendacion = "⚠️ <strong>¡Atención!</strong> Estás usando casi una botella diaria. Te sugerimos usar cantimploras de agua.";
     } else {
       claseAlerta = "naranja";
-      recomendacion = "🚨 <strong>¡Alerta Ecológica!</strong> Tu consumo es muy alto. Recuerda que cada botella tarda siglos en degradarse. ¡Es momento de cambiar a un termo hoy mismo!";
+      recomendacion = "🚨 <strong>¡Alerta Ecológica!</strong> Tu consumo es muy alto. ¡Es momento de cambiar a un termo hoy mismo!";
     }
     
-    contenedor.style.display = "block";
-    contenedor.innerHTML = `
+    res.innerHTML = `
       <div class="panel-alerta ${claseAlerta}">
         📊 <strong>Tu impacto estimado:</strong><br>
-        Desechas unas <strong>${totalAnual} botellas</strong> de plástico al año.<br>
-        Esa basura acumulada tardará más de <strong>${tiempoDegradacion}</strong> en desaparecer de la Tierra si no se recicla.<br><br>
+        Desechas unas <strong>${totalAnual} botellas</strong> al año.<br>
+        Esa basura acumulada tardará más de <strong>${tiempoDegradacion}</strong> en desaparecer.<br><br>
         🌱 <strong>Recomendación para ti:</strong><br>
         ${recomendacion}
       </div>`;
   }
 
-  // 6. CONSULTAR HISTORIAL DESDE FIRESTORE
+  // 6. BUSCADOR DE HISTORIAL EN TIEMPO REAL
   async function buscarMisReportes() {
     const nombreBuscar = document.getElementById("busquedaNombre").value.trim().toLowerCase();
     const contenedor = document.getElementById("listaMisReportes");
@@ -354,7 +276,7 @@
           const div = document.createElement("div");
           
           let claseEstado = "status-pendiente";
-if (item.estado && item.estado.toLowerCase() === "resuelto") {
+          if (item.estado && item.estado.toLowerCase() === "resuelto") {
             claseEstado = "status-resuelto";
           }
 
@@ -382,3 +304,6 @@ if (item.estado && item.estado.toLowerCase() === "resuelto") {
       contenedor.innerHTML = "<p>Hubo un problema al conectar con la base de datos.</p>";
     }
   }
+</script>
+</body>
+</html>
