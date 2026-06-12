@@ -49,14 +49,13 @@ function mostrarDegradacion() {
 }
 
 // ==========================================
-// 3. REPORTAR CON IMAGEN (BASE64)
+// 3. REPORTAR CON IMAGEN (BASE64 OPTIMIZADA)
 // ==========================================
 let base64Foto = "";
 function previsualizarFoto() {
   const input = document.getElementById("fotoInput");
   const preview = document.getElementById("preview");
   
-  // SOLUCIÓN: Validamos de forma segura si realmente el usuario seleccionó un archivo
   if (!input.files || input.files.length === 0) {
     preview.style.display = "none";
     base64Foto = "";
@@ -65,11 +64,36 @@ function previsualizarFoto() {
 
   const file = input.files[0];
   const reader = new FileReader();
-  reader.onloadend = function () {
-    base64Foto = reader.result;
-    preview.src = base64Foto;
-    preview.style.display = "block";
-  }
+
+  reader.onload = function (e) {
+    const img = new Image();
+    img.src = e.target.result;
+
+    img.onload = function () {
+      // Usamos un Canvas invisible para encoger las fotos pesadas de cámaras/celulares
+      const canvas = document.createElement("canvas");
+      const MAX_WIDTH = 600; // Limita el ancho para que pese muy pocos KB
+      let width = img.width;
+      let height = img.height;
+
+      if (width > MAX_WIDTH) {
+        height *= MAX_WIDTH / width;
+        width = MAX_WIDTH;
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Guardamos la versión ligera comprimida al 70% de calidad en JPEG
+      base64Foto = canvas.toDataURL("image/jpeg", 0.7);
+      preview.src = base64Foto;
+      preview.style.display = "block";
+    };
+  };
+
   reader.readAsDataURL(file);
 }
 
@@ -77,8 +101,6 @@ document.getElementById("formularioReporte").addEventListener("submit", async (e
   e.preventDefault();
   const nombre = document.getElementById("nombreAlumno").value;
   const mensaje = document.getElementById("mensajeAlumno").value;
-
-  // SOLUCIÓN: Si no se cargó ninguna foto, enviamos un texto vacío de forma limpia para evitar errores
   const fotoAEnviar = base64Foto || "";
 
   try {
@@ -114,7 +136,6 @@ function calcularImpacto() {
   let recomendacion = "";
   let claseAlerta = "";
 
-  // Lógica dinámica basada en la cantidad ingresada
   if (botellas === 0) {
     claseAlerta = "verde";
     recomendacion = "🌟 <strong>¡Increíble, nivel Héroe Ecológico!</strong> Sigue así, estás cuidando al planeta al máximo al no generar estos residuos.";
@@ -164,12 +185,20 @@ async function buscarMisReportes() {
     filtrados.forEach(item => {
       const claseEstado = item.estado === "Resuelto" ? "status-resuelto" : "status-pendiente";
       const icono = item.estado === "Resuelto" ? "✅" : "⏳";
-      contenedor.innerHTML += `
+      
+      let tarjetaHTML = `
         <div class="status-card ${claseEstado}">
           <strong>${icono} Estado: ${item.estado}</strong><br>
           <small>Detalle: ${item.mensaje}</small><br>
           <small style="color:#777;">Fecha: ${item.fecha ? new Date(item.fecha).toLocaleDateString() : "Reciente"}</small>
-        </div>`;
+      `;
+
+      if (item.foto) {
+        tarjetaHTML += `<br><img src="${item.foto}" style="max-width:80px; margin-top:8px; border-radius:4px; display:block;">`;
+      }
+
+      tarjetaHTML += `</div>`;
+      contenedor.innerHTML += tarjetaHTML;
     });
   } catch (error) {
     console.error("Error al buscar:", error);
