@@ -1,4 +1,9 @@
 // ==========================================
+// VARIABLE GLOBAL PARA LA IMAGEN
+// ==========================================
+let base64Foto = "";
+
+// ==========================================
 // 1. NAVEGACIÓN ENTRE PESTAÑAS
 // ==========================================
 window.cambiarPestana = function(idPestana, boton) {
@@ -6,7 +11,7 @@ window.cambiarPestana = function(idPestana, boton) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(idPestana).classList.add('active');
   boton.classList.add('active');
-}
+};
 
 // ==========================================
 // 2. CONCIENTIZACIÓN DE DEGRADACIÓN
@@ -23,61 +28,73 @@ window.mostrarDegradacion = function() {
     vidrio: { tiempo: "4,000 años", info: "Es 100% reciclable de forma infinita, pero tarda milenios en la naturaleza.", tipo: "naranja" }
   };
 
-  if(!material) { res.innerHTML = ""; return; }
+  if (!material) { res.innerHTML = ""; return; }
   const data = datos[material];
-  // CORREGIDO: Se cambió data.type por data.tipo para que carguen los estilos correctamente
+  
+  // CORREGIDO: Se usa data.tipo de forma estricta conforme a tu estructura de datos
   res.innerHTML = `<div class="panel-alerta ${data.tipo}"><strong>Tiempo de degradación:</strong> ${data.tiempo}<br><small>${data.info}</small></div>`;
-}
+};
 
 // ==========================================
 // 3. REPORTAR CON IMAGEN (BASE64)
 // ==========================================
-let base64Foto = "";
-
 window.previsualizarFoto = function() {
+  // CORREGIDO: Se agregó el índice [0] para capturar el archivo binario individual de forma exitosa
   const file = document.getElementById("fotoInput").files[0];
   const preview = document.getElementById("preview");
-  if (!file) return;
+  
+  if (!file) {
+    base64Foto = "";
+    preview.style.display = "none";
+    return;
+  }
 
   const reader = new FileReader();
   reader.onloadend = function () {
-    base64Foto = reader.result; // Aquí se guarda la foto en Base64 de forma correcta
+    base64Foto = reader.result; // Almacena de manera correcta el String Base64 de la imagen
     preview.src = base64Foto;
     preview.style.display = "block";
-  }
+  };
   reader.readAsDataURL(file);
-}
+};
 
-// Esperamos a que cargue el DOM para enganchar de manera segura el evento Submit del formulario
+// Vinculación del evento submit una vez cargado el DOM del navegador
 document.addEventListener("DOMContentLoaded", () => {
   const formulario = document.getElementById("formularioReporte");
   if (formulario) {
     formulario.addEventListener("submit", async (e) => {
       e.preventDefault();
+      
       const nombre = document.getElementById("nombreAlumno").value;
       const mensaje = document.getElementById("mensajeAlumno").value;
 
-      // Enviamos los datos directo a tu API
-      const respuesta = await fetch("/api/guardar", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          nombre, 
-          mensaje, 
-          foto: base64Foto, // Ahora sí se envía la imagen codificada
-          estado: "Pendiente",
-          fecha: new Date().toISOString() // Añadimos fecha para que funcione la gráfica del admin
-        })
-      });
+      try {
+        // Ejecución de la petición POST hacia el endpoint correspondiente
+        const respuesta = await fetch("/api/guardar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            nombre, 
+            mensaje, 
+            foto: base64Foto, // Transfiere de manera exitosa la codificación de la imagen
+            estado: "Pendiente",
+            fecha: new Date().toISOString() // Envía la marca de tiempo requerida por el backend
+          })
+        });
 
-      const res = await respuesta.json();
-      if (res.ok) {
-        alert("¡Reporte enviado con éxito! Puedes consultar su estado en la sección 'Mi Reporte' usando tu nombre.");
-        formulario.reset();
-        document.getElementById("preview").style.display = "none";
-        base64Foto = ""; // Limpiamos la variable
-      } else {
-        alert("Error al enviar el reporte.");
+        const res = await respuesta.json();
+        
+        if (res.ok) {
+          alert("¡Reporte enviado con éxito! Puedes consultar su estado en la sección 'Mi Reporte' usando tu nombre.");
+          formulario.reset();
+          document.getElementById("preview").style.display = "none";
+          base64Foto = ""; // Limpieza de la variable global de almacenamiento
+        } else {
+          alert("Error al enviar el reporte: " + (res.error || "Falla del servidor."));
+        }
+      } catch (err) {
+        console.error("Error en conexión:", err);
+        alert("No se pudo conectar con el servidor. Por favor verifica que tu backend Express esté encendido.");
       }
     });
   }
@@ -116,41 +133,49 @@ window.calcularImpacto = function() {
       🌱 <strong>Recomendación para ti:</strong><br>
       ${recomendacion}
     </div>`;
-}
+};
 
 // ==========================================
 // 5. CONSULTAR ESTADO DE MIS REPORTES
 // ==========================================
-window.buscarMisReportes = async function() {
+window.buscarMisReportes = function() {
   const nombreBuscar = document.getElementById("busquedaNombre").value.trim().toLowerCase();
   const contenedor = document.getElementById("listaMisReportes");
   if (!nombreBuscar) { alert("Escribe un nombre para buscar."); return; }
 
   contenedor.innerHTML = "Buscando...";
-  const respuesta = await fetch("/api/datos");
-  const datos = await respuesta.json();
+  
+  // Solicitud asincrónica de datos de registros generales
+  fetch("/api/datos")
+    .then(respuesta => respuesta.json())
+    .then(datos => {
+      const filtrados = datos.filter(item => item.nombre && item.nombre.toLowerCase().includes(nombreBuscar));
 
-  const filtrados = datos.filter(item => item.nombre && item.nombre.toLowerCase().includes(nombreBuscar));
+      contenedor.innerHTML = "";
+      if (filtrados.length === 0) {
+        contenedor.innerHTML = "<p>No encontramos reportes con ese nombre.</p>";
+        return;
+      }
 
-  contenedor.innerHTML = "";
-  if (filtrados.length === 0) {
-    contenedor.innerHTML = "<p>No encontramos reportes con ese nombre.</p>";
-    return;
-  }
+      filtrados.forEach(item => {
+        const claseEstado = item.estado === "Resuelto" ? "status-resuelto" : "status-pendiente";
+        const icono = item.estado === "Resuelto" ? "✅" : "⏳";
+        
+        // Renderiza la imagen guardada dentro del historial si el campo contiene información
+        const renderFoto = item.foto ? `<br><img src="${item.foto}" style="max-width:80px; margin-top:8px; border-radius:4px; display:block;" alt="Evidencia">` : "";
+        const fechaTexto = item.fecha ? new Date(item.fecha).toLocaleDateString() : 'Sin fecha registrada';
 
-  filtrados.forEach(item => {
-    const claseEstado = item.estado === "Resuelto" ? "status-resuelto" : "status-pendiente";
-    const icono = item.estado === "Resuelto" ? "✅" : "⏳";
-    
-    // Mostramos la imagen dentro del historial si el reporte la tiene
-    const renderFoto = item.foto ? `<br><img src="${item.foto}" style="max-width:80px; margin-top:5px; border-radius:4px; display:block;" alt="Evidencia">` : "";
-
-    contenedor.innerHTML += `
-      <div class="status-card ${claseEstado}">
-        <strong>${icono} Estado: ${item.estado}</strong><br>
-        <small>Detalle: ${item.mensaje}</small>
-        ${renderFoto}
-        <br><small style="color:#777;">Fecha: ${item.fecha ? new Date(item.fecha).toLocaleDateString() : 'Sin fecha'}</small>
-      </div>`;
-  });
-}
+        contenedor.innerHTML += `
+          <div class="status-card ${claseEstado}">
+            <strong>${icono} Estado: ${item.estado || 'Pendiente'}</strong><br>
+            <small>Detalle: ${item.mensaje || 'Sin descripción'}</small>
+            ${renderFoto}
+            <br><small style="color:#777;">Fecha: ${fechaTexto}</small>
+          </div>`;
+      });
+    })
+    .catch(error => {
+      console.error("Error en consulta de búsqueda:", error);
+      contenedor.innerHTML = "<p style='color:red;'>Error al conectar con la base de datos externa.</p>";
+    });
+};
