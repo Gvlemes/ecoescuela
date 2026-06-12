@@ -28,7 +28,7 @@
     .status-pendiente { border-left-color: #ffc107; background-color: #fffde7; }
   </style>
 
-  <!-- LIBRERÍAS DE FIREBASE -->
+  <!-- LIBRERÍAS OFICIALES DE FIREBASE (COMPATIBLES CON SDK V8) -->
   <script src="https://gstatic.com"></script>
   <script src="https://gstatic.com"></script>
 </head>
@@ -47,7 +47,7 @@
 
 <main class="contenedor-principal">
   
-  <!-- PESTAÑA 1: CONCIENTIZACIÓN -->
+  <!-- PESTAÑA 1: CONCIENTIZACIÓN DE DEGRADACIÓN -->
   <section id="degradacion" class="tab-content active">
     <h3>⏳ ¿Cuánto tardan en degradarse?</h3>
     <label for="comboMateriales">Selecciona un material:</label>
@@ -62,7 +62,7 @@
     <div id="resultadoDegradacion"></div>
   </section>
 
-  <!-- PESTAÑA 2: REPORTE -->
+  <!-- PESTAÑA 2: REPORTAR CON IMAGEN -->
   <section id="reportar" class="tab-content">
     <h3>📢 Generar Reporte</h3>
     <form id="formularioReporte" onsubmit="return false;">
@@ -70,18 +70,18 @@
       <input type="text" id="nombreAlumno" placeholder="Ej. Juan - 3º A" required>
       
       <label>¿Cuál es el problema?</label>
-      <textarea id="mensajeAlumno" placeholder="Ej. Hay basura tirada..." rows="3" required></textarea>
+      <textarea id="mensajeAlumno" placeholder="Ej. Hay basura tirada detrás de las canchas..." rows="3" required></textarea>
       
       <label>Evidencia en Foto (Opcional):</label>
       <input type="file" id="fotoInput" accept="image/*" onchange="previsualizarFoto(event)">
       <img id="preview" class="preview-img" style="display:none;">
 
-      <!-- CAMBIO CLAVE: Llamada directa onclick para evitar bloqueos del navegador -->
+      <!-- DISPARADOR INTEGRADO: Evita la recarga al inicio -->
       <button type="button" class="btn-accion" onclick="enviarReporte()">Enviar Reporte a la Escuela</button>
     </form>
   </section>
 
-  <!-- PESTAÑA 3: CALCULADORA -->
+  <!-- PESTAÑA 3: CALCULADORA ECOLOGÍCA -->
   <section id="calculadora" class="tab-content">
     <h3>🧮 Calculadora de Desechos</h3>
     <label>¿Cuántas botellas plásticas usas a la semana?</label>
@@ -90,17 +90,19 @@
     <div id="resultadoCalculadora"></div>
   </section>
 
-  <!-- PESTAÑA 4: HISTORIAL -->
+  <!-- PESTAÑA 4: COMPROBAR ESTADO DEL REPORTE -->
   <section id="estado" class="tab-content">
     <h3>🔍 Estado de mi Reporte</h3>
-    <label>Escribe tu nombre para buscar tu reporte:</label>
+    <label>Escribe tu nombre para buscar tu reporte (o déjalo vacío para ver todos):</label>
     <input type="text" id="busquedaNombre" placeholder="Ej. Juan - 3º A">
     <button class="btn-accion" onclick="buscarMisReportes()">Buscar Historial</button>
     <div id="listaMisReportes" style="margin-top: 15px;"></div>
   </section>
 
 </main>
+
 <script>
+  // Inicialización de tu Firebase Cloud Firestore
   const firebaseConfig = {
     apiKey: "AIzaSyCCVjAAdkiNMIB3odwWXDUBbGurE9bgZYM",
     authDomain: "://firebaseapp.com",
@@ -117,6 +119,8 @@
   }
   const db = firebase.firestore();
   let base64Foto = ""; 
+
+  // 1. NAVEGACIÓN ENTRE PESTAÑAS
   function cambiarPestana(idPestana, boton) {
     document.querySelectorAll('.tab-content').forEach(c => {
       c.classList.remove('active');
@@ -132,6 +136,7 @@
     if (boton) { boton.classList.add('active'); }
   }
 
+  // 2. TIEMPOS DE DEGRADACIÓN
   function mostrarDegradacion() {
     const material = document.getElementById("comboMateriales").value;
     const res = document.getElementById("resultadoDegradacion");
@@ -150,7 +155,7 @@
     res.innerHTML = `<div class="panel-alerta ${data.tipo}"><strong>Tiempo de degradación:</strong> ${data.tiempo}<br><small>${data.info}</small></div>`;
   }
 
-  // FUNCIÓN REPARADA: Lee la foto usando el índice [0] de forma correcta sin congelar la página
+  // 3. PREVISUALIZAR Y COMPRIMIR FOTO (MÉTODO INDEXADO SEGURO)
   function previsualizarFoto(event) {
     const input = event.target;
     const preview = document.getElementById("preview");
@@ -193,13 +198,13 @@
     reader.readAsDataURL(file);
   }
 
-  // FUNCIÓN CENTRAL REPARADA: Responde al clic instantáneamente
+  // 4. ENVÍO DE REPORTE INMEDIATO Y UNIVERSAL
   async function enviarReporte() {
     const nombre = document.getElementById("nombreAlumno").value.trim();
     const mensaje = document.getElementById("mensajeAlumno").value.trim();
 
     if (!nombre || !mensaje) {
-      alert("Por favor llena los campos de Nombre y Problema.");
+      alert("Por favor, llena los campos de Nombre y Problema primero.");
       return;
     }
 
@@ -207,12 +212,12 @@
       await db.collection("reportes").add({
         nombre: nombre,
         mensaje: mensaje,
-        foto: base64Foto,
+        foto: base64Foto || "",
         estado: "Pendiente",
         fecha: firebase.firestore.FieldValue.serverTimestamp()
       });
 
-      alert("¡Reporte enviado con éxito! Puedes consultar su estado en la sección 'Mi Reporte' usando tu nombre.");
+      alert("¡Reporte enviado con éxito! Ya se guardó en tu base de datos.");
       
       document.getElementById("formularioReporte").reset();
       document.getElementById("preview").style.display = "none";
@@ -224,88 +229,90 @@
     }
   }
 
-  function calcularImpacto() {
-    const botellas = parseInt(document.getElementById("calcBotellas").value) || 0;
-    const totalAnual = botellas * 52;
-    const tiempoDegradacion = totalAnual > 0 ? "450 años" : "0 años";
-    const res = document.getElementById("resultadoCalculadora");
-    if (!res) return;
-    
-    let recomendacion = "";
-    let claseAlerta = "";
+  // 5. CALCULADORA ECOLOGÍCA
+function calcularImpacto() {
+  const botellas = parseInt(document.getElementById("calcBotellas").value) || 0;
+  const totalAnual = botellas * 52;
+  const tiempoDegradacion = totalAnual > 0 ? "450 años" : "0 años";
+  const res = document.getElementById("resultadoCalculadora");
+  if (!res) return;
 
-    if (botellas === 0) {
-      claseAlerta = "verde";
-      recomendacion = "🌟 <strong>¡Increíble, nivel Héroe Ecológico!</strong> Sigue así, estás cuidando al planeta al máximo.";
-    } else if (botellas >= 1 && botellas <= 3) {
-      claseAlerta = "verde";
-      recomendacion = "👍 <strong>¡Buen trabajo!</strong> Tu consumo es bajo. Intenta usar un termo reutilizable en la escuela.";
-    } else if (botellas >= 4 && botellas <= 7) {
-      claseAlerta = "naranja";
-      recomendacion = "⚠️ <strong>¡Atención!</strong> Estás usando casi una botella diaria. Te sugerimos usar cantimploras de agua.";
-    } else {
-      claseAlerta = "naranja";
-      recomendacion = "🚨 <strong>¡Alerta Ecológica!</strong> Tu consumo es muy alto. ¡Es momento de cambiar a un termo hoy mismo!";
-    }
-    
-    res.innerHTML = `
-      <div class="panel-alerta ${claseAlerta}">
-        📊 <strong>Tu impacto estimado:</strong><br>
-        Desechas unas <strong>${totalAnual} botellas</strong> al año.<br>
-        Esa basura acumulada tardará más de <strong>${tiempoDegradacion}</strong> en desaparecer.<br><br>
-        🌱 <strong>Recomendación para ti:</strong><br>
-        ${recomendacion}
-      </div>`;
+  let recomendacion = "";
+  let claseAlerta = "";
+
+  if (botellas === 0) {
+    claseAlerta = "verde";
+    recomendacion = "🌟 <strong>¡Increíble, nivel Héroe Ecológico!</strong> Sigue así, estás cuidando al planeta al máximo.";
+  } else if (botellas >= 1 && botellas <= 3) {
+    claseAlerta = "verde";
+    recomendacion = "👍 <strong>¡Buen trabajo!</strong> Tu consumo es bajo. Intenta usar un termo reutilizable en la escuela.";
+  } else if (botellas >= 4 && botellas <= 7) {
+    claseAlerta = "naranja";
+    recomendacion = "⚠️ <strong>¡Atención!</strong> Estás usando casi una botella diaria. Te sugerimos usar cantimploras de agua.";
+  } else {
+    claseAlerta = "naranja";
+    recomendacion = "🚨 <strong>¡Alerta Ecológica!</strong> Tu consumo es muy alto. ¡Es momento de cambiar a un termo hoy mismo!";
   }
 
-  async function buscarMisReportes() {
-    const nombreBuscar = document.getElementById("busquedaNombre").value.trim().toLowerCase();
-    const contenedor = document.getElementById("listaMisReportes");
-    if (!contenedor) return;
-    if (!nombreBuscar) { alert("Escribe un nombre para buscar."); return; }
+  // Corregido con comillas invertidas ` para inyectar las variables de estilo
+  res.innerHTML = `
+    <div class="panel-alerta ${claseAlerta}">
+      📊 <strong>Tu impacto estimado:</strong><br>
+      Desechas unas <strong>${totalAnual} botellas</strong> al año.<br>
+      Esa basura acumulada tardará más de <strong>${tiempoDegradacion}</strong> en desaparecer.<br><br>
+      🌱 <strong>Recomendación para ti:</strong><br>
+      ${recomendacion}
+    </div>
+  `;
+}
+async function buscarMisReportes() {
+  const nombreBuscar = document.getElementById("busquedaNombre").value.trim().toLowerCase();
+  const contenedor = document.getElementById("listaMisReportes");
+  if (!contenedor) return;
 
-    contenedor.innerHTML = "<p>Buscando en la base de datos...</p>";
-    
-    try {
-      const snapshot = await db.collection("reportes").get();
-      contenedor.innerHTML = "";
-      let encontrados = 0;
+  contenedor.innerHTML = "<p>Buscando en la base de datos...</p>";
 
-      snapshot.forEach(doc => {
-        const item = doc.data();
-        if (item.nombre && item.nombre.toLowerCase().includes(nombreBuscar)) {
-          encontrados++;
-          const div = document.createElement("div");
-          
-          let claseEstado = "status-pendiente";
-          if (item.estado && item.estado.toLowerCase() === "resuelto") {
-            claseEstado = "status-resuelto";
-          }
+  try {
+    const snapshot = await db.collection("reportes").get();
+    contenedor.innerHTML = "";
+    let encontrados = 0;
 
-          const htmlFoto = item.foto 
-            ? `<img src="${item.foto}" alt="Evidencia" class="preview-img" style="margin: 10px 0 0 0; max-height: 100px;">` 
-            : '';
+    snapshot.forEach(doc => {
+      const item = doc.data();
 
-          div.className = `status-card ${claseEstado}`;
-          div.innerHTML = `
-            <h4>👤 Alumno: ${item.nombre}</h4>
-            <p style="margin-top:5px;"><strong>Problema:</strong> ${item.mensaje}</p>
-            <p style="margin-top:5px;"><strong>Estado:</strong> <span>${item.estado || 'Pendiente'}</span></p>
-            ${htmlFoto}
-          `;
-          contenedor.appendChild(div);
+      // Criterio universal: si está vacío muestra todo; si tiene texto busca coincidencias
+      if (nombreBuscar === "" || (item.nombre && item.nombre.toLowerCase().includes(nombreBuscar))) {
+        encontrados++;
+        const div = document.createElement("div");
+        
+        let claseEstado = "status-pendiente";
+        if (item.estado && item.estado.toString().toLowerCase().trim() === "resuelto") {
+          claseEstado = "status-resuelto";
         }
-      });
 
-      if (encontrados === 0) {
-        contenedor.innerHTML = "<p>No se encontraron reportes registrados para este nombre.</p>";
+        // Corregido con comillas invertidas ` para crear la etiqueta de la imagen
+        const htmlFoto = item.foto
+          ? `<img src="${item.foto}" alt="Evidencia" class="preview-img" style="margin: 10px 0 0 0; max-height: 100px;">`
+          : '';
+
+        // Corregido con comillas invertidas ` para estructurar la tarjeta del reporte
+        div.className = `status-card ${claseEstado}`;
+        div.innerHTML = `
+          <h4>👤 Alumno: ${item.nombre || 'Anónimo'}</h4>
+          <p style="margin-top:5px;"><strong>Problema:</strong> ${item.mensaje || 'Sin descripción'}</p>
+          <p style="margin-top:5px;"><strong>Estado:</strong> <span>${item.estado || 'Pendiente'}</span></p>
+          ${htmlFoto}
+        `;
+        contenedor.appendChild(div);
       }
+    });
 
-    } catch (error) {
-      console.error("Error al obtener los reportes:", error);
-      contenedor.innerHTML = "<p>Hubo un problema al conectar con la base de datos.</p>";
+    if (encontrados === 0) {
+      contenedor.innerHTML = "<p>No se encontraron reportes registrados para este nombre.</p>";
     }
+
+  } catch (error) {
+    console.error("Error al obtener los reportes:", error);
+    contenedor.innerHTML = "<p>Hubo un problema al conectar con la base de datos.</p>";
   }
-</script>
-</body>
-</html>
+}
