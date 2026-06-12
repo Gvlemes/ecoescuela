@@ -53,11 +53,17 @@ function mostrarDegradacion() {
 // ==========================================
 let base64Foto = "";
 function previsualizarFoto() {
-  // SOLUCIÓN: Agregado el [0] correcto para capturar el archivo sin romper la ejecución
-  const file = document.getElementById("fotoInput").files[0];
+  const input = document.getElementById("fotoInput");
   const preview = document.getElementById("preview");
-  if (!file) return;
+  
+  // SOLUCIÓN: Validamos de forma segura si realmente el usuario seleccionó un archivo
+  if (!input.files || input.files.length === 0) {
+    preview.style.display = "none";
+    base64Foto = "";
+    return;
+  }
 
+  const file = input.files[0];
   const reader = new FileReader();
   reader.onloadend = function () {
     base64Foto = reader.result;
@@ -72,20 +78,28 @@ document.getElementById("formularioReporte").addEventListener("submit", async (e
   const nombre = document.getElementById("nombreAlumno").value;
   const mensaje = document.getElementById("mensajeAlumno").value;
 
-  const respuesta = await fetch("/api/guardar", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nombre, mensaje, foto: base64Foto, estado: "Pendiente" })
-  });
+  // SOLUCIÓN: Si no se cargó ninguna foto, enviamos un texto vacío de forma limpia para evitar errores
+  const fotoAEnviar = base64Foto || "";
 
-  const res = await respuesta.json();
-  if (res.ok) {
-    alert("¡Reporte enviado con éxito! Puedes consultar su estado en la sección 'Mi Reporte' usando tu nombre.");
-    document.getElementById("formularioReporte").reset();
-    document.getElementById("preview").style.display = "none";
-    base64Foto = "";
-  } else {
-    alert("Error al enviar el reporte.");
+  try {
+    const respuesta = await fetch("/api/guardar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nombre, mensaje, foto: fotoAEnviar, estado: "Pendiente" })
+    });
+
+    const res = await respuesta.json();
+    if (res.ok) {
+      alert("¡Reporte enviado con éxito! Puedes consultar su estado en la sección 'Mi Reporte' usando tu nombre.");
+      document.getElementById("formularioReporte").reset();
+      document.getElementById("preview").style.display = "none";
+      base64Foto = "";
+    } else {
+      alert("Error al enviar el reporte.");
+    }
+  } catch (error) {
+    console.error("Error en la red:", error);
+    alert("Hubo un problema de conexión para enviar el reporte.");
   }
 });
 
@@ -115,7 +129,6 @@ function calcularImpacto() {
     recomendacion = "🚨 <strong>¡Alerta Ecológica!</strong> Tu consumo es muy alto. Recuerda que cada botella tarda siglos en degradarse. ¡Es momento de cambiar a un termo hoy mismo!";
   }
   
-  // SOLUCIÓN: Se limpió la sintaxis de la variable para evitar errores de asignación inválida
   document.getElementById("resultadoCalculadora").innerHTML = `
     <div class="panel-alerta ${claseAlerta}">
       📊 <strong>Tu impacto estimado:</strong><br>
@@ -135,25 +148,31 @@ async function buscarMisReportes() {
   if (!nombreBuscar) { alert("Escribe un nombre para buscar."); return; }
 
   contenedor.innerHTML = "Buscando...";
-  const respuesta = await fetch("/api/datos");
-  const datos = await respuesta.json();
+  
+  try {
+    const respuesta = await fetch("/api/datos");
+    const datos = await respuesta.json();
 
-  const filtrados = datos.filter(item => item.nombre.toLowerCase().includes(nombreBuscar));
+    const filtrados = datos.filter(item => item.nombre.toLowerCase().includes(nombreBuscar));
 
-  contenedor.innerHTML = "";
-  if (filtrados.length === 0) {
-    contenedor.innerHTML = "<p>No encontramos reportes con ese nombre.</p>";
-    return;
+    contenedor.innerHTML = "";
+    if (filtrados.length === 0) {
+      contenedor.innerHTML = "<p>No encontramos reportes con ese nombre.</p>";
+      return;
+    }
+
+    filtrados.forEach(item => {
+      const claseEstado = item.estado === "Resuelto" ? "status-resuelto" : "status-pendiente";
+      const icono = item.estado === "Resuelto" ? "✅" : "⏳";
+      contenedor.innerHTML += `
+        <div class="status-card ${claseEstado}">
+          <strong>${icono} Estado: ${item.estado}</strong><br>
+          <small>Detalle: ${item.mensaje}</small><br>
+          <small style="color:#777;">Fecha: ${item.fecha ? new Date(item.fecha).toLocaleDateString() : "Reciente"}</small>
+        </div>`;
+    });
+  } catch (error) {
+    console.error("Error al buscar:", error);
+    contenedor.innerHTML = "<p style='color:red;'>Error al cargar el historial.</p>";
   }
-
-  filtrados.forEach(item => {
-    const claseEstado = item.estado === "Resuelto" ? "status-resuelto" : "status-pendiente";
-    const icono = item.estado === "Resuelto" ? "✅" : "⏳";
-    contenedor.innerHTML += `
-      <div class="status-card ${claseEstado}">
-        <strong>${icono} Estado: ${item.estado}</strong><br>
-        <small>Detalle: ${item.mensaje}</small><br>
-        <small style="color:#777;">Fecha: ${new Date(item.fecha).toLocaleDateString()}</small>
-      </div>`;
-  });
 }
