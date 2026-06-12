@@ -20,8 +20,8 @@ function mostrarDegradacion() {
     plastico: { tiempo: "450 años", info: "Las botellas se fragmentan en microplásticos dañinos para el suelo.", tipo: "naranja" },
     chicle: { tiempo: "5 años", info: "Contiene resinas sintéticas que los pájaros confunden con comida.", tipo: "naranja" },
     lata: { tiempo: "10 años", info: "El aluminio se oxida lentamente, requiere mucha energía reciclarlo.", tipo: "naranja" },
-    papel: { tiempo: "1 año", info: "Se degrada rápido si hay humedad, pero evitemos desperdiciarlo.", tipo: "verde" },
     vidrio: { tiempo: "4,000 años", info: "Es 100% reciclable de forma infinita, pero tarda milenios en la naturaleza.", tipo: "naranja" },
+    papel: { tiempo: "1 año", info: "Se degrada rápido si hay humedad, pero evitemos desperdiciarlo.", tipo: "verde" },
 
     // ⚙️ Mecatrónica
     tarjeta: { tiempo: "Más de 1,000 años", info: "Las PCBs contienen fibra de vidrio y resinas epóxicas. Deben ir a reciclaje electrónico.", tipo: "naranja" },
@@ -53,6 +53,7 @@ function mostrarDegradacion() {
 // ==========================================
 let base64Foto = "";
 function previsualizarFoto() {
+  // CORRECCIÓN: Se restauró el [0] para que lea correctamente el archivo seleccionado
   const file = document.getElementById("fotoInput").files[0];
   const preview = document.getElementById("preview");
   if (!file) return;
@@ -120,7 +121,7 @@ function calcularImpacto() {
       Desechas unas <strong>${totalAnual} botellas</strong> de plástico al año.<br>
       Esa basura acumulada tardará más de <strong>${tiempoDegradacion}</strong> en desaparecer de la Tierra si no se recicla.<br><br>
       🌱 <strong>Recomendación para ti:</strong><br>
-      ${recomendacion}
+      ${recommendation = recomendacion}
     </div>`;
 }
 
