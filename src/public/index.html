@@ -17,8 +17,6 @@
     h3 { margin-bottom: 15px; text-align: center; color: #1B5E20; }
     label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
     select, input, textarea { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #CCC; border-radius: 6px; font-size: 14px; }
-    optgroup { font-weight: bold; color: #1B5E20; background: #f4f4f4; }
-    option { font-weight: normal; color: #333; background: #fff; }
     .panel-alerta { padding: 15px; border-radius: 8px; font-size: 14px; line-height: 1.5; margin-top: 15px; }
     .panel-alerta.verde { background-color: #E8F5E9; color: #1B5E20; border: 1px solid #C8E6C9; }
     .panel-alerta.naranja { background-color: #FFF3E0; color: #E65100; border: 1px solid #FFE0B2; }
@@ -45,48 +43,22 @@
 
 <main class="contenedor-principal">
   
-  <!-- PESTAÑA 1: CONCIENTIZACIÓN -->
+  <!-- PESTAÑA 1: CONCIENTIZACIÓN DE DEGRADACIÓN -->
   <section id="degradacion" class="tab-content active">
-    <h3>⏳ Tiempos de Degradación</h3>
-    <label for="comboMateriales">Selecciona un residuo escolar o técnico:</label>
+    <h3>⏳ ¿Cuánto tardan en degradarse?</h3>
+    <label for="comboMateriales">Selecciona un material:</label>
     <select id="comboMateriales" onchange="mostrarDegradacion()">
-      <option value="">-- Seleccionar Elemento --</option>
-      
-      <optgroup label="📋 Componentes Básicos / Comunes">
-        <option value="plastico">Botella de Plástico</option>
-        <option value="chicle">Chicle de Goma</option>
-        <option value="lata">Lata de Aluminio</option>
-        <option value="vidrio">Botella de Vidrio</option>
-      </optgroup>
-
-      <optgroup label="⚙️ Mecatrónica">
-        <option value="tarjeta">Tarjeta de Circuito / PCB</option>
-        <option value="soldadura">Residuos de Soldadura de Estaño</option>
-      </optgroup>
-
-      <optgroup label="🏭 Producción Industrial">
-        <option value="chatarra">Chatarra y Virutas de Metal / Acero</option>
-        <option value="aceite">Aceites y Lubricantes Industriales</option>
-      </optgroup>
-
-      <optgroup label="💻 Soporte y Mantenimiento">
-        <option value="cable">Aislamiento de Cables de Red (PVC)</option>
-        <option value="pila">Baterías / Pilas de Tarjeta Madre</option>
-      </optgroup>
-
-      <optgroup label="💾 Programación">
-        <option value="disco">Disco Duro Viejo / Almacenamiento</option>
-      </optgroup>
-
-      <optgroup label="💼 Procesos de Gestión Administrativa">
-        <option value="toner">Cartuchos de Tóner e Impresora</option>
-        <option value="archivo">Archivos Muertos / Papel Químico de Copia</option>
-      </optgroup>
+      <option value="">-- Seleccionar --</option>
+      <option value="plastico">Botella de Plástico</option>
+      <option value="chicle">Chicle</option>
+      <option value="lata">Lata de Aluminio</option>
+      <option value="papel">Papel o Cartón</option>
+      <option value="vidrio">Botella de Vidrio</option>
     </select>
     <div id="resultadoDegradacion"></div>
   </section>
 
-  <!-- PESTAÑA 2: FORMULARIO DE REPORTES -->
+  <!-- PESTAÑA 2: REPORTAR CON IMAGEN -->
   <section id="reportar" class="tab-content">
     <h3>📢 Generar Reporte</h3>
     <form id="formularioReporte">
@@ -94,7 +66,7 @@
       <input type="text" id="nombreAlumno" placeholder="Ej. Juan - 3º A" required>
       
       <label>¿Cuál es el problema?</label>
-      <textarea id="mensajeAlumno" placeholder="Ej. Hay residuos tirados en el taller..." rows="3" required></textarea>
+      <textarea id="mensajeAlumno" placeholder="Ej. Hay basura tirada detrás de las canchas..." rows="3" required></textarea>
       
       <label>Evidencia en Foto (Opcional):</label>
       <input type="file" id="fotoInput" accept="image/*" onchange="previsualizarFoto()">
@@ -104,7 +76,7 @@
     </form>
   </section>
 
-  <!-- PESTAÑA 3: CALCULADORA -->
+  <!-- PESTAÑA 3: CALCULADORA ECOLÓGICA -->
   <section id="calculadora" class="tab-content">
     <h3>🧮 Calculadora de Desechos</h3>
     <label>¿Cuántas botellas plásticas usas a la semana?</label>
@@ -113,7 +85,7 @@
     <div id="resultadoCalculadora"></div>
   </section>
 
-  <!-- PESTAÑA 4: REVISAR ESTADO -->
+  <!-- PESTAÑA 4: COMPROBAR ESTADO DEL REPORTE -->
   <section id="estado" class="tab-content">
     <h3>🔍 Estado de mi Reporte</h3>
     <label>Escribe tu nombre para buscar tu reporte:</label>
@@ -124,6 +96,6 @@
 
 </main>
 
-<script type="module" src="app.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
