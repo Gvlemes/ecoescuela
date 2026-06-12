@@ -44,10 +44,10 @@ window.mostrarDegradacion = function() {
 };
 
 // ==========================================
-// 3. REPORTAR CON IMAGEN (BASE64)
+// 3. REPORTAR CON COMPRESIÓN ANTICAÍDAS (BASE64)
 // ==========================================
 window.previsualizarFoto = function() {
-  const file = document.getElementById("fotoInput").files[0];
+  const file = document.getElementById("fotoInput").files[0]; // Captura el archivo individual
   const preview = document.getElementById("preview");
   
   if (!file) {
@@ -57,10 +57,35 @@ window.previsualizarFoto = function() {
   }
 
   const reader = new FileReader();
-  reader.onloadend = function () {
-    base64Foto = reader.result; 
-    preview.src = base64Foto;
-    preview.style.display = "block";
+  reader.onload = function (e) {
+    const img = new Image();
+    img.src = e.target.result;
+    
+    img.onload = function() {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      // Redimensionamos la foto a un ancho máximo de 800px para cuidar la RAM de Render
+      const MAX_WIDTH = 800;
+      let width = img.width;
+      let height = img.height;
+
+      if (width > MAX_WIDTH) {
+        height *= MAX_WIDTH / width;
+        width = MAX_WIDTH;
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Comprimimos la calidad al 60% en formato JPEG para un peso ultraligero
+      base64Foto = canvas.toDataURL("image/jpeg", 0.6);
+      
+      // Mostramos la previsualización optimizada en la pantalla
+      preview.src = base64Foto;
+      preview.style.display = "block";
+    };
   };
   reader.readAsDataURL(file);
 };
@@ -88,7 +113,7 @@ window.enviarReporteNuevo = async function(event) {
       body: JSON.stringify({ 
         nombre: nombre, 
         mensaje: mensaje, 
-        foto: base64Foto, 
+        foto: base64Foto, // Envía la foto comprimida de forma ligera
         estado: "Pendiente"
       })
     });
@@ -110,7 +135,7 @@ window.enviarReporteNuevo = async function(event) {
 };
 
 // ==========================================
-// 4. CALCULADORA ECOLÓGICA (CORREGIDA)
+// 4. CALCULADORA ECOLÓGICA CON RECOMENDACIONES DINÁMICAS
 // ==========================================
 window.calcularImpacto = function() {
   const botellas = parseInt(document.getElementById("calcBotellas").value) || 0;
@@ -128,7 +153,6 @@ window.calcularImpacto = function() {
     recomendacion = "👍 <strong>¡Buen trabajo!</strong> Tu consumo es bajo. Intenta sustituirlas por completo usando un termo reutilizable en la escuela.";
   } else if (botellas >= 4 && botellas <= 7) {
     claseAlerta = "naranja";
-    // CORREGIDO: Se cambió 'recommendation' por 'recomendacion' en español
     recomendacion = "⚠️ <strong>¡Atención!</strong> Estás usando casi una botella diaria. Te sugerimos organizar con tu grupo un reto para usar cantimploras de agua.";
   } else {
     claseAlerta = "naranja";
