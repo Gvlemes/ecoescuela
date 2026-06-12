@@ -93,7 +93,9 @@ function previsualizarFoto(input) {
 
 // 6. ENVÍO SEGURO A FIREBASE REALTIME DATABASE
 function guardarReporteFirebase(event) {
-    event.preventDefault();
+    // ESTA LÍNEA ES LA QUE EVITA QUE TE MANDE AL PRINCIPIO O RECARGUE LA PÁGINA
+    if (event) event.preventDefault(); 
+    
     const msg = document.getElementById('mensajeEnvio');
     const nombre = document.getElementById('nombreGrupo').value.trim();
     const problema = document.getElementById('problema').value.trim();
@@ -121,6 +123,7 @@ function guardarReporteFirebase(event) {
             console.error("Error Firebase:", error);
             if (msg) msg.innerHTML = `<div class="panel-alerta naranja">Error al enviar a la base de datos.</div>`;
         });
+}
 }
 
 // 7. CONSULTA DE REPORTES PARA EL ALUMNO (MIS REPORTES)
