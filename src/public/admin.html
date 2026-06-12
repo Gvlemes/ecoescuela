@@ -11,27 +11,25 @@
     h1 { color: #1e293b; margin-bottom: 8px; font-size: 24px; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; }
     p { color: #64748b; margin-bottom: 20px; font-size: 14px; }
     
-    /* Formulario de Contraseña Administrativa */
+    /* Login */
     #login-seccion { max-width: 400px; margin: 100px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; }
     #login-seccion input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 15px; text-align: center; }
     
-    /* Diseño de las Tarjetas de Reportes */
+    /* Tarjetas de Reportes Sincronizados */
     .item-admin { background: #f8fafc; padding: 20px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 12px; text-align: left; }
     .item-admin.pendiente { border-left: 6px solid #eab308; }
     .item-admin.resuelto { border-left: 6px solid #22c55e; background: #f0fdf4; }
     .info { font-size: 15px; line-height: 1.6; }
     .meta { font-size: 12px; color: #94a3b8; margin-top: 5px; }
     
-    /* Etiquetas de Estado */
     .badge { display: inline-block; padding: 3px 8px; font-size: 12px; font-weight: bold; border-radius: 4px; margin-left: 5px; }
     .badge.pendiente { background: #fef9c3; color: #854d0e; }
     .badge.resuelto { background: #dcfce7; color: #166534; }
     
-    /* FOTOS ENVIADAS: Tamaño grande y claro para la evidencia */
+    /* Imagen Escalada: Visualización perfecta de la evidencia */
     .foto-reporte { max-width: 100%; max-height: 250px; border-radius: 8px; border: 1px solid #cbd5e1; margin-top: 10px; display: block; object-fit: contain; background: #fff; }
     .acciones { display: flex; gap: 10px; margin-top: 5px; justify-content: flex-end; }
     
-    /* Botones Interactivos */
     .btn { padding: 8px 16px; font-size: 13px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; }
     .btn-resolver { background-color: #22c55e; color: white; }
     .btn-borrar { background-color: #ef4444; color: white; }
@@ -41,7 +39,7 @@
 </head>
 <body>
 
-  <!-- Vista Inicial: Login de Contraseña -->
+  <!-- Formulario de Acceso -->
   <div id="login-seccion">
     <h2 style="color: #1e293b;">🔑 Panel de Control</h2>
     <p style="margin-top: 5px;">Introduce la clave administrativa de la escuela</p>
@@ -49,7 +47,7 @@
     <button class="btn btn-login" onclick="validarAcceso()">Ingresar al Sistema</button>
   </div>
 
-  <!-- Vista Secundaria: Dashboard de Reportes (Oculto al inicio) -->
+  <!-- Dashboard de Reportes -->
   <div class="contenedor" id="panel-principal" style="display: none;">
     <span class="live-indicator">● EN VIVO</span>
     <h1>🌿 Panel de Administración (Base de Datos)</h1>
@@ -66,7 +64,7 @@
     import { initializeApp } from "https://gstatic.com";
     import { getFirestore, collection, doc, updateDoc, deleteDoc, query, orderBy, onSnapshot } from "https://gstatic.com";
 
-    // ⚠️ REEMPLAZA CON TUS CREDENCIALES REALES DE FIREBASE
+    // ⚠️ REEMPLAZA ESTO CON TUS CREDENCIALES REALES DE FIREBASE
     const firebaseConfig = {
       apiKey: "TU_API_KEY",
       authDomain: "TU_AUTH_DOMAIN",
@@ -88,7 +86,7 @@
         document.getElementById("login-seccion").style.display = "none"; 
         document.getElementById("panel-principal").style.display = "block"; 
         
-        // Encendemos el monitor en tiempo real nativo de Google
+        // Iniciamos el receptor de eventos vivo
         activarEscuchadorEnTiempoReal();
       } else {
         alert("Contraseña incorrecta. Acceso denegado.");
@@ -98,7 +96,7 @@
     function activarEscuchadorEnTiempoReal() {
       const q = query(collection(db, "reportes"), orderBy("fechaRaw", "desc"));
 
-      // El onSnapshot detecta altas, bajas y cambios de estado en milisegundos
+      // El oyente renderiza las tarjetas de forma independiente sin tocar variables externas
       onSnapshot(q, (querySnapshot) => {
         listaAdmin.innerHTML = "";
         
@@ -115,7 +113,7 @@
           const esResuelto = item.estado === "Resuelto";
           div.className = `item-admin ${esResuelto ? 'resuelto' : 'pendiente'}`;
           
-          // REVISIÓN DE FOTO: Si el alumno adjuntó foto, se dibuja la imagen real en pantalla
+          // Verificación e inyección de la fotografía adjunta por el estudiante
           const htmlFoto = item.fotoUrl ? `<img src="${item.fotoUrl}" class="foto-reporte" alt="Evidencia Visual">` : "<p style='color:#94a3b8; font-size:12px; margin-top:5px;'>📷 Sin imagen adjunta</p>";
           
           const botonResolver = !esResuelto 
@@ -139,12 +137,11 @@
           listaAdmin.appendChild(div);
         });
       }, (error) => {
-        console.error("Error en conexión en vivo:", error);
-        listaAdmin.innerHTML = "<p style='color:red;'>Error de conexión con Firebase. Verifica tus llaves.</p>";
+        console.error("Error en comunicación en vivo:", error);
       });
     }
 
-    // Actualiza el estado del reporte a "Resuelto" directamente en la nube
+    // Funciones globales interactivas conectadas a Firestore
     window.marcarResuelto = async function(id) {
       try {
         await updateDoc(doc(db, "reportes", id), { estado: "Resuelto" });
@@ -153,7 +150,6 @@
       }
     }
 
-    // Remueve el documento de Firebase de manera definitiva
     window.eliminarReporte = async function(id) {
       if (!confirm("¿Eliminar definitivamente este reporte de la base de datos de Google?")) return;
       try {
@@ -163,7 +159,6 @@
       }
     }
 
-    // Vincular el inicio de sesión con el botón HTML
     window.validarAcceso = validarAcceso;
 
   </script>
