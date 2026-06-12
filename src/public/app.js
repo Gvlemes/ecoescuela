@@ -1,4 +1,4 @@
-// 1. CONFIGURACIÓN DE FIREBASE (Conectado usando el método clásico compatible)
+// 1. CONFIGURACIÓN DE FIREBASE (Método clásico compatible)
 const firebaseConfig = {
   apiKey: "AIzaSyCCVjAAdkiNMIB3odwWXDUBbGurE9bgZYM",
   authDomain: "://firebaseapp.com",
@@ -16,13 +16,19 @@ const db = firebase.database();
 
 let fotoBase64Global = ""; 
 
-// Ejecutar lecturas iniciales automáticas cuando la página esté lista
+// Configurar los escuchadores nativos cuando cargue el documento
 document.addEventListener('DOMContentLoaded', () => {
+    // Escuchar el evento submit de forma segura desde JS para evitar fallos del botón
+    const formulario = document.getElementById('formReporte');
+    if (formulario) {
+        formulario.addEventListener('submit', guardarReporteFirebase);
+    }
+    
     escucharReportesAdmin();
     escucharMisReportes();
 });
 
-// 2. MANEJO DE PESTAÑAS (Funciona directo con tus onclick)
+// 2. MANEJO DE PESTAÑAS
 function cambiarPestana(idSeccion, botonActivo) {
     document.querySelectorAll('.tab-content').forEach(seccion => seccion.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -34,7 +40,7 @@ function cambiarPestana(idSeccion, botonActivo) {
     if (idSeccion === 'mis-reportes') escucharMisReportes();
 }
 
-// 3. RECUPERACIÓN DE TUS FUNCIONES ORIGINALES DE DEGRADACIÓN
+// 3. SECCIÓN DEGRADACIÓN ORIGINAL
 function mostrarDegradacion() {
     const combo = document.getElementById('comboMateriales');
     const resultado = document.getElementById('resultadoDegradacion');
@@ -42,8 +48,8 @@ function mostrarDegradacion() {
 
     if (combo.value) {
         const datos = combo.value.split('|');
-        const tipoAlerta = datos[1]; // verde o naranja
-        const tiempo = datos[2];     // tiempo de degradación
+        const tipoAlerta = datos[1]; 
+        const tiempo = datos[2];     
 
         resultado.innerHTML = `<div class="panel-alerta ${tipoAlerta}">
             Este componente tarda aproximadamente <strong>${tiempo}</strong> en degradarse en el entorno escolar.
@@ -53,7 +59,23 @@ function mostrarDegradacion() {
     }
 }
 
-// 4. PROCESAMIENTO DE IMÁGENES (BASE64)
+// 4. CALCULADORA DE DESECHOS ORIGINAL
+function calcularImpacto() {
+    const botellas = parseInt(document.getElementById('cantBotellas').value) || 0;
+    const totalAnual = botellas * 52;
+    const resultado = document.getElementById('resultadoCalculo');
+    if (!resultado) return;
+
+    if (totalAnual > 0) {
+        resultado.innerHTML = `<div class="panel-alerta verde">
+            Al año consumes aproximadamente <strong>${totalAnual} botellas plásticas</strong>. ¡Intenta utilizar termos reutilizables en la escuela!
+        </div>`;
+    } else {
+        resultado.innerHTML = `<div class="panel-alerta verde">¡Excelente! No generas desechos de botellas plásticas esta semana.</div>`;
+    }
+}
+
+// 5. PROCESAMIENTO DE IMÁGENES (BASE64)
 function previsualizarFoto(input) {
     const vistaPrevia = document.getElementById('vistaPrevia');
     if (input.files && input.files[0]) {
@@ -69,7 +91,7 @@ function previsualizarFoto(input) {
     }
 }
 
-// 5. ENVÍO SEGURO A FIREBASE REALTIME DATABASE
+// 6. ENVÍO SEGURO A FIREBASE REALTIME DATABASE
 function guardarReporteFirebase(event) {
     event.preventDefault();
     const msg = document.getElementById('mensajeEnvio');
@@ -84,7 +106,6 @@ function guardarReporteFirebase(event) {
         solucionado: false 
     };
 
-    // Usando el método push clásico
     db.ref('reportes').push(nuevoReporte)
         .then(() => {
             document.getElementById('formReporte').reset();
@@ -98,10 +119,11 @@ function guardarReporteFirebase(event) {
         })
         .catch((error) => {
             console.error("Error Firebase:", error);
+            if (msg) msg.innerHTML = `<div class="panel-alerta naranja">Error al enviar a la base de datos.</div>`;
         });
 }
 
-// 6. CONSULTA DE REPORTES PARA EL ALUMNO (MIS REPORTES)
+// 7. CONSULTA DE REPORTES PARA EL ALUMNO (MIS REPORTES)
 function escucharMisReportes() {
     const contenedor = document.getElementById('listaMisReportes');
     if (!contenedor) return;
@@ -137,7 +159,7 @@ function escucharMisReportes() {
     });
 }
 
-// 7. BANDEJA DE ENTRADA DEL ADMINISTRADOR (ADMIN.HTML)
+// 8. BANDEJA DE ENTRADA DEL ADMINISTRADOR (ADMIN.HTML)
 function escucharReportesAdmin() {
     const contenedorAdmin = document.getElementById('contenedorReportesAdmin');
     if (!contenedorAdmin) return;
@@ -171,12 +193,12 @@ function escucharReportesAdmin() {
     });
 }
 
-// 8. ADMINISTRADOR: CAMBIAR ESTADO
+// 9. ADMINISTRADOR: CAMBIAR ESTADO
 function cambiarEstadoReporte(key, nuevoEstado) {
     db.ref('reportes/' + key).update({ solucionado: nuevoEstado });
 }
 
-// 9. BORRAR HISTORIAL TOTAL
+// 10. BORRAR HISTORIAL TOTAL
 function borrarHistorialTotal() {
     if (confirm("¿Seguro que deseas vaciar por completo la base de datos de Firebase?")) {
         db.ref('reportes').remove();
