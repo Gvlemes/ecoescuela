@@ -4,217 +4,168 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel de Administración - Escuela Limpia</title>
-  <script src="https://jsdelivr.net"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-    body { background-color: #f1f5f9; color: #334155; padding: 20px; display: none; }
+    body { background-color: #f1f5f9; color: #334155; padding: 20px; }
     .contenedor { max-width: 900px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
     h1 { color: #1e293b; margin-bottom: 8px; font-size: 24px; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; }
     p { color: #64748b; margin-bottom: 20px; font-size: 14px; }
-    .grafica-seccion { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 25px; height: 320px; }
-    .item-admin { background: #f8fafc; padding: 20px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 12px; position: relative; }
+    
+    /* Formulario de Contraseña Administrativa */
+    #login-seccion { max-width: 400px; margin: 100px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; }
+    #login-seccion input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 15px; text-align: center; }
+    
+    /* Diseño de las Tarjetas de Reportes */
+    .item-admin { background: #f8fafc; padding: 20px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 12px; text-align: left; }
     .item-admin.pendiente { border-left: 6px solid #eab308; }
     .item-admin.resuelto { border-left: 6px solid #22c55e; background: #f0fdf4; }
     .info { font-size: 15px; line-height: 1.6; }
     .meta { font-size: 12px; color: #94a3b8; margin-top: 5px; }
+    
+    /* Etiquetas de Estado */
     .badge { display: inline-block; padding: 3px 8px; font-size: 12px; font-weight: bold; border-radius: 4px; margin-left: 5px; }
     .badge.pendiente { background: #fef9c3; color: #854d0e; }
     .badge.resuelto { background: #dcfce7; color: #166534; }
-    .foto-reporte { max-width: 200px; max-height: 150px; border-radius: 6px; border: 1px solid #cbd5e1; margin-top: 5px; display: block; object-fit: cover; }
+    
+    /* FOTOS ENVIADAS: Tamaño grande y claro para la evidencia */
+    .foto-reporte { max-width: 100%; max-height: 250px; border-radius: 8px; border: 1px solid #cbd5e1; margin-top: 10px; display: block; object-fit: contain; background: #fff; }
     .acciones { display: flex; gap: 10px; margin-top: 5px; justify-content: flex-end; }
-    .btn { padding: 8px 16px; font-size: 13px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
+    
+    /* Botones Interactivos */
+    .btn { padding: 8px 16px; font-size: 13px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; }
     .btn-resolver { background-color: #22c55e; color: white; }
-    .btn-resolver:hover { background-color: #16a34a; }
     .btn-borrar { background-color: #ef4444; color: white; }
-    .btn-borrar:hover { background-color: #dc2626; }
+    .btn-login { background-color: #1e293b; color: white; width: 100%; padding: 12px; border-radius: 6px; font-weight: bold; }
+    .live-indicator { float: right; font-size: 12px; background: #22c55e; padding: 4px 10px; border-radius: 20px; color: white; font-weight: bold; }
   </style>
 </head>
 <body>
 
-  <div class="contenedor">
-    <h1>🔑 Panel de Administración (Base de Datos)</h1>
-    <p>Monitorea las métricas del proyecto, revisa las evidencias enviadas y gestiona los estados de los reportes.</p>
+  <!-- Vista Inicial: Login de Contraseña -->
+  <div id="login-seccion">
+    <h2 style="color: #1e293b;">🔑 Panel de Control</h2>
+    <p style="margin-top: 5px;">Introduce la clave administrativa de la escuela</p>
+    <input type="password" id="passAdmin" placeholder="Contraseña de acceso">
+    <button class="btn btn-login" onclick="validarAcceso()">Ingresar al Sistema</button>
+  </div>
 
-    <div class="grafica-seccion">
-      <canvas id="graficaReportes"></canvas>
-    </div>
+  <!-- Vista Secundaria: Dashboard de Reportes (Oculto al inicio) -->
+  <div class="contenedor" id="panel-principal" style="display: none;">
+    <span class="live-indicator">● EN VIVO</span>
+    <h1>🌿 Panel de Administración (Base de Datos)</h1>
+    <p>Gestión automática y sincronización en tiempo real de reportes escolares.</p>
+    <br>
 
     <h2>📋 Listado General de Reportes</h2>
     <br>
-    <div id="lista-admin">Cargando reportes del sistema...</div>
+    <div id="lista-admin">Conectando con la base de datos de Google...</div>
+    <br>
+    <button class="btn btn-borrar" onclick="location.reload()" style="max-width: 150px;">Salir del Panel</button>
   </div>
+  <script type="module">
+    import { initializeApp } from "https://gstatic.com";
+    import { getFirestore, collection, doc, updateDoc, deleteDoc, query, orderBy, onSnapshot } from "https://gstatic.com";
 
-  <script>
+    // ⚠️ REEMPLAZA CON TUS CREDENCIALES REALES DE FIREBASE
+    const firebaseConfig = {
+      apiKey: "TU_API_KEY",
+      authDomain: "TU_AUTH_DOMAIN",
+      projectId: "TU_PROJECT_ID",
+      storageBucket: "TU_STORAGE_BUCKET",
+      messagingSenderId: "TU_MESSAGING_SENDER_ID",
+      appId: "TU_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
     const CONTRASEÑA_CORRECTA = "admin123"; 
+    const listaAdmin = document.getElementById("lista-admin");
 
     function validarAcceso() {
-      const intento = prompt("Introduce la contraseña de administrador para acceder:");
+      const intento = document.getElementById("passAdmin").value;
       if (intento === CONTRASEÑA_CORRECTA) {
-        document.body.style.display = "block"; 
-        consultarReportes(); 
+        document.getElementById("login-seccion").style.display = "none"; 
+        document.getElementById("panel-principal").style.display = "block"; 
+        
+        // Encendemos el monitor en tiempo real nativo de Google
+        activarEscuchadorEnTiempoReal();
       } else {
         alert("Contraseña incorrecta. Acceso denegado.");
-        window.location.href = "/index.html"; 
+        document.getElementById("passAdmin").value = "";
       }
     }
+    function activarEscuchadorEnTiempoReal() {
+      const q = query(collection(db, "reportes"), orderBy("fechaRaw", "desc"));
 
-    const listaAdmin = document.getElementById("lista-admin");
-    let miGrafica = null; 
-
-    async function consultarReportes() {
-      try {
-        const respuesta = await fetch("/api/datos");
-        const datos = await respuesta.json();
-        
+      // El onSnapshot detecta altas, bajas y cambios de estado en milisegundos
+      onSnapshot(q, (querySnapshot) => {
         listaAdmin.innerHTML = "";
-        if (!datos || datos.length === 0) {
-          listaAdmin.innerHTML = "<p>No hay reportes registrados en la base de datos.</p>";
-          inicializarGrafica([]); 
+        
+        if (querySnapshot.empty) {
+          listaAdmin.innerHTML = "<p style='text-align:center;'>No hay reportes registrados en la red escolar. ¡Todo limpio! 🌱</p>";
           return;
         }
 
-        datos.forEach(item => {
+        querySnapshot.forEach((docSnap) => {
+          const item = docSnap.data();
+          const idDoc = docSnap.id;
+
           const div = document.createElement("div");
           const esResuelto = item.estado === "Resuelto";
-          
           div.className = `item-admin ${esResuelto ? 'resuelto' : 'pendiente'}`;
-          const htmlFoto = item.foto ? `<img src="${item.foto}" class="foto-reporte" alt="Evidencia">` : "";
+          
+          // REVISIÓN DE FOTO: Si el alumno adjuntó foto, se dibuja la imagen real en pantalla
+          const htmlFoto = item.fotoUrl ? `<img src="${item.fotoUrl}" class="foto-reporte" alt="Evidencia Visual">` : "<p style='color:#94a3b8; font-size:12px; margin-top:5px;'>📷 Sin imagen adjunta</p>";
           
           const botonResolver = !esResuelto 
-            ? `<button class="btn btn-resolver" onclick="marcarResuelto('${item.id}')">Marcar Resuelto ✅</button>` 
+            ? `<button class="btn btn-resolver" onclick="marcarResuelto('${idDoc}')">Marcar Resuelto ✅</button>` 
             : `<span class="badge resuelto">Completado</span>`;
-
-          // Manejar fechas inexistentes de pruebas viejas de forma segura
-          const fechaFormateada = item.fecha ? new Date(item.fecha).toLocaleString() : "Sin fecha registrada";
 
           div.innerHTML = `
             <div class="info">
-              <strong>👤 Alumno / Encargado:</strong> ${item.nombre} 
+              <strong>👤 Alumno / Encargado:</strong> ${item.usuario || "Anónimo"} 
               <span class="badge ${esResuelto ? 'resuelto' : 'pendiente'}">${item.estado || 'Pendiente'}</span>
               <br>
-              <strong>📝 Reporte:</strong> ${item.mensaje}
+              <strong>📝 Reporte:</strong> ${item.descripcion}
               ${htmlFoto}
-              <div class="meta">ID: ${item.id} | Fecha: ${fechaFormateada}</div>
+              <div class="meta">ID: ${idDoc} | Fecha: ${item.fechaHora || "Reciente"}</div>
             </div>
             <div class="acciones">
               ${botonResolver}
-              <button class="btn btn-borrar" onclick="eliminarReporte('${item.id}')">Eliminar 🗑️</button>
+              <button class="btn btn-borrar" onclick="eliminarReporte('${idDoc}')">Eliminar 🗑️</button>
             </div>
           `;
           listaAdmin.appendChild(div);
         });
-
-        inicializarGrafica(datos);
-
-      } catch (error) {
-        console.error(error);
-        listaAdmin.innerHTML = "<p style='color:red;'>Error al procesar la información o conectar con el servidor.</p>";
-      }
+      }, (error) => {
+        console.error("Error en conexión en vivo:", error);
+        listaAdmin.innerHTML = "<p style='color:red;'>Error de conexión con Firebase. Verifica tus llaves.</p>";
+      });
     }
 
-    function inicializarGrafica(datos) {
+    // Actualiza el estado del reporte a "Resuelto" directamente en la nube
+    window.marcarResuelto = async function(id) {
       try {
-        const conteoDias = {};
-
-        datos.forEach(item => {
-          // Validamos de forma estricta que la fecha sea un string válido para evitar caídas
-          if (!item.fecha || typeof item.fecha !== 'string') return;
-          
-          const fechaDia = item.fecha.split("T")[0]; // Filtramos solo el día (Año-Mes-Día)
-          
-          if (!conteoDias[fechaDia]) {
-            conteoDias[fechaDia] = { obtenidos: 0, resueltos: 0 };
-          }
-          
-          conteoDias[fechaDia].obtenidos++;
-          if (item.estado === "Resuelto") {
-            conteoDias[fechaDia].resueltos++;
-          }
-        });
-
-        const diasOrdenados = Object.keys(conteoDias).sort();
-        const datosObtenidos = diasOrdenados.map(dia => conteoDias[dia].obtenidos);
-        const datosResueltos = diasOrdenados.map(dia => conteoDias[dia].resueltos);
-
-        const ctx = document.getElementById('graficaReportes').getContext('2d');
-
-        if (miGrafica) {
-          miGrafica.destroy();
-        }
-
-        miGrafica = new Chart(ctx, {
-          type: 'line', 
-          data: {
-            labels: diasOrdenados, 
-            datasets: [
-              {
-                label: 'Reportes Obtenidos',
-                data: datosObtenidos,
-                borderColor: '#eab308', 
-                backgroundColor: 'rgba(234, 179, 8, 0.1)',
-                tension: 0.3, 
-                borderWidth: 3,
-                fill: true
-              },
-              {
-                label: 'Reportes Resueltos',
-                data: datosResueltos,
-                borderColor: '#22c55e', 
-                backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                tension: 0.3, 
-                borderWidth: 3,
-                fill: true
-              }
-            ]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              y: {
-                beginAtZero: true,
-                ticks: { stepSize: 1 }
-              }
-            }
-          }
-        });
-      } catch (err) {
-        console.error("Error al generar gráficos:", err);
-      }
-    }
-
-    async function marcarResuelto(id) {
-      try {
-        const respuesta = await fetch(`/api/resolver/${id}`, { method: "PUT" });
-        const resultado = await respuesta.json();
-        if (resultado.ok) {
-          consultarReportes(); 
-        } else {
-          alert("Error al actualizar el estado: " + resultado.error);
-        }
+        await updateDoc(doc(db, "reportes", id), { estado: "Resuelto" });
       } catch (error) {
-        alert("Error en la petición de actualización.");
+        alert("No se pudo actualizar el estado.");
       }
     }
 
-    async function eliminarReporte(id) {
-      if (!confirm("¿Estás seguro de que deseas eliminar este reporte definitivamente de la base de datos?")) return;
-
+    // Remueve el documento de Firebase de manera definitiva
+    window.eliminarReporte = async function(id) {
+      if (!confirm("¿Eliminar definitivamente este reporte de la base de datos de Google?")) return;
       try {
-        const respuesta = await fetch(`/api/eliminar/${id}`, { method: "DELETE" });
-        const resultado = await respuesta.json();
-
-        if (resultado.ok) {
-          consultarReportes(); 
-        } else {
-          alert("No se pudo eliminar: " + resultado.error);
-        }
+        await deleteDoc(doc(db, "reportes", id));
       } catch (error) {
-        alert("Error en la petición de borrado.");
+        alert("Error al intentar eliminar.");
       }
     }
 
-    validarAcceso();
+    // Vincular el inicio de sesión con el botón HTML
+    window.validarAcceso = validarAcceso;
+
   </script>
 </body>
 </html>
