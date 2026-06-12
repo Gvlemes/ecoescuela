@@ -30,7 +30,7 @@
     .status-pendiente { border-left-color: #ffc107; background-color: #fffde7; }
   </style>
 
-  <!-- LIBRERÍAS DE FIREBASE COMPATIBLES CON TU APP.JS ORIGINAL -->
+  <!-- CONTROL COMPATIBLE DE FIREBASE CORE -->
   <script src="https://gstatic.com"></script>
   <script src="https://gstatic.com"></script>
 </head>
@@ -49,60 +49,68 @@
 
 <main class="contenedor-principal">
   
-  <!-- PESTAÑA 1: CONCIENTIZACIÓN CON SUB-CATEGORÍAS -->
+  <!-- PESTAÑA 1: TIEMPOS DE DEGRADACIÓN -->
   <section id="degradacion" class="tab-content active">
     <h3>⏳ Tiempos de Degradación</h3>
     <label for="comboMateriales">Selecciona un residuo escolar o técnico:</label>
     <select id="comboMateriales" onchange="mostrarDegradacion()">
       <option value="">-- Seleccionar Elemento --</option>
-      
       <optgroup label="📋 Componentes Básicos / Comunes">
-        <option value="plastico">Botella de Plástico</option>
+        <option value="pet">Botella de Plástico</option>
         <option value="chicle">Chicle de Goma</option>
-        <option value="lata">Lata de Aluminio</option>
+        <option value="aluminio">Lata de Aluminio</option>
         <option value="vidrio">Botella de Vidrio</option>
+        <option value="carton">Cartón o Papel</option>
+        <option value="bolsa">Bolsa Plástica</option>
+        <option value="unicel">Contenedor de Unicel</option>
+        <option value="organico">Desechos Orgánicos</option>
       </optgroup>
-
       <optgroup label="⚙️ Mecatrónica">
-        <option value="tarjeta">Tarjeta de Circuito / PCB</option>
-        <option value="soldadura">Residuos de Soldadura de Estaño</option>
+        <option value="pcbs">Tarjeta de Circuito / PCB</option>
+        <option value="soldadura">Residuos de Soldadura</option>
+        <option value="jumpers">Cables Jumpers de Conexión</option>
+        <option value="motores">Motores DC / Servomotores</option>
+        <option value="resistencias">Componentes / Resistencias</option>
       </optgroup>
-
       <optgroup label="🏭 Producción Industrial">
-        <option value="chatarra">Chatarra y Virutas de Metal / Acero</option>
-        <option value="aceite">Aceites y Lubricantes Industriales</option>
+        <option value="virutas">Virutas de Metal con Aceite</option>
+        <option value="bandas">Bandas de Transmisión de Goma</option>
+        <option value="cascos">Cascos de Seguridad Industrial</option>
       </optgroup>
-
       <optgroup label="💻 Soporte y Mantenimiento">
-        <option value="cable">Aislamiento de Cables de Red (PVC)</option>
-        <option value="pila">Baterías / Pilas de Tarjeta Madre</option>
+        <option value="ethernet">Aislamiento Cable Ethernet (PVC)</option>
+        <option value="pilas">Pilas de Reloj / Motherboard</option>
+        <option value="carcasas">Carcasas de Plástico Rígido ABS</option>
+        <option value="gabinetes">Gabinetes de Computadoras</option>
+        <option value="termica">Pasta Térmica Usada</option>
       </optgroup>
-
       <optgroup label="💾 Programación">
-        <option value="disco">Disco Duro Viejo / Almacenamiento</option>
+        <option value="discos">Discos Duros Dañados</option>
       </optgroup>
-
       <optgroup label="💼 Procesos de Gestión Administrativa">
-        <option value="toner">Cartuchos de Tóner e Impresora</option>
-        <option value="archivo">Archivos Muertos / Papel Químico de Copia</option>
+        <option value="toner">Cartuchos de Tóner</option>
+        <option value="carpetas">Carpetas Plásticas Archivadoras</option>
+        <option value="hojas_calculo">Hojas de Cálculo Impresas</option>
       </optgroup>
     </select>
-    <div id="resultadoDegradacion"></div>
+    <div id="cajaResultadoDegradacion" class="panel-alerta verde" style="margin-top:15px;">Por favor, selecciona una opción del menú para auditar su impacto ambiental.</div>
   </section>
 
   <!-- PESTAÑA 2: FORMULARIO DE REPORTES -->
   <section id="reportar" class="tab-content">
     <h3>📢 Generar Reporte</h3>
-    <form id="formularioReporte">
+    <form id="formularioReporte" onsubmit="event.preventDefault(); enviarReporte(); return false;">
       <label>Tu Nombre o Grupo:</label>
-      <input type="text" id="nombreAlumno" placeholder="Ej. Juan - 3º A" required>
+      <input type="text" id="txtNombreAlumno" placeholder="Ej. Juan - 3º A" required>
       
       <label>¿Cuál es el problema?</label>
-      <textarea id="mensajeAlumno" placeholder="Ej. Hay residuos tirados en el taller..." rows="3" required></textarea>
+      <textarea id="txtDescripcion" placeholder="Ej. Hay residuos tirados en el taller..." rows="3" required></textarea>
       
       <label>Evidencia en Foto (Opcional):</label>
-      <input type="file" id="fotoInput" accept="image/*" onchange="previsualizarFoto()">
-      <img id="preview" class="preview-img" style="display:none;">
+      <input type="file" id="inputFoto" accept="image/*" onchange="previsualizarFoto(event)">
+      
+      <div id="txtPrevia" style="font-size:12px; color:#666; text-align:center; margin:10px 0;">Ninguna foto seleccionada</div>
+      <img id="imgPrevia" class="preview-img" style="display:none;">
 
       <button type="submit" class="btn-accion">Enviar Reporte a la Escuela</button>
     </form>
@@ -112,9 +120,9 @@
   <section id="calculadora" class="tab-content">
     <h3>🧮 Calculadora de Desechos</h3>
     <label>¿Cuántas botellas plásticas usas a la semana?</label>
-    <input type="number" id="calcBotellas" min="0" value="0">
-    <button class="btn-accion" onclick="calcularImpacto()">Calcular mi Impacto</button>
-    <div id="resultadoCalculadora"></div>
+    <input type="number" id="txtCantidadPet" min="0" value="0">
+    <button class="btn-accion" onclick="calcularHuella()">Calcular mi Impacto</button>
+    <div id="cajaResultadoCalculadora" style="display:none;"></div>
   </section>
 
   <!-- PESTAÑA 4: REVISAR ESTADO -->
@@ -128,9 +136,8 @@
 
 </main>
 
-<!-- INTERCEPTOR DE TRÁFICO LOCAL DE RED A LA NUBE -->
+<!-- INTERCEPTOR TRANSPARENTE DE LLAMADAS DE RED HACIA LA NUBE -->
 <script>
-  // Pon aquí las credenciales de tu consola de Firebase
   const firebaseConfig = {
     apiKey: "TU_API_KEY_AQUÍ",
     authDomain: "://firebaseapp.com",
@@ -145,44 +152,37 @@
 
   const originalFetch = window.fetch;
   window.fetch = async function (url, options) {
-    
-    // Captura automática al enviar el formulario
     if (url === "/api/guardar" && options && options.method === "POST") {
       try {
         const datosReporte = JSON.parse(options.body);
-        datosReporte.fecha = new Date().toISOString();
         datosReporte.timestamp = Date.now();
-
-        await db.collection("reportesEscuela").add(datosReporte);
         
+        await db.collection("reportesEscuela").add(datosReporte);
         return new Response(JSON.stringify({ ok: true }), { status: 200 });
       } catch (error) {
-        console.error("Firestore error:", error);
+        console.error(error);
         return new Response(JSON.stringify({ ok: false }), { status: 500 });
       }
     }
 
-    // Captura automática al buscar reportes
     if (url === "/api/datos") {
       try {
         const querySnapshot = await db.collection("reportesEscuela").orderBy("timestamp", "desc").get();
         const listaNube = [];
         querySnapshot.forEach((doc) => {
-          listaNube.push(doc.data());
+          const item = doc.data();
+          item.id = doc.id;
+          listaNube.push(item);
         });
-
         return new Response(JSON.stringify(listaNube), { status: 200 });
       } catch (error) {
-        console.error("Firestore error:", error);
         return new Response(JSON.stringify([]), { status: 500 });
       }
     }
-
     return originalFetch(url, options);
   };
 </script>
 
-<!-- CARGA NORMAL NO-MÓDULO DE TU APP.JS SINFRENOS -->
 <script src="app.js"></script>
 </body>
 </html>
