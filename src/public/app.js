@@ -1,24 +1,4 @@
 // ==========================================
-// IMPORTACIÓN DE MÓDULOS DE FIREBASE
-// ==========================================
-import { 
-  collection, 
-  addDoc, 
-  getDocs, 
-  query, 
-  orderBy 
-} from "https://gstatic.com";
-
-// Asegurar el registro global de las funciones nativas para tus botones HTML (onclick / onchange)
-document.addEventListener('DOMContentLoaded', () => {
-  window.cambiarPestana = cambiarPestana;
-  window.mostrarDegradacion = mostrarDegradacion;
-  window.previsualizarFoto = previsualizarFoto;
-  window.calcularImpacto = calcularImpacto;
-  window.buscarMisReportes = buscarMisReportes;
-});
-
-// ==========================================
 // 1. NAVEGACIÓN ENTRE PESTAÑAS
 // ==========================================
 function cambiarPestana(idPestana, boton) {
@@ -29,7 +9,7 @@ function cambiarPestana(idPestana, boton) {
 }
 
 // ==========================================
-// 2. CONCIENTIZACIÓN DE DEGRADACIÓN (COMPLETO)
+// 2. CONCIENTIZACIÓN DE DEGRADACIÓN
 // ==========================================
 function mostrarDegradacion() {
   const material = document.getElementById("comboMateriales").value;
@@ -40,15 +20,15 @@ function mostrarDegradacion() {
     plastico: { tiempo: "450 años", info: "Las botellas se fragmentan en microplásticos dañinos para el suelo.", tipo: "naranja" },
     chicle: { tiempo: "5 años", info: "Contiene resinas sintéticas que los pájaros confunden con comida.", tipo: "naranja" },
     lata: { tiempo: "10 años", info: "El aluminio se oxida lentamente, requiere mucha energía reciclarlo.", tipo: "naranja" },
-    vidrio: { tiempo: "4,000 años", info: "Es 100% reciclable de forma infinita, pero tarda milenios en la naturaleza.", tipo: "naranja" },
     papel: { tiempo: "1 año", info: "Se degrada rápido si hay humedad, pero evitemos desperdiciarlo.", tipo: "verde" },
+    vidrio: { tiempo: "4,000 años", info: "Es 100% reciclable de forma infinita, pero tarda milenios en la naturaleza.", tipo: "naranja" },
 
     // ⚙️ Mecatrónica
-    tarjeta: { tiempo: "Más de 1,000 años", info: "Las PCBs contienen fibra de vidrio y resinas que deben ir a reciclaje electrónico.", tipo: "naranja" },
+    tarjeta: { tiempo: "Más de 1,000 años", info: "Las PCBs contienen fibra de vidrio y resinas epóxicas. Deben ir a reciclaje electrónico.", tipo: "naranja" },
     soldadura: { tiempo: "Indefinido", info: "Contiene metales pesados que pueden contaminar el agua subterránea si se tiran al suelo.", tipo: "naranja" },
 
     // 🏭 Producción Industrial
-    chatarra: { tiempo: "50 a 100 años", info: "Las virutas de metal se oxidan lentamente. Reutilízalas en proyectos de fundición.", tipo: "naranja" },
+    chatarra: { tiempo: "50 a 100 años", info: "Las virutas se oxidan lentamente. Reutilízalas en proyectos de fundición.", tipo: "naranja" },
     aceite: { tiempo: "Altamente persistente", info: "¡Un solo litro de aceite industrial contamina un millón de litros de agua!", tipo: "naranja" },
 
     // 💻 Soporte y Mantenimiento
@@ -65,13 +45,11 @@ function mostrarDegradacion() {
 
   if(!material) { res.innerHTML = ""; return; }
   const data = datos[material];
-  
-  // Se corrigió "data.type" de tu código original a "data.tipo" para que lea correctamente la propiedad del objeto
   res.innerHTML = `<div class="panel-alerta ${data.tipo}"><strong>Tiempo de degradación:</strong> ${data.tiempo}<br><small>${data.info}</small></div>`;
 }
 
 // ==========================================
-// 3. REPORTAR CON IMAGEN (FIREBASE CLOUD)
+// 3. REPORTAR CON IMAGEN (BASE64)
 // ==========================================
 let base64Foto = "";
 function previsualizarFoto() {
@@ -90,35 +68,23 @@ function previsualizarFoto() {
 
 document.getElementById("formularioReporte").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const nombre = document.getElementById("nombreAlumno").value.trim();
-  const mensaje = document.getElementById("mensajeAlumno").value.trim();
+  const nombre = document.getElementById("nombreAlumno").value;
+  const mensaje = document.getElementById("mensajeAlumno").value;
 
-  if (!nombre || !mensaje) return;
+  const respuesta = await fetch("/api/guardar", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nombre, mensaje, foto: base64Foto, estado: "Pendiente" })
+  });
 
-  try {
-    // Estructura adaptada para enviar el reporte de forma remota
-    const nuevoReporte = {
-      nombre: nombre,
-      mensaje: mensaje,
-      foto: base64Foto,
-      estado: "Pendiente",
-      fecha: new Date().toISOString(), // Formato ISO para procesar filtros estables por fecha
-      timestamp: Date.now()            // Indexador numérico exacto para ordenar
-    };
-
-    // Guardado directo en la nube en tu colección de Firebase
-    await addDoc(collection(window.dbCloud, "reportesEscuela"), nuevoReporte);
-
+  const res = await respuesta.json();
+  if (res.ok) {
     alert("¡Reporte enviado con éxito! Puedes consultar su estado en la sección 'Mi Reporte' usando tu nombre.");
-    
-    // Limpieza de campos en pantalla
     document.getElementById("formularioReporte").reset();
     document.getElementById("preview").style.display = "none";
     base64Foto = "";
-
-  } catch (error) {
-    console.error("Error al guardar reporte en Firebase: ", error);
-    alert("Error de conexión al enviar el reporte al administrador.");
+  } else {
+    alert("Error al enviar el reporte.");
   }
 });
 
@@ -133,7 +99,7 @@ function calcularImpacto() {
   let recomendacion = "";
   let claseAlerta = "";
 
-  // Tu lógica dinámica original basada en la cantidad ingresada
+  // Lógica dinámica basada en la cantidad ingresada
   if (botellas === 0) {
     claseAlerta = "verde";
     recomendacion = "🌟 <strong>¡Increíble, nivel Héroe Ecológico!</strong> Sigue así, estás cuidando al planeta al máximo al no generar estos residuos.";
@@ -159,7 +125,7 @@ function calcularImpacto() {
 }
 
 // ==========================================
-// 5. CONSULTAR ESTADO DE MIS REPORTES (FIREBASE CLOUD)
+// 5. CONSULTAR ESTADO DE MIS REPORTES
 // ==========================================
 async function buscarMisReportes() {
   const nombreBuscar = document.getElementById("busquedaNombre").value.trim().toLowerCase();
@@ -167,47 +133,25 @@ async function buscarMisReportes() {
   if (!nombreBuscar) { alert("Escribe un nombre para buscar."); return; }
 
   contenedor.innerHTML = "Buscando...";
+  const respuesta = await fetch("/api/datos");
+  const datos = await respuesta.json();
 
-  try {
-    // Traer registros desde la nube ordenados por la marca de tiempo más reciente
-    const q = query(collection(window.dbCloud, "reportesEscuela"), orderBy("timestamp", "desc"));
-    const querySnapshot = await getDocs(q);
-    
-    let datos = [];
-    querySnapshot.forEach((doc) => {
-      datos.push(doc.data());
-    });
+  const filtrados = datos.filter(item => item.nombre.toLowerCase().includes(nombreBuscar));
 
-    const filtrados = datos.filter(item => item.nombre.toLowerCase().includes(nombreBuscar));
-
-    contenedor.innerHTML = "";
-    if (filtrados.length === 0) {
-      contenedor.innerHTML = "<p>No encontramos reportes con ese nombre.</p>";
-      return;
-    }
-
-    filtrados.forEach(item => {
-      const claseEstado = item.estado === "Resuelto" ? "status-resuelto" : "status-pendiente";
-      const icono = item.estado === "Resuelto" ? "✅" : "⏳";
-      
-      let htmlCard = `
-        <div class="status-card ${claseEstado}">
-          <strong>${icono} Estado: ${item.estado}</strong><br>
-          <small>Detalle: ${item.mensaje}</small><br>
-          <small style="color:#777;">Fecha: ${new Date(item.fecha).toLocaleDateString()}</small>
-      `;
-
-      // Si el reporte en la nube tiene una imagen adjunta, la renderiza en miniatura para el alumno
-      if (item.foto) {
-        htmlCard += `<br><img src="${item.foto}" style="max-width:80px; margin-top:8px; border-radius:4px; display:block;">`;
-      }
-
-      htmlCard += `</div>`;
-      contenedor.innerHTML += htmlCard;
-    });
-
-  } catch (error) {
-    console.error("Error al consultar Firebase: ", error);
-    contenedor.innerHTML = "<p style='color:red;'>Error al conectar con la base de datos central de la escuela.</p>";
+  contenedor.innerHTML = "";
+  if (filtrados.length === 0) {
+    contenedor.innerHTML = "<p>No encontramos reportes con ese nombre.</p>";
+    return;
   }
+
+  filtrados.forEach(item => {
+    const claseEstado = item.estado === "Resuelto" ? "status-resuelto" : "status-pendiente";
+    const icono = item.estado === "Resuelto" ? "✅" : "⏳";
+    contenedor.innerHTML += `
+      <div class="status-card ${claseEstado}">
+        <strong>${icono} Estado: ${item.estado}</strong><br>
+        <small>Detalle: ${item.mensaje}</small><br>
+        <small style="color:#777;">Fecha: ${new Date(item.fecha).toLocaleDateString()}</small>
+      </div>`;
+  });
 }
