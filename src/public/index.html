@@ -135,7 +135,7 @@
 
 </main>
 <script>
-  // Configuración de tu base de datos Firebase
+  // Configuración de tu Firebase provista
   const firebaseConfig = {
     apiKey: "AIzaSyCCVjAAdkiNMIB3odwWXDUBbGurE9bgZYM",
     authDomain: "://firebaseapp.com",
@@ -147,12 +147,12 @@
     measurementId: "G-KV3Y0V117P"
   };
 
-  // Inicialización de la base de datos
+  // Inicialización de la base de datos de forma segura
   if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
   }
   const db = firebase.firestore();
-  let base64Foto = ""; // Almacenará la imagen optimizada
+  let base64Foto = ""; 
   // 1. NAVEGACIÓN ENTRE PESTAÑAS
   function cambiarPestana(idPestana, boton) {
     document.querySelectorAll('.tab-content').forEach(c => {
@@ -229,7 +229,7 @@
       return;
     }
 
-    const archivo = input.files[0];
+    const archivo = input.files[0]; 
     if(txtPrevia) txtPrevia.innerText = archivo.name;
     
     const reader = new FileReader();
@@ -370,4 +370,15 @@ if (item.estado && item.estado.toLowerCase() === "resuelto") {
             ${htmlFoto}
           `;
           contenedor.appendChild(div);
-        });
+        }
+      });
+
+      if (encontrados === 0) {
+        contenedor.innerHTML = "<p>No se encontraron reportes registrados para este nombre.</p>";
+      }
+
+    } catch (error) {
+      console.error("Error al obtener los reportes:", error);
+      contenedor.innerHTML = "<p>Hubo un problema al conectar con la base de datos.</p>";
+    }
+  }
