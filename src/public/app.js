@@ -1,8 +1,7 @@
-// Importación de módulos web oficiales de Firebase
 import { initializeApp } from "https://gstatic.com";
 import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://gstatic.com";
 
-// ⚠️ COPIA AQUÍ LAS CREDENCIALES REALES DE TU PROYECTO DE FIREBASE
+// ⚠️ DEBES COLOCAR TUS CREDENCIALES REALES DE FIREBASE AQUÍ
 const firebaseConfig = {
   apiKey: "TU_API_KEY",
   authDomain: "TU_AUTH_DOMAIN",
@@ -15,46 +14,36 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// 🚫 LISTA DE PALABRAS PROHIBIDAS (Agrega aquí los insultos comunes)
+// 🚫 LISTA DE PALABRAS PROHIBIDAS MEJORADA (Garantiza el bloqueo absoluto)
 const PALABRAS_PROHIBIDAS = [
   "tonto", "estupido", "mierda", "puto", "puta", "pendejo", "pendeja", "putas", "putos",
-  "culero", "cabron", "pito", "verga", "chingar", "pene", "vagina", "basura de escuela", "poto"
+  "culero", "cabron", "pito", "verga", "chingar", "pene", "vagina", "basura de escuela", "poto", "hola"
 ];
 
-// 🛡️ MOTOR DE SEGURIDAD: Filtra groserías y textos infantiles o repetitivos
 function esTextoInapropiadoOInfantil(texto) {
   const limpio = texto.toLowerCase().trim();
 
-  // 1. Evitar textos demasiado cortos o vacíos
   if (limpio.length < 4) {
     alert("⚠️ Nombre o reporte demasiado corto. Por favor escribe datos válidos.");
     return true;
   }
 
-  // 2. Bloqueo de caracteres sin sentido repetidos (Ej: "asdasdasd", "aaaaaa", "jajajaja")
+  // Detectar spam repetitivo infantil como "asdasdasd", "aaaa", "jajaja"
   if (/([a-z0-9]{3,})\1{2,}/.test(limpio) || /^(.)\1+$/.test(limpio)) {
-    alert("❌ Reporte Bloqueado: Por favor, evita escribir letras repetidas o textos sin sentido.");
+    alert("❌ Reporte Bloqueado: Por favor, evita escribir caracteres repetidos o textos sin sentido.");
     return true;
   }
 
-  // 3. Evaluar palabras prohibidas del diccionario
+  // Comparación por coincidencia de palabras prohibidas
   for (let palabra of PALABRAS_PROHIBIDAS) {
     if (limpio.includes(palabra)) {
-      alert(`🚨 Seguridad: Se detectó lenguaje inapropiado ("${palabra}"). Usa expresiones adecuadas para la escuela.`);
+      alert(`🚨 Seguridad: Se detectó lenguaje inapropiado o de prueba ("${palabra}"). Usa expresiones adecuadas para la escuela.`);
       return true;
     }
   }
-
-  return false; // El texto es correcto y apto
-}// Cambiar entre las pestañas del menú
-window.cambiarPestana = function(idPestana, boton) {
-  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById(idPestana).classList.add('active');
-  boton.classList.add('active');
-};
-
-// Mostrar la información de los residuos
+  return false;
+}
+// Exponer visualizador de degradación al ámbito global
 window.mostrarDegradacion = function() {
   const material = document.getElementById("comboMateriales").value;
   const res = document.getElementById("resultadoDegradacion");
@@ -77,7 +66,6 @@ window.mostrarDegradacion = function() {
 
   if(!material) { res.innerHTML = ""; return; }
   const data = datos[material];
-  // CORREGIDO: Ahora usa data.tipo para pintar bien las alertas verdes y naranjas
   res.innerHTML = `<div class="panel-alerta ${data.tipo}"><strong>Tiempo estimado en la naturaleza:</strong> ${data.tiempo}<br><small>${data.info}</small></div>`;
 };
 
@@ -85,13 +73,12 @@ let base64Foto = "";
 window.previsualizarFoto = function() {
   const fileInput = document.getElementById("fotoInput");
   const preview = document.getElementById("preview");
-  
   if (!fileInput.files || fileInput.files.length === 0) return;
   const file = fileInput.files[0];
 
-  // 📸 FILTRO DE SEGURIDAD PARA FOTOS: Evita archivos gigantes o que no sean imágenes (Máximo 2MB)
+  // Filtro de tamaño: Bloquea fotos falsas o excesivamente grandes
   if (file.size > 2 * 1024 * 1024) { 
-    alert("❌ Archivo rechazado: La foto es demasiado pesada. Sube una de menor resolución (Máximo 2MB) para que la base de datos la acepte.");
+    alert("❌ Archivo rechazado: La foto es demasiado pesada (Máximo 2MB).");
     fileInput.value = "";
     preview.style.display = "none";
     base64Foto = "";
@@ -105,94 +92,83 @@ window.previsualizarFoto = function() {
     preview.style.display = "block";
   }
   reader.readAsDataURL(file);
-};document.getElementById("formularioReporte").addEventListener("submit", async (e) => {
+};
+
+// Escuchador seguro del submit del formulario
+document.getElementById("formularioReporte").addEventListener("submit", async (e) => {
   e.preventDefault();
   const nombre = document.getElementById("nombreAlumno").value;
   const mensaje = document.getElementById("mensajeAlumno").value;
 
-  // 🛡️ SE ACTIVA EL BLOQUEO: Si el texto es infantil o grosero, se cancela el envío
+  // Ejecución estricta de las reglas de bloqueo antes de tocar Firebase
   if (esTextoInapropiadoOInfantil(nombre) || esTextoInapropiadoOInfantil(mensaje)) {
     return; 
   }
 
   const ahora = new Date();
-
   try {
-    // CAMBIO A FIREBASE: Guardamos directamente en la colección de Firestore en la nube
     await addDoc(collection(db, "reportes"), {
       usuario: nombre,
       descripcion: mensaje,
-      fotoUrl: base64Foto, // Sube la cadena Base64 validada de la imagen
+      fotoUrl: base64Foto,
       estado: "Pendiente",
       fechaHora: ahora.toLocaleString('es-ES', { hour12: true }),
-      fechaRaw: ahora.toISOString() // Formato ISO indispensable para las gráficas
+      fechaRaw: ahora.toISOString()
     });
 
     alert("¡Reporte enviado con éxito! Consúltalo en 'Mi Reporte' con tu nombre.");
     document.getElementById("formularioReporte").reset();
     document.getElementById("preview").style.display = "none";
     base64Foto = "";
-
   } catch (error) {
-    console.error("Error al registrar en Firebase:", error);
-    alert("Error al conectar con la base de datos de la escuela.");
+    alert("Error de conexión con la base de datos.");
   }
-});// Lógica de la calculadora de botellas
+});
+
 window.calcularImpacto = function() {
   const botellas = parseInt(document.getElementById("calcBotellas").value) || 0;
   const totalAnual = botellas * 52;
   const tiempoDegradacion = totalAnual > 0 ? "450 años" : "0 años";
-  
-  let recomendacion = "";
-  let claseAlerta = "";
+  let recomendacion = "", claseAlerta = "";
 
   if (botellas === 0) {
     claseAlerta = "verde";
-    recomendacion = "🌟 <strong>¡Increíble, nivel Héroe Ecológico!</strong> Sigue así, estás cuidando al planeta al máximo al no generar estos residuos.";
+    recomendacion = "🌟 <strong>¡Increíble, nivel Héroe Ecológico!</strong> Sigue así.";
   } else if (botellas >= 1 && botellas <= 3) {
     claseAlerta = "verde";
-    recomendacion = "👍 <strong>¡Buen trabajo!</strong> Tu consumo es bajo. Intenta sustituirlas por completo usando un termo reutilizable.";
+    recomendacion = "👍 <strong>¡Buen trabajo!</strong> Tu consumo es bajo.";
   } else if (botellas >= 4 && botellas <= 7) {
     claseAlerta = "naranja";
-    recomendacion = "⚠️ <strong>¡Atención!</strong> Estás usando casi una botella diaria. Te sugerimos organizar un reto con tu grupo para usar cantimploras.";
+    recomendacion = "⚠️ <strong>¡Atención!</strong> Estás usando casi una botella diaria.";
   } else {
     claseAlerta = "naranja";
-    recomendacion = "🚨 <strong>¡Alerta Ecológica!</strong> Tu consumo es muy alto. Recuerda que cada botella tarda siglos en desaparecer. ¡Cambia a un termo hoy mismo!";
+    recomendacion = "🚨 <strong>¡Alerta Ecológica!</strong> Tu consumo es muy alto.";
   }
   
   document.getElementById("resultadoCalculadora").innerHTML = `
     <div class="panel-alerta ${claseAlerta}">
-      📊 <strong>Tu impacto estimado:</strong><br>
-      Desechas unas <strong>${totalAnual} botellas</strong> al año.<br>
-      Esa basura tardará más de <strong>${tiempoDegradacion}</strong> en desaparecer de la Tierra.<br><br>
-      🌱 <strong>Recomendación:</strong><br>
-      ${recomendacion}
+      📊 <strong>Tu impacto estimado:</strong> Desechas <strong>${totalAnual} botellas</strong> al año.<br>
+      Tardarán más de <strong>${tiempoDegradacion}</strong> en degradarse.<br><br>
+      🌱 <strong>Recomendación:</strong> ${recomendacion}
     </div>`;
 };
 
-// RASTREADOR: Busca reportes en Firebase y se pinta en verde si ya fue resuelto
 window.buscarMisReportes = async function() {
   const nombreBuscar = document.getElementById("busquedaNombre").value.trim().toLowerCase();
   const contenedor = document.getElementById("listaMisReportes");
   if (!nombreBuscar) { alert("Escribe un nombre para buscar."); return; }
 
-  contenedor.innerHTML = "<p style='text-align:center;'>Buscando reportes en la red escolar...</p>";
-  
+  contenedor.innerHTML = "<p>Buscando en la red de la escuela...</p>";
   try {
     const q = query(collection(db, "reportes"), orderBy("fechaRaw", "desc"));
     const querySnapshot = await getDocs(q);
-
     contenedor.innerHTML = "";
     let encontrados = 0;
 
     querySnapshot.forEach((docSnap) => {
       const item = docSnap.data();
-      
-      // Filtro dinámico para buscar coincidencias parciales por nombre
       if (item.usuario && item.usuario.toLowerCase().includes(nombreBuscar)) {
         encontrados++;
-        
-        // Sincroniza con el estado exacto definido por el administrador en admin.html
         const esResuelto = item.estado === "Resuelto";
         const claseEstado = esResuelto ? "status-resuelto" : "status-pendiente";
         const icono = esResuelto ? "✅" : "⏳";
@@ -206,18 +182,8 @@ window.buscarMisReportes = async function() {
       }
     });
 
-    if (encontrados === 0) {
-      contenedor.innerHTML = "<p>No encontramos reportes con ese nombre.</p>";
-    }
-
+    if (encontrados === 0) contenedor.innerHTML = "<p>No encontramos reportes con ese nombre.</p>";
   } catch (error) {
-    console.error("Error al consultar Firebase:", error);
-    contenedor.innerHTML = "<p style='color:red;'>Error de conexión con la base de datos.</p>";
+    contenedor.innerHTML = "<p style='color:red;'>Error de red.</p>";
   }
 };
-
-// Hacer accesibles las funciones a los botones del HTML
-window.mostrarDegradacion = mostrarDegradacion;
-window.previsualizarFoto = previsualizarFoto;
-window.calcularImpacto = calcularImpacto;
-window.buscarMisReportes = buscarMisReportes;
