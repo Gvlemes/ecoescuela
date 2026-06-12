@@ -1,8 +1,9 @@
-// CONFIGURACIÓN DE FIREBASE CON URL EXPLÍCITA
+// ==========================================
+// 1. CONFIGURACIÓN DE FIREBASE (MÉTODO COMPATIBLE)
+// ==========================================
 const firebaseConfig = {
   apiKey: "AIzaSyCCVjAAdkiNMIB3odwWXDUBbGurE9bgZYM",
   authDomain: "://firebaseapp.com",
-  // Se define de forma explícita la ruta de tu Realtime Database de Google
   databaseURL: "https://firebaseio.com",
   projectId: "escuelalimpia",
   storageBucket: "escuelalimpia.firebasestorage.app",
@@ -16,14 +17,12 @@ let fotoBase64Global = "";
 
 try {
     if (typeof firebase !== 'undefined') {
-        // Inicializa pasando la configuración de forma directa
         firebase.initializeApp(firebaseConfig);
-        // Forzamos la conexión explícita pasando la URL del cluster en el constructor
         db = firebase.database("https://firebaseio.com");
-        console.log("Conexión explícita establecida con Realtime Database.");
+        console.log("Firebase conectado correctamente.");
     }
 } catch (error) {
-    console.error("Error crítico al enlazar Firebase:", error);
+    console.error("Error al conectar con Firebase:", error);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -33,7 +32,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// PESTAÑAS
+// ==========================================
+// 2. CONTROL DE PESTAÑAS
+// ==========================================
 function cambiarPestana(idSeccion, botonActivo) {
     document.querySelectorAll('.tab-content').forEach(seccion => seccion.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -45,7 +46,9 @@ function cambiarPestana(idSeccion, botonActivo) {
     if (idSeccion === 'mis-reportes' && db) escucharMisReportes();
 }
 
-// DEGRADACIÓN
+// ==========================================
+// 3. DEGRADACIÓN (CORREGIDA CON SUS ÍNDICES REALES)
+// ==========================================
 function mostrarDegradacion() {
     const combo = document.getElementById('comboMateriales');
     const resultado = document.getElementById('resultadoDegradacion');
@@ -53,8 +56,8 @@ function mostrarDegradacion() {
 
     if (combo.value) {
         const datos = combo.value.split('|');
-        const tipoAlerta = datos[1]; 
-        const tiempo = datos[2];     
+        const tipoAlerta = datos[1]; // Posición 1: verde o naranja
+        const tiempo = datos[2];     // Posición 2: tiempo de degradación
 
         resultado.innerHTML = `<div class="panel-alerta ${tipoAlerta}">
             Este componente tarda aproximadamente <strong>${tiempo}</strong> en degradarse en el entorno escolar.
@@ -64,7 +67,9 @@ function mostrarDegradacion() {
     }
 }
 
-// CALCULADORA
+// ==========================================
+// 4. CALCULADORA DE IMPACTO
+// ==========================================
 function calcularImpacto() {
     const botellas = parseInt(document.getElementById('cantBotellas').value) || 0;
     const totalAnual = botellas * 52;
@@ -80,7 +85,9 @@ function calcularImpacto() {
     }
 }
 
-// PREVISUALIZAR FOTO
+// ==========================================
+// 5. PROCESAMIENTO DE IMÁGENES
+// ==========================================
 function previsualizarFoto(input) {
     const vistaPrevia = document.getElementById('vistaPrevia');
     if (input.files && input.files[0]) {
@@ -96,7 +103,9 @@ function previsualizarFoto(input) {
     }
 }
 
-// ENVÍO DE REPORTE A LA URL EXPLICITA
+// ==========================================
+// 6. GUARDAR REPORTE EN FIREBASE
+// ==========================================
 function guardarReporteFirebase(event) {
     if (event) event.preventDefault();
     const msg = document.getElementById('mensajeEnvio');
@@ -129,12 +138,14 @@ function guardarReporteFirebase(event) {
             }
         })
         .catch((error) => {
-            console.error("Error de escritura en Firebase:", error);
+            console.error("Error al guardar en Firebase:", error);
             if (msg) msg.innerHTML = `<div class="panel-alerta naranja">Error de red al guardar en la base de datos.</div>`;
         });
 }
 
-// LISTA DE REPORTES (ALUMNO)
+// ==========================================
+// 7. LECTURA DE REPORTES EN TIEMPO REAL
+// ==========================================
 function escucharMisReportes() {
     const contenedor = document.getElementById('listaMisReportes');
     if (!contenedor || !db) return;
@@ -170,7 +181,6 @@ function escucharMisReportes() {
     });
 }
 
-// BANDEJA DE ENTRADA (ADMIN)
 function escucharReportesAdmin() {
     const contenedorAdmin = document.getElementById('contenedorReportesAdmin');
     if (!contenedorAdmin || !db) return;
