@@ -1,327 +1,85 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Escuela Limpia - Alumnos</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-    body { background-color: #F5F5F5; color: #333; }
-    header { background-color: #1B5E20; color: white; text-align: center; padding: 15px; }
-    .tab-bar { display: flex; background-color: #FFFFFF; border-bottom: 1px solid #E0E0E0; position: sticky; top: 0; z-index: 100; }
-    .tab-btn { flex: 1; background: none; border: none; padding: 12px 5px; font-size: 13px; font-weight: bold; color: #666; cursor: pointer; border-bottom: 3px solid transparent; }
-    .tab-btn.active { color: #1B5E20; border-bottom: 3px solid #1B5E20; background-color: #E8F5E9; }
-    .contenedor-principal { padding: 20px; max-width: 500px; margin: 0 auto; }
-    .tab-content { display: none; background-color: #FFFFFF; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 20px; }
-    .tab-content.active { display: block; }
-    h3 { margin-bottom: 15px; text-align: center; color: #1B5E20; }
-    label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
-    select, input, textarea { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #CCC; border-radius: 6px; font-size: 14px; }
-    .panel-alerta { padding: 15px; border-radius: 8px; font-size: 14px; line-height: 1.5; margin-top: 15px; }
-    .panel-alerta.verde { background-color: #E8F5E9; color: #1B5E20; border: 1px solid #C8E6C9; }
-    .panel-alerta.naranja { background-color: #FFF3E0; color: #E65100; border: 1px solid #FFE0B2; }
-    .btn-accion { width: 100%; padding: 12px; border: none; border-radius: 6px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; background-color: #1B5E20; }
-    .btn-accion:hover { background-color: #144317; }
-    .preview-img { max-width: 100%; max-height: 150px; display: block; margin: 10px auto; border-radius: 6px; }
-    .status-card { background: #f9f9f9; padding: 12px; border-radius: 6px; margin-top: 10px; border-left: 4px solid #666; }
-    .status-resuelto { border-left-color: #28a745; background-color: #e8f5e9; }
-    .status-pendiente { border-left-color: #ffc107; background-color: #fffde7; }
-  </style>
-
-  <!-- LIBRERÍAS OFICIALES DE FIREBASE (COMPATIBLES CON SDK V8) -->
-  <script src="https://gstatic.com"></script>
-  <script src="https://gstatic.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escuela Limpia - Alumnos</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background-color: #F5F5F5; color: #333; }
+        header { background-color: #1B5E20; color: white; text-align: center; padding: 15px; }
+        .tab-bar { display: flex; background-color: #FFFFFF; border-bottom: 1px solid #E0E0E0; position: sticky; top: 0; z-index: 100; }
+        .tab-btn { flex: 1; background: none; border: none; padding: 12px 5px; font-size: 13px; font-weight: bold; color: #666; cursor: pointer; border-bottom: 3px solid transparent; }
+        .tab-btn.active { color: #1B5E20; border-bottom: 3px solid #1B5E20; background-color: #E8F5E9; }
+        .contenedor-principal { padding: 20px; max-width: 500px; margin: 0 auto; }
+        .tab-content { display: none; background-color: #FFFFFF; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .tab-content.active { display: block; }
+        h3 { margin-bottom: 15px; text-align: center; }
+        label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
+        select, input, textarea { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #CCC; border-radius: 6px; font-size: 14px; }
+        textarea { resize: vertical; min-height: 80px; }
+        .panel-alerta { padding: 15px; border-radius: 8px; font-size: 14px; line-height: 1.5; margin-top: 15px; }
+        .panel-alerta.verde { background-color: #E8F5E9; color: #1B5E20; border: 1px solid #C8E6C9; }
+        .panel-alerta.naranja { background-color: #FFF3E0; color: #E65100; border: 1px solid #FFE0B2; }
+        .btn-accion { width: 100%; padding: 12px; border: none; border-radius: 6px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .btn-accion.verde-oscuro { background-color: #1B5E20; }
+    </style>
 </head>
 <body>
 
 <header>
-  <h2>🌱 Escuela Limpia</h2>
+    <h2>🌱 Escuela Limpia</h2>
 </header>
 
 <nav class="tab-bar">
-  <button class="tab-btn active" onclick="cambiarPestana('degradacion', this)">Degradación</button>
-  <button class="tab-btn" onclick="cambiarPestana('reportar', this)">Reportar</button>
-  <button class="tab-btn" onclick="cambiarPestana('calculadora', this)">Calculadora</button>
-  <button class="tab-btn" onclick="cambiarPestana('estado', this)">Mi Reporte</button>
+    <button class="tab-btn active" onclick="cambiarPestana('degradacion', this)">Degradación</button>
+    <button class="tab-btn" onclick="cambiarPestana('reportar', this)">Reportar</button>
+    <button class="tab-btn" onclick="cambiarPestana('calculadora', this)">Calculadora</button>
 </nav>
 
 <main class="contenedor-principal">
-  
-  <!-- PESTAÑA 1: CONCIENTIZACIÓN DE DEGRADACIÓN -->
-  <section id="degradacion" class="tab-content active">
-    <h3>⏳ ¿Cuánto tardan en degradarse?</h3>
-    <label for="comboMateriales">Selecciona un material:</label>
-    <select id="comboMateriales" onchange="mostrarDegradacion()">
-      <option value="">-- Seleccionar --</option>
-      <option value="plastico">Botella de Plástico</option>
-      <option value="chicle">Chicle</option>
-      <option value="lata">Lata de Aluminio</option>
-      <option value="papel">Papel o Cartón</option>
-      <option value="vidrio">Botella de Vidrio</option>
-    </select>
-    <div id="resultadoDegradacion"></div>
-  </section>
+    <!-- PESTAÑA DEGRADACIÓN -->
+    <section id="degradacion" class="tab-content active">
+        <h3>⏳ ¿Cuánto tardan en degradarse?</h3>
+        <label for="comboMateriales">Selecciona un material:</label>
+        <select id="comboMateriales" onchange="mostrarDegradacion()">
+            <option value="">-- Seleccionar --</option>
+            <option value="450 años">Botella de Plástico</option>
+            <option value="5 años">Chicle</option>
+            <option value="10 años">Lata de Aluminio</option>
+            <option value="1 año">Papel o Cartón</option>
+            <option value="4000 años">Botella de Vidrio</option>
+        </select>
+        <div id="resultadoDegradacion"></div>
+    </section>
 
-  <!-- PESTAÑA 2: REPORTAR CON IMAGEN -->
-  <section id="reportar" class="tab-content">
-    <h3>📢 Generar Reporte</h3>
-    <form id="formularioReporte" onsubmit="return false;">
-      <label>Tu Nombre o Grupo:</label>
-      <input type="text" id="nombreAlumno" placeholder="Ej. Juan - 3º A" required>
-      
-      <label>¿Cuál es el problema?</label>
-      <textarea id="mensajeAlumno" placeholder="Ej. Hay basura tirada detrás de las canchas..." rows="3" required></textarea>
-      
-      <label>Evidencia en Foto (Opcional):</label>
-      <input type="file" id="fotoInput" accept="image/*" onchange="previsualizarFoto(event)">
-      <img id="preview" class="preview-img" style="display:none;">
+    <!-- PESTAÑA REPORTAR -->
+    <section id="reportar" class="tab-content">
+        <h3>📢 Generar Reporte</h3>
+        <!-- El id="formReporte" conecta directamente con app.js -->
+        <form id="formReporte">
+            <label for="nombreGrupo">Tu Nombre o Grupo:</label>
+            <input type="text" id="nombreGrupo" placeholder="Ej. Juan Pérez / 3º B" required>
+            
+            <label for="problema">¿Cuál es el problema?</label>
+            <textarea id="problema" placeholder="Describe la situación de limpieza..." required></textarea>
+            
+            <button type="submit" class="btn-accion verde-oscuro">Enviar Reporte</button>
+        </form>
+        <div id="mensajeEnvio"></div>
+    </section>
 
-      <!-- DISPARADOR INTEGRADO: Evita la recarga al inicio -->
-      <button type="button" class="btn-accion" onclick="enviarReporte()">Enviar Reporte a la Escuela</button>
-    </form>
-  </section>
-
-  <!-- PESTAÑA 3: CALCULADORA ECOLOGÍCA -->
-  <section id="calculadora" class="tab-content">
-    <h3>🧮 Calculadora de Desechos</h3>
-    <label>¿Cuántas botellas plásticas usas a la semana?</label>
-    <input type="number" id="calcBotellas" min="0" value="0">
-    <button class="btn-accion" onclick="calcularImpacto()">Calcular mi Impacto</button>
-    <div id="resultadoCalculadora"></div>
-  </section>
-
-  <!-- PESTAÑA 4: COMPROBAR ESTADO DEL REPORTE -->
-  <section id="estado" class="tab-content">
-    <h3>🔍 Estado de mi Reporte</h3>
-    <label>Escribe tu nombre para buscar tu reporte (o déjalo vacío para ver todos):</label>
-    <input type="text" id="busquedaNombre" placeholder="Ej. Juan - 3º A">
-    <button class="btn-accion" onclick="buscarMisReportes()">Buscar Historial</button>
-    <div id="listaMisReportes" style="margin-top: 15px;"></div>
-  </section>
-
+    <!-- PESTAÑA CALCULADORA -->
+    <section id="calculadora" class="tab-content">
+        <h3>🧮 Calculadora de Desechos</h3>
+        <label for="cantBotellas">¿Cuántas botellas plásticas usas a la semana?</label>
+        <input type="number" id="cantBotellas" min="0" value="0">
+        <button class="btn-accion verde-oscuro" onclick="calcularImpacto()">Calcular Impacto</button>
+        <div id="resultadoCalculo"></div>
+    </section>
 </main>
 
-<script>
-  // Inicialización de tu Firebase Cloud Firestore
-  const firebaseConfig = {
-    apiKey: "AIzaSyCCVjAAdkiNMIB3odwWXDUBbGurE9bgZYM",
-    authDomain: "://firebaseapp.com",
-    databaseURL: "https://firebaseio.com",
-    projectId: "escuelalimpia",
-    storageBucket: "escuelalimpia.firebasestorage.app",
-    messagingSenderId: "13533291736",
-    appId: "1:13533291736:web:e3e8d514addb119fc4a3ad",
-    measurementId: "G-KV3Y0V117P"
-  };
-
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
-  const db = firebase.firestore();
-  let base64Foto = ""; 
-
-  // 1. NAVEGACIÓN ENTRE PESTAÑAS
-  function cambiarPestana(idPestana, boton) {
-    document.querySelectorAll('.tab-content').forEach(c => {
-      c.classList.remove('active');
-      c.style.display = "none";
-    });
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    
-    const activa = document.getElementById(idPestana);
-    if (activa) {
-      activa.classList.add('active');
-      activa.style.display = "block";
-    }
-    if (boton) { boton.classList.add('active'); }
-  }
-
-  // 2. TIEMPOS DE DEGRADACIÓN
-  function mostrarDegradacion() {
-    const material = document.getElementById("comboMateriales").value;
-    const res = document.getElementById("resultadoDegradacion");
-    if (!res) return;
-    
-    const datos = {
-      plastico: { tiempo: "450 años", info: "Las botellas se fragmentan en microplásticos dañinos para el suelo.", tipo: "naranja" },
-      chicle: { tiempo: "5 años", info: "Contiene resinas sintéticas que los pájaros confunden con comida.", tipo: "naranja" },
-      lata: { tiempo: "10 años", info: "El aluminio se oxida lentamente, requiere mucha energía reciclarlo.", tipo: "naranja" },
-      vidrio: { tiempo: "4,000 años", info: "Es 100% reciclable de forma infinita, pero tarda milenios.", tipo: "naranja" },
-      papel: { tiempo: "1 año", info: "Se degrada rápido si hay humedad, pero evitemos desperdiciarlo.", tipo: "verde" }
-    };
-
-    if(!material) { res.innerHTML = ""; return; }
-    const data = datos[material];
-    res.innerHTML = `<div class="panel-alerta ${data.tipo}"><strong>Tiempo de degradación:</strong> ${data.tiempo}<br><small>${data.info}</small></div>`;
-  }
-
-  // 3. PREVISUALIZAR Y COMPRIMIR FOTO (MÉTODO INDEXADO SEGURO)
-  function previsualizarFoto(event) {
-    const input = event.target;
-    const preview = document.getElementById("preview");
-    
-    if (!input.files || input.files.length === 0) {
-      preview.style.display = "none";
-      base64Foto = "";
-      return;
-    }
-
-    const file = input.files[0];
-    const reader = new FileReader();
-
-    reader.onload = function (e) {
-      const img = new Image();
-      img.src = e.target.result;
-
-      img.onload = function () {
-        const canvas = document.createElement("canvas");
-        const MAX_WIDTH = 500; 
-        let width = img.width;
-        let height = img.height;
-
-        if (width > MAX_WIDTH) {
-          height *= MAX_WIDTH / width;
-          width = MAX_WIDTH;
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0, width, height);
-
-        base64Foto = canvas.toDataURL("image/jpeg", 0.6);
-        preview.src = base64Foto;
-        preview.style.display = "block";
-      };
-    };
-    reader.readAsDataURL(file);
-  }
-
-  // 4. ENVÍO DE REPORTE INMEDIATO Y UNIVERSAL
-    // ==========================================
-  // FUNCIÓN ENVIAR REPORTE CORREGIDA Y DIRECTA
-  // ==========================================
-  async function enviarReporte() {
-    const nombre = document.getElementById("nombreAlumno").value.trim();
-    const mensaje = document.getElementById("mensajeAlumno").value.trim();
-
-    if (!nombre || !mensaje) {
-      alert("Por favor, llena los campos de Nombre y Problema primero.");
-      return;
-    }
-
-    try {
-      // CORRECCIÓN DIRECTA: Usamos una fecha ISO de texto plano idéntica a tu base de datos
-      const fechaHoy = new Date().toISOString();
-
-      await db.collection("reportes").add({
-        nombre: nombre,
-        mensaje: mensaje,
-        foto: base64Foto || "",
-        estado: "Pendiente",
-        fecha: fechaHoy
-      });
-
-      alert("¡Reporte enviado con éxito! Ya se guardó en tu base de datos.");
-      
-      // Limpia la pantalla para el próximo envío
-      document.getElementById("formularioReporte").reset();
-      const previewImg = document.getElementById("preview");
-      if (previewImg) previewImg.style.display = "none";
-      base64Foto = "";
-
-    } catch (error) {
-      console.error("Error al guardar en Firestore:", error);
-      alert("Hubo un problema de conexión para enviar el reporte.");
-    }
-  }
-
-
-  // 5. CALCULADORA ECOLOGÍCA
-function calcularImpacto() {
-  const botellas = parseInt(document.getElementById("calcBotellas").value) || 0;
-  const totalAnual = botellas * 52;
-  const tiempoDegradacion = totalAnual > 0 ? "450 años" : "0 años";
-  const res = document.getElementById("resultadoCalculadora");
-  if (!res) return;
-
-  let recomendacion = "";
-  let claseAlerta = "";
-
-  if (botellas === 0) {
-    claseAlerta = "verde";
-    recomendacion = "🌟 <strong>¡Increíble, nivel Héroe Ecológico!</strong> Sigue así, estás cuidando al planeta al máximo.";
-  } else if (botellas >= 1 && botellas <= 3) {
-    claseAlerta = "verde";
-    recomendacion = "👍 <strong>¡Buen trabajo!</strong> Tu consumo es bajo. Intenta usar un termo reutilizable en la escuela.";
-  } else if (botellas >= 4 && botellas <= 7) {
-    claseAlerta = "naranja";
-    recomendacion = "⚠️ <strong>¡Atención!</strong> Estás usando casi una botella diaria. Te sugerimos usar cantimploras de agua.";
-  } else {
-    claseAlerta = "naranja";
-    recomendacion = "🚨 <strong>¡Alerta Ecológica!</strong> Tu consumo es muy alto. ¡Es momento de cambiar a un termo hoy mismo!";
-  }
-
-  // Corregido con comillas invertidas ` para inyectar las variables de estilo
-  res.innerHTML = `
-    <div class="panel-alerta ${claseAlerta}">
-      📊 <strong>Tu impacto estimado:</strong><br>
-      Desechas unas <strong>${totalAnual} botellas</strong> al año.<br>
-      Esa basura acumulada tardará más de <strong>${tiempoDegradacion}</strong> en desaparecer.<br><br>
-      🌱 <strong>Recomendación para ti:</strong><br>
-      ${recomendacion}
-    </div>
-  `;
-}
-async function buscarMisReportes() {
-  const nombreBuscar = document.getElementById("busquedaNombre").value.trim().toLowerCase();
-  const contenedor = document.getElementById("listaMisReportes");
-  if (!contenedor) return;
-
-  contenedor.innerHTML = "<p>Buscando en la base de datos...</p>";
-
-  try {
-    const snapshot = await db.collection("reportes").get();
-    contenedor.innerHTML = "";
-    let encontrados = 0;
-
-    snapshot.forEach(doc => {
-      const item = doc.data();
-
-      // Criterio universal: si está vacío muestra todo; si tiene texto busca coincidencias
-      if (nombreBuscar === "" || (item.nombre && item.nombre.toLowerCase().includes(nombreBuscar))) {
-        encontrados++;
-        const div = document.createElement("div");
-        
-        let claseEstado = "status-pendiente";
-        if (item.estado && item.estado.toString().toLowerCase().trim() === "resuelto") {
-          claseEstado = "status-resuelto";
-        }
-
-        // Corregido con comillas invertidas ` para crear la etiqueta de la imagen
-        const htmlFoto = item.foto
-          ? `<img src="${item.foto}" alt="Evidencia" class="preview-img" style="margin: 10px 0 0 0; max-height: 100px;">`
-          : '';
-
-        // Corregido con comillas invertidas ` para estructurar la tarjeta del reporte
-        div.className = `status-card ${claseEstado}`;
-        div.innerHTML = `
-          <h4>👤 Alumno: ${item.nombre || 'Anónimo'}</h4>
-          <p style="margin-top:5px;"><strong>Problema:</strong> ${item.mensaje || 'Sin descripción'}</p>
-          <p style="margin-top:5px;"><strong>Estado:</strong> <span>${item.estado || 'Pendiente'}</span></p>
-          ${htmlFoto}
-        `;
-        contenedor.appendChild(div);
-      }
-    });
-
-    if (encontrados === 0) {
-      contenedor.innerHTML = "<p>No se encontraron reportes registrados para este nombre.</p>";
-    }
-
-  } catch (error) {
-    console.error("Error al obtener los reportes:", error);
-    contenedor.innerHTML = "<p>Hubo un problema al conectar con la base de datos.</p>";
-  }
-}
+<!-- IMPORTANTE: Conexión con tu archivo app.js -->
+<script src="app.js"></script>
+</body>
+</html>
