@@ -4,9 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Escuela Limpia - Alumnos</title>
-<!-- LIBRERÍAS DE FIREBASE COMPATIBLES -->
+
+<!-- 🚨 ESTAS DOS LÍNEAS DE ABAJO SON LAS QUE ARREGLAN EL ERROR DE TU IMAGEN 🚨 -->
 <script src="https://gstatic.com"></script>
 <script src="https://gstatic.com"></script>
+
 <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
     body { background-color: #F5F5F5; color: #333; }
@@ -69,28 +71,26 @@
     </section>
 
     <!-- REPORTAR -->
-   <section id="reportar" class="tab-content">
-    <h3>📢 Generar Reporte</h3>
-    
-    <!-- Se añade el onsubmit directo para congelar la pantalla al enviar -->
-    <form id="formReporte" onsubmit="guardarReporteFirebase(event)">
-        <label for="nombreGrupo">Tu Nombre o Grupo:</label>
-        <input type="text" id="nombreGrupo" placeholder="Ej. Juan Pérez / 3º B" required>
-        
-        <label for="problema">¿Cuál es el problema?</label>
-        <textarea id="problema" placeholder="Describe la situación de limpieza..." required></textarea>
-        
-        <label for="fotoProblema">Evidencia Fotográfica (Opcional):</label>
-        <input type="file" id="fotoProblema" accept="image/*" onchange="previsualizarFoto(this)">
-        
-        <div id="vistaPrevia" class="cuadro-vista-previa">Ninguna imagen seleccionada</div>
-        
-        <button type="submit" class="btn-accion verde-oscuro">Enviar Reporte a la Escuela</button>
-    </form>
-    <div id="mensajeEnvio"></div>
-</section>
+    <section id="reportar" class="tab-content">
+        <h3>📢 Generar Reporte</h3>
+        <form id="formReporte" onsubmit="guardarReporteFirebase(event)">
+            <label for="nombreGrupo">Tu Nombre o Grupo:</label>
+            <input type="text" id="nombreGrupo" placeholder="Ej. Juan Pérez / 3º B" required>
+            
+            <label for="problema">¿Cuál es el problema?</label>
+            <textarea id="problema" placeholder="Describe la situación de limpieza..." required></textarea>
+            
+            <label for="fotoProblema">Evidencia Fotográfica (Opcional):</label>
+            <input type="file" id="fotoProblema" accept="image/*" onchange="previsualizarFoto(this)">
+            
+            <div id="vistaPrevia" class="cuadro-vista-previa">Ninguna imagen seleccionada</div>
+            
+            <button type="submit" class="btn-accion verde-oscuro">Enviar Reporte a la Escuela</button>
+        </form>
+        <div id="mensajeEnvio"></div>
+    </section>
 
-    <!-- CALCULADORA (REINTEGRADA) -->
+    <!-- CALCULADORA -->
     <section id="calculadora" class="tab-content">
         <h3>🧮 Calculadora de Desechos</h3>
         <label for="cantBotellas">¿Cuántas botellas plásticas usas a la semana?</label>
