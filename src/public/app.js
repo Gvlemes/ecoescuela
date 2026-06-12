@@ -1,12 +1,8 @@
-// 1. IMPORTACIONES CORREGIDAS (Deben apuntar siempre a gstatic.com)
-import { initializeApp } from "https://gstatic.com";
-import { getDatabase, ref, push, onValue, update, remove } from "https://gstatic.com";
-
-// Tu configuración real de Firebase Console
+// 1. CONFIGURACIÓN DE FIREBASE (Conectado usando el método clásico compatible)
 const firebaseConfig = {
   apiKey: "AIzaSyCCVjAAdkiNMIB3odwWXDUBbGurE9bgZYM",
-  authDomain: "escuelalimpia.firebaseapp.com",
-  databaseURL: "https://escuelalimpia-default-rtdb.firebaseio.com",
+  authDomain: "://firebaseapp.com",
+  databaseURL: "https://firebaseio.com",
   projectId: "escuelalimpia",
   storageBucket: "escuelalimpia.firebasestorage.app",
   messagingSenderId: "13533291736",
@@ -14,62 +10,31 @@ const firebaseConfig = {
   measurementId: "G-KV3Y0V117P"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+// Inicializar Firebase clásico
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
 let fotoBase64Global = ""; 
 
-// Esperar a que el HTML cargue por completo
+// Ejecutar lecturas iniciales automáticas cuando la página esté lista
 document.addEventListener('DOMContentLoaded', () => {
-
-    // --- MANEJO DE PESTAÑAS (PARA RENDER) ---
-    document.querySelectorAll('.tab-bar .tab-btn').forEach(boton => {
-        boton.addEventListener('click', (e) => {
-            const targetId = e.target.getAttribute('data-target');
-            
-            document.querySelectorAll('.tab-content').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.tab-bar .tab-btn').forEach(b => b.classList.remove('active'));
-            
-            const elemento = document.getElementById(targetId);
-            if (elemento) elemento.classList.add('active');
-            e.target.classList.add('active');
-            
-            if (targetId === 'mis-reportes') escucharMisReportes();
-        });
-    });
-
-    // --- ASIGNACIÓN DE EVENTOS DEL FORMULARIO Y SECCIONES ---
-    const comboMateriales = document.getElementById('comboMateriales');
-    if (comboMateriales) {
-        comboMateriales.addEventListener('change', mostrarDegradacion);
-    }
-
-    const fotoProblema = document.getElementById('fotoProblema');
-    if (fotoProblema) {
-        fotoProblema.addEventListener('change', (e) => previsualizarFoto(e.target));
-    }
-
-    const formulario = document.getElementById('formReporte');
-    if (formulario) {
-        formulario.addEventListener('submit', guardarReporteFirebase);
-    }
-
-    const busquedaNombre = document.getElementById('busquedaNombre');
-    if (busquedaNombre) {
-        busquedaNombre.addEventListener('input', escucharMisReportes);
-    }
-
-    const btnBorrarTodo = document.querySelector('.btn-borrar');
-    if (btnBorrarTodo) {
-        btnBorrarTodo.addEventListener('click', borrarHistorialTotal);
-    }
-
-    // --- ACTIVAR ESCUCHAS EN TIEMPO REAL ---
     escucharReportesAdmin();
     escucharMisReportes();
 });
 
-// 2. RECUPERACIÓN DE TUS FUNCIONES ORIGINALES DE DEGRADACIÓN
+// 2. MANEJO DE PESTAÑAS (Funciona directo con tus onclick)
+function cambiarPestana(idSeccion, botonActivo) {
+    document.querySelectorAll('.tab-content').forEach(seccion => seccion.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    
+    const elemento = document.getElementById(idSeccion);
+    if (elemento) elemento.classList.add('active');
+    if (botonActivo) botonActivo.classList.add('active');
+    
+    if (idSeccion === 'mis-reportes') escucharMisReportes();
+}
+
+// 3. RECUPERACIÓN DE TUS FUNCIONES ORIGINALES DE DEGRADACIÓN
 function mostrarDegradacion() {
     const combo = document.getElementById('comboMateriales');
     const resultado = document.getElementById('resultadoDegradacion');
@@ -88,7 +53,7 @@ function mostrarDegradacion() {
     }
 }
 
-// 3. PROCESAMIENTO DE IMÁGENES (BASE64)
+// 4. PROCESAMIENTO DE IMÁGENES (BASE64)
 function previsualizarFoto(input) {
     const vistaPrevia = document.getElementById('vistaPrevia');
     if (input.files && input.files[0]) {
@@ -104,7 +69,7 @@ function previsualizarFoto(input) {
     }
 }
 
-// 4. ENVÍO SEGURO A FIREBASE REALTIME DATABASE
+// 5. ENVÍO SEGURO A FIREBASE REALTIME DATABASE
 function guardarReporteFirebase(event) {
     event.preventDefault();
     const msg = document.getElementById('mensajeEnvio');
@@ -119,8 +84,8 @@ function guardarReporteFirebase(event) {
         solucionado: false 
     };
 
-    const dbRef = ref(db, 'reportes');
-    push(dbRef, nuevoReporte)
+    // Usando el método push clásico
+    db.ref('reportes').push(nuevoReporte)
         .then(() => {
             document.getElementById('formReporte').reset();
             document.getElementById('vistaPrevia').innerHTML = "Ninguna imagen seleccionada";
@@ -136,13 +101,12 @@ function guardarReporteFirebase(event) {
         });
 }
 
-// 5. CONSULTA DE REPORTES PARA EL ALUMNO (MIS REPORTES)
+// 6. CONSULTA DE REPORTES PARA EL ALUMNO (MIS REPORTES)
 function escucharMisReportes() {
     const contenedor = document.getElementById('listaMisReportes');
     if (!contenedor) return;
 
-    const dbRef = ref(db, 'reportes');
-    onValue(dbRef, (snapshot) => {
+    db.ref('reportes').on('value', (snapshot) => {
         contenedor.innerHTML = '';
         const data = snapshot.val();
         const inputBusqueda = document.getElementById('busquedaNombre');
@@ -173,13 +137,12 @@ function escucharMisReportes() {
     });
 }
 
-// 6. BANDEJA DE ENTRADA DEL ADMINISTRADOR (ADMIN.HTML)
+// 7. BANDEJA DE ENTRADA DEL ADMINISTRADOR (ADMIN.HTML)
 function escucharReportesAdmin() {
     const contenedorAdmin = document.getElementById('contenedorReportesAdmin');
     if (!contenedorAdmin) return;
 
-    const dbRef = ref(db, 'reportes');
-    onValue(dbRef, (snapshot) => {
+    db.ref('reportes').on('value', (snapshot) => {
         contenedorAdmin.innerHTML = '';
         const data = snapshot.val();
 
@@ -200,28 +163,22 @@ function escucharReportesAdmin() {
                 <strong>🚨 Incidencia:</strong> ${r.problema} <br>
                 ${r.foto ? `<img src="${r.foto}" style="max-width:100%; max-height:200px; margin-top:10px; display:block;">` : ''}
                 <div style="margin-top: 10px; margin-bottom:10px;">Estado: ${textoEstado}</div>
-                <button class="btn-status btn-resolver" data-key="${key}" data-status="true" style="padding: 6px 12px; background-color: #2E7D32; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right:5px;">Marcar Solucionado</button>
-                <button class="btn-status btn-pendiente" data-key="${key}" data-status="false" style="padding: 6px 12px; background-color: #EF6C00; color: white; border: none; border-radius: 4px; cursor: pointer;">Poner en Espera</button>
+                <button class="btn-status btn-resolver" onclick="cambiarEstadoReporte('${key}', true)" style="padding: 6px 12px; background-color: #2E7D32; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right:5px;">Marcar Solucionado</button>
+                <button class="btn-status btn-pendiente" onclick="cambiarEstadoReporte('${key}', false)" style="padding: 6px 12px; background-color: #EF6C00; color: white; border: none; border-radius: 4px; cursor: pointer;">Poner en Espera</button>
             `;
             contenedorAdmin.appendChild(tarjeta);
-        });
-
-        // Eventos dinámicos para los botones de cambio de estado en admin
-        document.querySelectorAll('.btn-status').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const key = e.target.getAttribute('data-key');
-                const nuevoEstado = e.target.getAttribute('data-status') === 'true';
-                const reportRef = ref(db, `reportes/${key}`);
-                update(reportRef, { solucionado: nuevoEstado });
-            });
         });
     });
 }
 
-// 7. BORRAR HISTORIAL TOTAL
+// 8. ADMINISTRADOR: CAMBIAR ESTADO
+function cambiarEstadoReporte(key, nuevoEstado) {
+    db.ref('reportes/' + key).update({ solucionado: nuevoEstado });
+}
+
+// 9. BORRAR HISTORIAL TOTAL
 function borrarHistorialTotal() {
-    if(confirm("¿Seguro que deseas vaciar por completo la base de datos de Firebase?")) {
-        const dbRef = ref(db, 'reportes');
-        remove(dbRef);
+    if (confirm("¿Seguro que deseas vaciar por completo la base de datos de Firebase?")) {
+        db.ref('reportes').remove();
     }
 }
