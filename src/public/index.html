@@ -28,7 +28,6 @@
     .status-card { background: #f9f9f9; padding: 12px; border-radius: 6px; margin-top: 10px; border-left: 4px solid #666; }
     .status-resuelto { border-left-color: #28a745; background-color: #e8f5e9; }
     .status-pendiente { border-left-color: #ffc107; background-color: #fffde7; }
-    .foto-status { max-width: 100px; display: block; margin-top: 8px; border-radius: 4px; }
   </style>
 </head>
 <body>
@@ -38,10 +37,10 @@
 </header>
 
 <nav class="tab-bar">
-  <button class="tab-btn active" data-target="degradacion">Degradación</button>
-  <button class="tab-btn" data-target="reportar">Reportar</button>
-  <button class="tab-btn" data-target="calculadora">Calculadora</button>
-  <button class="tab-btn" data-target="estado">Mi Reporte</button>
+  <button class="tab-btn active" onclick="cambiarPestana('degradacion', this)">Degradación</button>
+  <button class="tab-btn" onclick="cambiarPestana('reportar', this)">Reportar</button>
+  <button class="tab-btn" onclick="cambiarPestana('calculadora', this)">Calculadora</button>
+  <button class="tab-btn" onclick="cambiarPestana('estado', this)">Mi Reporte</button>
 </nav>
 
 <main class="contenedor-principal">
@@ -50,29 +49,35 @@
   <section id="degradacion" class="tab-content active">
     <h3>⏳ Tiempos de Degradación</h3>
     <label for="comboMateriales">Selecciona un residuo escolar o técnico:</label>
-    <select id="comboMateriales">
+    <select id="comboMateriales" onchange="mostrarDegradacion()">
       <option value="">-- Seleccionar Elemento --</option>
+      
       <optgroup label="📋 Componentes Básicos / Comunes">
         <option value="plastico">Botella de Plástico</option>
         <option value="chicle">Chicle de Goma</option>
         <option value="lata">Lata de Aluminio</option>
         <option value="vidrio">Botella de Vidrio</option>
       </optgroup>
+
       <optgroup label="⚙️ Mecatrónica">
         <option value="tarjeta">Tarjeta de Circuito / PCB</option>
         <option value="soldadura">Residuos de Soldadura de Estaño</option>
       </optgroup>
+
       <optgroup label="🏭 Producción Industrial">
         <option value="chatarra">Chatarra y Virutas de Metal / Acero</option>
         <option value="aceite">Aceites y Lubricantes Industriales</option>
       </optgroup>
+
       <optgroup label="💻 Soporte y Mantenimiento">
         <option value="cable">Aislamiento de Cables de Red (PVC)</option>
         <option value="pila">Baterías / Pilas de Tarjeta Madre</option>
       </optgroup>
+
       <optgroup label="💾 Programación">
         <option value="disco">Disco Duro Viejo / Almacenamiento</option>
       </optgroup>
+
       <optgroup label="💼 Procesos de Gestión Administrativa">
         <option value="toner">Cartuchos de Tóner e Impresora</option>
         <option value="archivo">Archivos Muertos / Papel Químico de Copia</option>
@@ -92,10 +97,10 @@
       <textarea id="mensajeAlumno" placeholder="Ej. Hay residuos tirados en el taller..." rows="3" required></textarea>
       
       <label>Evidencia en Foto (Opcional):</label>
-      <input type="file" id="fotoInput" accept="image/*">
+      <input type="file" id="fotoInput" accept="image/*" onchange="previsualizarFoto()">
       <img id="preview" class="preview-img" style="display:none;">
 
-      <button type="submit" id="btnEnviar" class="btn-accion">Enviar Reporte a la Escuela</button>
+      <button type="submit" class="btn-accion">Enviar Reporte a la Escuela</button>
     </form>
   </section>
 
@@ -104,7 +109,7 @@
     <h3>🧮 Calculadora de Desechos</h3>
     <label>¿Cuántas botellas plásticas usas a la semana?</label>
     <input type="number" id="calcBotellas" min="0" value="0">
-    <button class="btn-accion" id="btnCalcular">Calcular mi Impacto</button>
+    <button class="btn-accion" onclick="calcularImpacto()">Calcular mi Impacto</button>
     <div id="resultadoCalculadora"></div>
   </section>
 
@@ -113,13 +118,12 @@
     <h3>🔍 Estado de mi Reporte</h3>
     <label>Escribe tu nombre para buscar tu reporte:</label>
     <input type="text" id="busquedaNombre" placeholder="Ej. Juan - 3º A">
-    <button class="btn-accion" id="btnBuscar">Buscar Historial</button>
+    <button class="btn-accion" onclick="buscarMisReportes()">Buscar Historial</button>
     <div id="listaMisReportes" style="margin-top: 15px;"></div>
   </section>
 
 </main>
 
-<!-- Inserción del script modular -->
 <script type="module" src="app.js"></script>
 </body>
 </html>
