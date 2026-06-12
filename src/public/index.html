@@ -30,7 +30,7 @@
     .status-pendiente { border-left-color: #ffc107; background-color: #fffde7; }
   </style>
 
-  <!-- CONTROL COMPATIBLE DE FIREBASE CORE -->
+  <!-- LIBRERÍAS WEB COMPATIBLES DE FIREBASE -->
   <script src="https://gstatic.com"></script>
   <script src="https://gstatic.com"></script>
 </head>
@@ -136,20 +136,23 @@
 
 </main>
 
-<!-- INTERCEPTOR TRANSPARENTE DE LLAMADAS DE RED HACIA LA NUBE -->
 <script>
-  const firebaseConfig = {
-    apiKey: "TU_API_KEY_AQUÍ",
-    authDomain: "://firebaseapp.com",
-    projectId: "tu-proyecto-id",
-    storageBucket: "://appspot.com",
-    messagingSenderId: "tu-sender-id",
-    appId: "tu-app-id"
-  };
+  // USA AQUÍ TUS LLAVES PÚBLICAS ESTÁNDAR WEB (EVITA ARCHIVOS JSON PRIVADOS)
+ const firebaseConfig = {
+  apiKey: "AIzaSyCCVjAAdkiNMIB3odwWXDUBbGurE9bgZYM",
+  authDomain: "escuelalimpia.firebaseapp.com",
+  databaseURL: "https://escuelalimpia-default-rtdb.firebaseio.com",
+  projectId: "escuelalimpia",
+  storageBucket: "escuelalimpia.firebasestorage.app",
+  messagingSenderId: "13533291736",
+  appId: "1:13533291736:web:e3e8d514addb119fc4a3ad",
+  measurementId: "G-KV3Y0V117P"
+};
 
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
+  // INTERCEPTOR DE TRÁFICO WEB PARA REDIRIGIR TUS FETCH A LA NUBE
   const originalFetch = window.fetch;
   window.fetch = async function (url, options) {
     if (url === "/api/guardar" && options && options.method === "POST") {
@@ -157,10 +160,11 @@
         const datosReporte = JSON.parse(options.body);
         datosReporte.timestamp = Date.now();
         
+        // Se guarda en la colección que lee el administrador
         await db.collection("reportesEscuela").add(datosReporte);
         return new Response(JSON.stringify({ ok: true }), { status: 200 });
       } catch (error) {
-        console.error(error);
+        console.error("Error en Firebase:", error);
         return new Response(JSON.stringify({ ok: false }), { status: 500 });
       }
     }
@@ -171,7 +175,7 @@
         const listaNube = [];
         querySnapshot.forEach((doc) => {
           const item = doc.data();
-          item.id = doc.id;
+          item.id = doc.id; // Clave para las acciones del admin
           listaNube.push(item);
         });
         return new Response(JSON.stringify(listaNube), { status: 200 });
