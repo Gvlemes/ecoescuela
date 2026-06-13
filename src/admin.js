@@ -1,14 +1,13 @@
 let miGrafica = null;
 
-// Movemos los segundos aquí para que sean accesibles de forma global
-let segundosRestantes = 10;
-
-// 1. CARGA INICIAL AUTOMÁTICA (Espera a que el HTML esté 100% dibujado)
+// 1. CARGA INICIAL AUTOMÁTICA
 document.addEventListener("DOMContentLoaded", () => {
   cargarDatosAdmin();
-  iniciarRelojContador(); // Inicia el reloj de forma segura
 });
 
+// ==========================================
+// 2. LEER REPORTES DESDE EL BACKEND (RENDER)
+// ==========================================
 async function cargarDatosAdmin() {
   try {
     const respuesta = await fetch("/api/datos");
@@ -16,6 +15,7 @@ async function cargarDatosAdmin() {
     
     const datos = await respuesta.json();
     
+    // Inyectar la información en la tabla y en la gráfica
     renderizarTabla(datos);
     actualizarGraficaMetricas(datos);
 
@@ -28,6 +28,9 @@ async function cargarDatosAdmin() {
   }
 }
 
+// ==========================================
+// 3. RENDERIZAR TABLA HTML DE REPORTES
+// ==========================================
 function renderizarTabla(lista) {
   const cuerpoTabla = document.getElementById("cuerpoTablaAdmin");
   if (!cuerpoTabla) return;
@@ -43,6 +46,7 @@ function renderizarTabla(lista) {
     const textoBoton = esResuelto ? "✅ Atendido" : "⏳ Resolver";
     const claseBtn = esResuelto ? "btn-desactivado" : "btn-resolver";
     
+    // Condicional para pintar la imagen si viene cargada en Base64
     const htmlFoto = item.foto 
       ? `<img src="${item.foto}" style="width:50px; height:50px; object-fit:cover; border-radius:4px; border: 1px solid #CBD5E1;" alt="Evidencia">` 
       : `<span style="color:#94A3B8; font-size:11px;">Sin evidencia</span>`;
@@ -62,6 +66,9 @@ function renderizarTabla(lista) {
   });
 }
 
+// ==========================================
+// 4. CONTROLADOR DE LA GRÁFICA CIRCULAR
+// ==========================================
 function actualizarGraficaMetricas(lista) {
   const ctx = document.getElementById("graficaReportes");
   if (!ctx) return;
@@ -74,6 +81,7 @@ function actualizarGraficaMetricas(lista) {
     else pendientes++;
   });
 
+  // Rompemos la instancia previa para refrescar los datos de la gráfica limpiamente
   if (miGrafica) {
     miGrafica.destroy();
   }
@@ -98,6 +106,9 @@ function actualizarGraficaMetricas(lista) {
   });
 }
 
+// ==========================================
+// 5. ACCIÓN: MARCAR REPORTES COMO ATENDIDOS
+// ==========================================
 async function marcarComoResuelto(id) {
   if (!confirm("¿Deseas marcar este punto de la escuela como Resuelto?")) return;
   try {
@@ -112,8 +123,11 @@ async function marcarComoResuelto(id) {
   }
 }
 
+// ==========================================
+// 6. ACCIÓN: ELIMINAR REPORTES EN FIRESTORE
+// ==========================================
 async function eliminarReporte(id) {
-  if (!confirm("¿Estás seguro de eliminar este reporte permanentemente?")) return;
+  if (!confirm("¿Seguro que deseas eliminar este reporte permanentemente de la base de datos?")) return;
   try {
     const respuesta = await fetch(`/api/eliminar/${id}`, { method: "DELETE" });
     if (respuesta.ok) {
@@ -127,45 +141,10 @@ async function eliminarReporte(id) {
 }
 
 // ==========================================
-// 🔄 7. CONTROLADOR SEGURO DE CONTEO Y REFRESCO
+// 🔄 7. ACTUALIZACIÓN AUTOMÁTICA EN TIEMPO REAL (CADA 3 SEGUNDOS)
 // ==========================================
-function iniciarRelojContador() {
-  // Capturamos los elementos estrictamente AQUÍ, cuando el DOM already cargó
-  const textoContador = document.getElementById("texto-contador");
-  const circuloPulso = document.getElementById("circulo-pulso");
-  const contenedorIndicador = document.getElementById("indicador-actualizacion");
-
-  if (textoContador) {
-    textoContador.innerHTML = `Actualizando en ${segundosRestantes}s...`;
+setInterval(() => {
+  if (typeof cargarDatosAdmin === "function") {
+    cargarDatosAdmin();
   }
-
-  setInterval(() => {
-    segundosRestantes--;
-
-    if (textoContador) {
-      textoContador.innerHTML = `Actualizando en ${segundosRestantes}s...`;
-    }
-
-    if (segundosRestantes <= 0) {
-      segundosRestantes = 10; // Reinicio automático
-
-      if (textoContador) textoContador.innerHTML = "🔄 Sincronizando red...";
-      if (circuloPulso) circuloPulso.style.backgroundColor = "#EA580C";
-      if (contenedorIndicador) {
-        contenedorIndicador.style.background = "#FFF3E0";
-        contenedorIndicador.style.color = "#E65100";
-      }
-
-      // Consigue los datos de Render de fondo
-      cargarDatosAdmin().then(() => {
-        setTimeout(() => {
-          if (circuloPulso) circuloPulso.style.backgroundColor = "#1B5E20";
-          if (contenedorIndicador) {
-            contenedorIndicador.style.background = "#E8F5E9";
-            contenedorIndicador.style.color = "#1B5E20";
-          }
-        }, 800);
-      });
-    }
-  }, 1000);
-}
+}, 3000);
