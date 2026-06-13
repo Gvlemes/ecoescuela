@@ -52,29 +52,27 @@ document.getElementById("formularioReporte").addEventListener("submit", async (e
   const mensaje = document.getElementById("mensajeAlumno").value;
 
   try {
-    // MODIFICACIÓN DE SEGURIDAD EN LÍNEA 54
     const respuesta = await fetch("/api/guardar", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ nombre, mensaje, foto: base64Foto, estado: "Pendiente" })
     });
 
-    if (!respuesta.ok) {
-      throw new Error(`Servidor fuera de línea o ruta inválida: ${respuesta.status}`);
-    }
+    // Alerta de depuración para ver qué código responde Render realmente
+    alert("Respuesta del servidor código: " + respuesta.status);
 
     const res = await respuesta.json();
     if (res.ok) {
-      alert("¡Reporte enviado con éxito! Puedes consultar su estado en la sección 'Mi Reporte' usando tu nombre.");
+      alert("¡Reporte enviado con éxito!");
       document.getElementById("formularioReporte").reset();
       document.getElementById("preview").style.display = "none";
       base64Foto = "";
     } else {
-      alert("Error al procesar el reporte en el servidor.");
+      alert("Error en la base de datos: " + res.error);
     }
   } catch (error) {
-    console.error("Error de comunicación:", error);
-    alert("Hubo un fallo crítico de red. Asegúrate de compilar usando Clear Build Cache.");
+    console.error("Error capturado:", error);
+    alert("Error de red: El fetch falló por completo al conectar con Render.");
   }
 });
 
@@ -89,10 +87,9 @@ function calcularImpacto() {
   let recomendacion = "";
   let claseAlerta = "";
 
-  // Lógica dinámica basada en la cantidad ingresada
   if (botellas === 0) {
     claseAlerta = "verde";
-    recommendación = "🌟 <strong>¡Increíble, nivel Héroe Ecológico!</strong> Sigue así, estás cuidando al planeta al máximo al no generar estos residuos.";
+    recomendacion = "🌟 <strong>¡Increíble, nivel Héroe Ecológico!</strong> Sigue así, estás cuidando al planeta al máximo al no generar estos residuos.";
   } else if (botellas >= 1 && botellas <= 3) {
     claseAlerta = "verde";
     recomendacion = "👍 <strong>¡Buen trabajo!</strong> Tu consumo es bajo. Intenta sustituirlas por completo usando un termo reutilizable en la escuela.";
