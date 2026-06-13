@@ -1,110 +1,127 @@
-import express from "express";
-import { initializeApp, cert } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
-import path from "path";
-import { fileURLToPath } from "url";
+// Variable global para la gráfica
+let miGrafica = null;
 
-const app = express();
-app.use(express.json());
+// 1. CARGA INICIAL AL ABRIR EL PANEL
+document.addEventListener("DOMContentLoaded", () => {
+  cargarDatosAdmin();
+});
 
-// Configuraciones necesarias para usar __dirname con módulos ES (import)
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-app.use(express.static(path.join(__dirname, "public")));
+// ==========================================
+// 2. FUNCIÓN PRINCIPAL: TRAER DATOS DE RENDER
+// ==========================================
+async function cargarDatosAdmin() {
+  const tabla = document.getElementById("tablaReportesAdmin");
+  if (!tabla) return;
 
-// 1. Inicialización adaptada a tu entorno local y producción (Render)
-let adminApp;
+  try {
+    const respuesta = await fetch("/api/datos");
+    if (!respuesta.ok) throw new Error("Error en la petición de red");
+    
+    const datos = await respuesta.json();
+    
+    // Rellenar la tabla y actualizar las métricas de las gráficas
+    renderizarTabla(datos);
+    actualizarGraficaMétricas(datos);
 
-if (process.env.FIREBASE_PRIVATE_KEY_JSON) {
-  const serviceAccount = JSON.parse(process.env.FIREBASE_PRIVATE_KEY_JSON);
-  adminApp = initializeApp({
-    credential: cert(serviceAccount)
-  });
-} else {
-  // Desarrollo local
-  adminApp = initializeApp({
-    projectId: "escuelalimpia"
+  } catch (error) {
+    console.error("Error al refrescar el panel:", error);
+  }
+}
+
+// ==========================================
+// 3. RENDERIZAR TABLA DE REPORTES
+// ==========================================
+function renderizarTabla(lista) {
+  const cuerpoTabla = document.getElementById("cuerpoTablaAdmin");
+  if (!cuerpoTabla) return;
+
+  if (lista.length === 0) {
+    cuerpoTabla.innerHTML = `<tr><td colspan="5" style="text-align:center;">No hay reportes registrados</td></tr>`;
+    return;
+  }
+
+  cuerpoTabla.innerHTML = "";
+  lista.forEach(item => {
+    const esResuelto = item.estado === "Resuelto";
+    const textoBoton = esResuelto ? "✅ Atendido" : "⏳ Resolver";
+    const claseBtn = esResuelto ? "btn-desactivado" : "btn-resolver";
+    const htmlFoto = item.foto ? `<img src="${item.foto}" style="width:60px; height:60px; object-fit:cover; border-radius:4px; cursor:pointer;" onclick="abrirModalFoto('${item.foto}')">` : "No adjunta";
+
+    cuerpoTabla.innerHTML += `
+      <tr>
+        <td><strong>${item.nombre || "Anónimo"}</strong></td>
+        <td>${item.mensaje || ""}</td>
+        <td>${htmlFoto}</td>
+        <td><span class="badge ${item.estado === "Resuelto" ? "badge-verde" : "badge-naranja"}">${item.estado || "Pendiente"}</span></td>
+        <td>
+          <button class="${claseBtn}" ${esResuelto ? "disabled" : ""} onclick="marcarComoResuelto('${item.id}')">${textoBoton}</button>
+          <button class="btn-eliminar" onclick="eliminarReporte('${item.id}')">🗑️</button>
+        </td>
+      </tr>
+    `;
   });
 }
 
-// Exportamos la base de datos Firestore tal como lo tenías
-export const db = getFirestore(adminApp);
-
 // ==========================================
-// RUTA 1: OBTENER TODOS LOS REPORTES DESDE FIRESTORE
+// 4. ACTUALIZAR GRÁFICAS (CHART.JS)
 // ==========================================
-app.get("/api/datos", async (req, res) => {
-  try {
-    // Cambia "reportes" si tu colección en Firestore se llama diferente (ej: "evidencias")
-    const coleccionRef = db.collection("reportes");
-    const snapshot = await coleccionRef.get();
+function actualizarGraficaMétricas(lista) {
+  const ctx = document.getElementById("graficaReportes");
+  if (!ctx) return;
 
-    if (snapshot.empty) {
-      return res.json([]);
+  let pendientes = 0;
+  let resueltos = 0;
+
+  lista.forEach(item => {
+    if (item.estado === "Resuelto") resueltos++;
+    else pendientes++;
+  });
+
+  // Si la gráfica ya existía, la destruimos para redibujarla sin parpadeos
+  if (miGrafica) {
+    miGrafica.destroy();
+  }
+
+  miGrafica = new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels: ["Pendientes ⏳", "Resueltos ✅"],
+      datasets: [{
+        data: [pendientes, resueltos],
+        backgroundColor: ["#E65100", "#1B5E20"],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false
     }
-
-    const listaReportes = [];
-
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      
-      listaReportes.push({
-        id: doc.id, // En Firestore el ID viene directo del documento
-        nombre: data.nombre || "Anónimo",
-        mensaje: data.mensaje || "Sin descripción",
-        estado: data.estado || "Pendiente",
-        foto: data.foto || null, // URL pública directa que subió el alumno
-        fecha: data.fecha || null
-      });
-    });
-
-    // Ordenar por fecha de forma descendente (más nuevos primero)
-    listaReportes.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-
-    res.json(listaReportes);
-  } catch (error) {
-    console.error("Error al obtener reportes de Firestore:", error);
-    res.status(500).json({ ok: false, error: "Error interno del servidor" });
-  }
-});
+  });
+}
 
 // ==========================================
-// RUTA 2: ACTUALIZAR ESTADO A RESUELTO
+// 5. ACCIONES: RESOLVER Y ELIMINAR
 // ==========================================
-app.put("/api/resolver/:id", async (req, res) => {
+async function marcarComoResuelto(id) {
+  if (!confirm("¿Seguro que deseas marcar este punto sucio como Resuelto?")) return;
   try {
-    const idReporte = req.params.id;
-    const docRef = db.collection("reportes").doc(idReporte);
+    const res = await fetch(`/api/resolver/${id}`, { method: "PUT" });
+    if (res.ok) cargarDatosAdmin();
+  } catch (err) { alert("Error de comunicación."); }
+}
 
-    // En Firestore se utiliza update
-    await docRef.update({ estado: "Resuelto" });
-
-    res.json({ ok: true });
-  } catch (error) {
-    console.error("Error al resolver reporte en Firestore:", error);
-    res.status(500).json({ ok: false, error: error.message });
-  }
-});
-
-// ==========================================
-// RUTA 3: ELIMINAR REPORTE DEFINITIVAMENTE
-// ==========================================
-app.delete("/api/eliminar/:id", async (req, res) => {
+async function eliminarReporte(id) {
+  if (!confirm("¿Estás completamente seguro de eliminar este reporte permanentemente?")) return;
   try {
-    const idReporte = req.params.id;
-    const docRef = db.collection("reportes").doc(idReporte);
+    const res = await fetch(`/api/eliminar/${id}`, { method: "DELETE" });
+    if (res.ok) cargarDatosAdmin();
+  } catch (err) { alert("Error de comunicación."); }
+}
 
-    // Eliminamos el documento de la colección
-    await docRef.delete();
-
-    res.json({ ok: true });
-  } catch (error) {
-    console.error("Error al eliminar reporte de Firestore:", error);
-    res.status(500).json({ ok: false, error: error.message });
-  }
-});
-
-const PUERTO = process.env.PORT || 3000;
-app.listen(PUERTO, () => {
-  console.log(`Servidor de Escuela Limpia activo en http://localhost:${PUERTO}`);
-});
+// ==========================================
+// 🔄 6. TEMPORIZADOR AUTOMÁTICO (10 SEGUNDOS)
+// ==========================================
+setInterval(() => {
+  console.log("🔄 Ejecutando auto-refresco del panel administrativo...");
+  cargarDatosAdmin();
+}, 10000);
