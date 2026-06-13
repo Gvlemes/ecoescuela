@@ -8,175 +8,94 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
     body { background-color: #F5F5F5; color: #333; }
     header { background-color: #1B5E20; color: white; text-align: center; padding: 15px; }
-    optgroup { font-weight: bold; color: #1B5E20; background-color: #E8F5E9; }
     .tab-bar { display: flex; background-color: #FFFFFF; border-bottom: 1px solid #E0E0E0; position: sticky; top: 0; z-index: 100; }
     .tab-btn { flex: 1; background: none; border: none; padding: 12px 5px; font-size: 13px; font-weight: bold; color: #666; cursor: pointer; border-bottom: 3px solid transparent; }
     .tab-btn.active { color: #1B5E20; border-bottom: 3px solid #1B5E20; background-color: #E8F5E9; }
     .contenedor-principal { padding: 20px; max-width: 500px; margin: 0 auto; }
-    .tab-content { display: none; background-color: #FFFFFF; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .tab-content { display: none; background-color: #FFFFFF; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 20px; }
     .tab-content.active { display: block; }
-    h3 { margin-bottom: 15px; text-align: center; }
+    h3 { margin-bottom: 15px; text-align: center; color: #1B5E20; }
     label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
     select, input, textarea { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #CCC; border-radius: 6px; font-size: 14px; }
-    textarea { height: 100px; resize: vertical; }
     .panel-alerta { padding: 15px; border-radius: 8px; font-size: 14px; line-height: 1.5; margin-top: 15px; }
     .panel-alerta.verde { background-color: #E8F5E9; color: #1B5E20; border: 1px solid #C8E6C9; }
-    .cuadro-vista-previa { width: 100%; min-height: 120px; border: 2px dashed #CCC; background-color: #FAFAFA; border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; padding: 10px; color: #999; font-size: 13px; text-align: center; }
-    .btn-accion { width: 100%; padding: 12px; border: none; border-radius: 6px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; }
-    .btn-accion.verde-oscuro { background-color: #1B5E20; }
+    .panel-alerta.naranja { background-color: #FFF3E0; color: #E65100; border: 1px solid #FFE0B2; }
+    .btn-accion { width: 100%; padding: 12px; border: none; border-radius: 6px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; background-color: #1B5E20; }
+    .btn-accion:hover { background-color: #144317; }
+    .preview-img { max-width: 100%; max-height: 150px; display: block; margin: 10px auto; border-radius: 6px; }
+    .status-card { background: #f9f9f9; padding: 12px; border-radius: 6px; margin-top: 10px; border-left: 4px solid #666; }
+    .status-resuelto { border-left-color: #28a745; background-color: #e8f5e9; }
+    .status-pendiente { border-left-color: #ffc107; background-color: #fffde7; }
   </style>
 </head>
 <body>
 
-  <!-- Ventana Flotante: Nombre Obligatorio -->
-  <div id="pantalla-login" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px;">
-    <div style="background: white; padding: 30px; border-radius: 8px; max-width: 400px; width: 100%; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
-      <h3 style="color: #1B5E20; margin-bottom: 10px;">🌿 ¡Bienvenido a EcoEscuela!</h3>
-      <p style="font-size: 14px; margin-bottom: 20px; color: #666;">Introduce tu nombre o grupo para poder reportar y revisar el estado de la escuela.</p>
-      <input type="text" id="nombreAlumnoInput" placeholder="Ej. Juan Pérez - 3°A">
-      <button onclick="guardarNombreUsuario()" style="width: 100%; padding: 12px; background: #1B5E20; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Ingresar al Sistema</button>
-    </div>
-  </div>
+<header>
+  <h2>🌱 Escuela Limpia</h2>
+</header>
 
-  <header>
-    <h2>Escuela Limpia</h2>
-    <p id="saludoUsuario" style="font-size: 13px; color: #E8F5E9; text-align: center; margin-top: 5px; font-weight: bold; display: none;"></p>
-  </header>
+<nav class="tab-bar">
+  <button class="tab-btn active" onclick="cambiarPestana('degradacion', this)">Degradación</button>
+  <button class="tab-btn" onclick="cambiarPestana('reportar', this)">Reportar</button>
+  <button class="tab-btn" onclick="cambiarPestana('calculadora', this)">Calculadora</button>
+  <button class="tab-btn" onclick="cambiarPestana('estado', this)">Mi Reporte</button>
+</nav>
 
-  <!-- Navegación -->
-  <nav class="tab-bar">
-    <button class="tab-btn active" onclick="cambiarPestana('degradacion', this)">Degradación</button>
-    <button class="tab-btn" onclick="cambiarPestana('reportar', this)">Reportar</button>
-    <button class="tab-btn" onclick="cambiarPestana('calculadora', this)">Calculadora</button>
-    <button class="tab-btn" onclick="cambiarPestana('mis-reportes', this); cargarEstadoReportesAlumnos();">Estado Red</button>
-  </nav>
+<main class="contenedor-principal">
+  
+  <!-- PESTAÑA 1: CONCIENTIZACIÓN DE DEGRADACIÓN -->
+  <section id="degradacion" class="tab-content active">
+    <h3>⏳ ¿Cuánto tardan en degradarse?</h3>
+    <label for="comboMateriales">Selecciona un material:</label>
+    <select id="comboMateriales" onchange="mostrarDegradacion()">
+      <option value="">-- Seleccionar --</option>
+      <option value="plastico">Botella de Plástico</option>
+      <option value="chicle">Chicle</option>
+      <option value="lata">Lata de Aluminio</option>
+      <option value="papel">Papel o Cartón</option>
+      <option value="vidrio">Botella de Vidrio</option>
+    </select>
+    <div id="resultadoDegradacion"></div>
+  </section>
 
-  <main class="contenedor-principal">
-    
-    <!-- Pestaña 1 -->
-    <section id="degradacion" class="tab-content active">
-      <h3>¿Cuánto tardan en degradarse?</h3>
-      <label for="comboMateriales">Selecciona un material:</label>
-      <select id="comboMateriales">
-        <option value="organic">Residuos Orgánicos (4 semanas)</option>
-        <option value="paper">Papel y Cartón (1 año)</option>
-        <option value="plastic">Botellas de Plástico (450 años)</option>
-      </select>
-      <div class="panel-alerta verde">Conserva limpia la escuela reduciendo residuos.</div>
-    </section>
+  <!-- PESTAÑA 2: REPORTAR CON IMAGEN -->
+  <section id="reportar" class="tab-content">
+    <h3>📢 Generar Reporte</h3>
+    <form id="formularioReporte">
+      <label>Tu Nombre o Grupo:</label>
+      <input type="text" id="nombreAlumno" placeholder="Ej. Juan - 3º A" required>
+      
+      <label>¿Cuál es el problema?</label>
+      <textarea id="mensajeAlumno" placeholder="Ej. Hay basura tirada detrás de las canchas..." rows="3" required></textarea>
+      
+      <label>Evidencia en Foto (Opcional):</label>
+      <input type="file" id="fotoInput" accept="image/*" onchange="previsualizarFoto()">
+      <img id="preview" class="preview-img" style="display:none;">
 
-    <!-- Pestaña 2 -->
-    <section id="reportar" class="tab-content">
-      <h3>Reportar Punto Sucio Global</h3>
-      <label for="txtDescripcion">Descripción de la zona o desperdicio:</label>
-      <textarea id="txtDescripcion" placeholder="Ej: Hay botellas tiradas atrás del taller de Mecatrónica..."></textarea>
-      <label>Foto de Evidencia:</label>
-      <div class="cuadro-vista-previa">📷 Aquí verás la previsualización de tu imagen</div>
-      <button class="btn-accion verde-oscuro" onclick="enviarReporteFirebase()">📤 Enviar Reporte a la Red</button>
-    </section>
+      <button type="submit" class="btn-accion">Enviar Reporte a la Escuela</button>
+    </form>
+  </section>
 
-    <!-- Pestaña 3 -->
-    <section id="calculadora" class="tab-content">
-      <h3>Huella de Plástico Anual</h3>
-      <label for="inputBotellas">¿Cuántas botellas de plástico consumes por SEMANA?</label>
-      <input type="number" id="inputBotellas" min="0" placeholder="Ej: 5">
-      <button class="btn-accion verde-oscuro">🍃 Calcular Impacto Anual</button>
-    </section>
+  <!-- PESTAÑA 3: CALCULADORA ECOLÓGICA -->
+  <section id="calculadora" class="tab-content">
+    <h3>🧮 Calculadora de Desechos</h3>
+    <label>¿Cuántas botellas plásticas usas a la semana?</label>
+    <input type="number" id="calcBotellas" min="0" value="0">
+    <button class="btn-accion" onclick="calcularImpacto()">Calcular mi Impacto</button>
+    <div id="resultadoCalculadora"></div>
+  </section>
 
-    <!-- Pestaña 4: NUEVA -->
-    <section id="mis-reportes" class="tab-content">
-      <h3>📌 Estado de los Puntos Sucios</h3>
-      <p style="font-size: 13px; color: #666; text-align: center; margin-bottom: 15px;">Monitorea qué zonas ya atendió el equipo de administración.</p>
-      <div id="lista-reportes-alumnos" style="max-height: 420px; overflow-y: auto;"></div>
-    </section>
+  <!-- PESTAÑA 4: COMPROBAR ESTADO DEL REPORTE -->
+  <section id="estado" class="tab-content">
+    <h3>🔍 Estado de mi Reporte</h3>
+    <label>Escribe tu nombre para buscar tu reporte:</label>
+    <input type="text" id="busquedaNombre" placeholder="Ej. Juan - 3º A">
+    <button class="btn-accion" onclick="buscarMisReportes()">Buscar Historial</button>
+    <div id="listaMisReportes" style="margin-top: 15px;"></div>
+  </section>
 
-  </main>
+</main>
 
-  <script>
-    function cambiarPestana(idPestana, boton) {
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById(idPestana).classList.add('active');
-      boton.classList.add('active');
-    }
-  </script>
-<script type="module">
-    import { initializeApp } from "https://gstatic.com";
-    import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://gstatic.com";
-
-    // ⚠️ REEMPLAZA CON TUS CREDENCIALES
-    const firebaseConfig = {
-      apiKey: "TU_API_KEY",
-      authDomain: "TU_AUTH_DOMAIN",
-      projectId: "TU_PROJECT_ID",
-      storageBucket: "TU_STORAGE_BUCKET",
-      messagingSenderId: "TU_MESSAGING_SENDER_ID",
-      appId: "TU_APP_ID"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    let nombreUsuarioActivo = "";
-
-    window.guardarNombreUsuario = function() {
-      const nombre = document.getElementById("nombreAlumnoInput").value.trim();
-      if (nombre === "") { alert("Por favor, introduce tu nombre."); return; }
-      nombreUsuarioActivo = nombre;
-      document.getElementById("pantalla-login").style.display = "none";
-      document.getElementById("saludoUsuario").innerText = `👤 Estudiante: ${nombreUsuarioActivo}`;
-      document.getElementById("saludoUsuario").style.display = "block";
-    };
-
-    window.enviarReporteFirebase = async function() {
-      const descripcion = document.getElementById("txtDescripcion").value.trim();
-      if (descripcion === "") { alert("Describe la zona."); return; }
-      const ahora = new Date();
-      try {
-        await addDoc(collection(db, "reportes"), {
-          usuario: nombreUsuarioActivo,
-          descripcion: descripcion,
-          fechaHora: ahora.toLocaleString('es-ES', { hour12: true }),
-          fechaRaw: ahora.toISOString(),
-          estado: "Pendiente",
-          fotoUrl: "" 
-        });
-        alert("¡Reporte enviado al panel de administración! 🌍");
-        document.getElementById("txtDescripcion").value = "";
-      } catch (error) { alert("Error de red."); }
-    };
-
-    async function cargarEstadoReportesAlumnos() {
-      const listaContenedor = document.getElementById("lista-reportes-alumnos");
-      listaContenedor.innerHTML = "<p style='text-align:center; padding:20px;'>Buscando reportes...</p>";
-      try {
-        const q = query(collection(db, "reportes"), orderBy("fechaRaw", "desc"));
-        const querySnapshot = await getDocs(q);
-        if (querySnapshot.empty) { listaContenedor.innerHTML = "<p style='text-align:center;'>Todo limpio 🌱</p>"; return; }
-        listaContenedor.innerHTML = "";
-        querySnapshot.forEach((docSnap) => {
-          const datos = docSnap.data();
-          const esLimpio = datos.estado === "Limpiado";
-          const colorEtiqueta = esLimpio ? "#1B5E20" : "#E65100";
-          const fondoEtiqueta = esLimpio ? "#E8F5E9" : "#FFF3E0";
-          const textoEstado = esLimpio ? "✅ Zona Limpia" : "⏳ Pendiente";
-
-          const tarjeta = `
-            <div style="background: #FAFAFA; border-left: 5px solid ${colorEtiqueta}; padding: 12px; margin-bottom: 10px; border-radius: 4px;">
-              <div style="display: flex; justify-content: space-between; font-size: 11px; color: #777; margin-bottom: 5px;">
-                <span><strong>Por:</strong> ${datos.usuario || "Anónimo"}</span>
-                <span>🕒 ${datos.fechaHora || "Reciente"}</span>
-              </div>
-              <p style="font-size: 13px; margin-bottom: 8px;">${datos.descripcion}</p>
-              <div style="background: ${fondoEtiqueta}; color: ${colorEtiqueta}; padding: 4px 8px; font-size: 11px; border-radius: 4px; font-weight: bold; display: inline-block;">
-                ${textoEstado}
-              </div>
-            </div>
-          `;
-          listaContenedor.insertAdjacentHTML("beforeend", tarjeta);
-        });
-      } catch (error) { listaContenedor.innerHTML = "<p>Error de conexión.</p>"; }
-    }
-    window.cargarEstadoReportesAlumnos = cargarEstadoReportesAlumnos;
-  </script>
+<script src="app.js"></script>
 </body>
 </html>
