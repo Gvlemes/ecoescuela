@@ -4,11 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Escuela Limpia - Alumnos</title>
-
-<!-- 🚨 ESTAS DOS LÍNEAS DE ABAJO SON LAS QUE ARREGLAN EL ERROR DE TU IMAGEN 🚨 -->
+<!-- LIBRERÍAS DE FIREBASE COMPATIBLES -->
 <script src="https://gstatic.com"></script>
 <script src="https://gstatic.com"></script>
-
 <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
     body { background-color: #F5F5F5; color: #333; }
@@ -70,7 +68,7 @@
         <div id="resultadoDegradacion"></div>
     </section>
 
-    <!-- REPORTAR -->
+    <!-- REPORTAR (LÍNEA FIX ONSUBMIT CON EVENT) -->
     <section id="reportar" class="tab-content">
         <h3>📢 Generar Reporte</h3>
         <form id="formReporte" onsubmit="guardarReporteFirebase(event)">
@@ -90,7 +88,7 @@
         <div id="mensajeEnvio"></div>
     </section>
 
-    <!-- CALCULADORA -->
+    <!-- CALCULADORA REINTEGRADA -->
     <section id="calculadora" class="tab-content">
         <h3>🧮 Calculadora de Desechos</h3>
         <label for="cantBotellas">¿Cuántas botellas plásticas usas a la semana?</label>
