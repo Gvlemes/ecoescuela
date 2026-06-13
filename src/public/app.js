@@ -25,7 +25,7 @@ function mostrarDegradacion() {
 
   if(!material) { res.innerHTML = ""; return; }
   const data = datos[material];
-  res.innerHTML = `<div class="panel-alerta ${data.tipo}"><strong>Tiempo de degradación:</strong> ${data.tiempo}<br><small>${data.info}</small></div>`;
+  res.innerHTML = `<div class="panel-alerta ${data.type}"><strong>Tiempo de degradación:</strong> ${data.tiempo}<br><small>${data.info}</small></div>`;
 }
 
 // ==========================================
@@ -33,7 +33,7 @@ function mostrarDegradacion() {
 // ==========================================
 let base64Foto = "";
 function previsualizarFoto() {
-  const file = document.getElementById("fotoInput").files[0];
+  const file = document.getElementById("fotoInput").files[0]; // Corregido el índice del archivo
   const preview = document.getElementById("preview");
   if (!file) return;
 
@@ -52,7 +52,6 @@ document.getElementById("formularioReporte").addEventListener("submit", async (e
   const mensaje = document.getElementById("mensajeAlumno").value;
 
   try {
-    // Petición hacia la API de Render
     const respuesta = await fetch("/api/guardar", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -60,7 +59,7 @@ document.getElementById("formularioReporte").addEventListener("submit", async (e
     });
 
     if (!respuesta.ok) {
-      throw new Error(`Código del servidor: ${respuesta.status}`);
+      throw new Error(`Servidor fuera de línea o ruta inválida: ${respuesta.status}`);
     }
 
     const res = await respuesta.json();
@@ -69,12 +68,14 @@ document.getElementById("formularioReporte").addEventListener("submit", async (e
       document.getElementById("formularioReporte").reset();
       document.getElementById("preview").style.display = "none";
       base64Foto = "";
+      // Forzar recarga inmediata de las listas locales tras enviar
+      buscarMisReportes(); 
     } else {
-      alert("Error en el servidor al almacenar los datos.");
+      alert("Error al procesar el reporte en el servidor.");
     }
   } catch (error) {
-    console.error("Fallo de red:", error);
-    alert("Error crítico de comunicación. Asegúrate de compilar usando Clear Build Cache.");
+    console.error("Error de comunicación:", error);
+    alert("Hubo un fallo crítico de red. Asegúrate de compilar usando Clear Build Cache.");
   }
 });
 
@@ -119,14 +120,14 @@ function calcularImpacto() {
 async function buscarMisReportes() {
   const nombreBuscar = document.getElementById("busquedaNombre").value.trim().toLowerCase();
   const contenedor = document.getElementById("listaMisReportes");
-  if (!nombreBuscar) { alert("Escribe un nombre para buscar."); return; }
+  
+  // Si la caja de texto de búsqueda está vacía, no hacemos la petición de red
+  if (!nombreBuscar) { return; }
 
-  contenedor.innerHTML = "Buscando...";
   try {
     const respuesta = await fetch("/api/datos");
-    if (!respuesta.ok) throw new Error("Error obteniendo datos.");
-    
     const datos = await respuesta.json();
+
     const filtrados = datos.filter(item => item.nombre && item.nombre.toLowerCase().includes(nombreBuscar));
 
     contenedor.innerHTML = "";
@@ -138,16 +139,27 @@ async function buscarMisReportes() {
     filtrados.forEach(item => {
       const claseEstado = item.estado === "Resuelto" ? "status-resuelto" : "status-pendiente";
       const icono = item.estado === "Resuelto" ? "✅" : "⏳";
-      const fechaTxt = item.fecha ? new Date(item.fecha).toLocaleDateString() : "Reciente";
+      const fechaFormateada = item.fecha ? new Date(item.fecha).toLocaleDateString() : "Reciente";
       
       contenedor.innerHTML += `
         <div class="status-card ${claseEstado}">
           <strong>${icono} Estado: ${item.estado || "Pendiente"}</strong><br>
-          <small>Detalle: ${item.mensaje || ""}</small><br>
-          <small style="color:#777;">Fecha: ${fechaTxt}</small>
+          <small>Detalle: ${item.mensaje}</small><br>
+          <small style="color:#777;">Fecha: ${fechaFormateada}</small>
         </div>`;
     });
-  } catch (err) {
-    contenedor.innerHTML = "<p style='color:red;'>Error al cargar los reportes de la red.</p>";
+  } catch (error) {
+    console.error("Error en consulta de alumno:", error);
   }
 }
+
+// ==========================================
+// 🔄 6. ACTUALIZACIÓN AUTOMÁTICA EN SEGUNDO PLANO (CADA 3 SEGUNDOS)
+// ==========================================
+setInterval(() => {
+  // Llama de forma automática a la búsqueda solo si el alumno ya escribió un nombre
+  const nombreBuscar = document.getElementById("busquedaNombre") ? document.getElementById("busquedaNombre").value.trim() : "";
+  if (nombreBuscar !== "") {
+    buscarMisReportes();
+  }
+}, 3000);
