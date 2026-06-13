@@ -33,7 +33,7 @@ async function cargarDatosAdmin() {
 // 3. RENDERIZAR TARJETAS EN TIEMPO REAL
 // ==========================================
 function renderizarTarjetas(lista) {
-  // Busca el contenedor de tus reportes (utiliza el ID de tu div principal de tarjetas)
+  // Busca el contenedor de tus reportes en el HTML
   const contenedor = document.getElementById("cuerpoTablaAdmin") || document.getElementById("listaReportesAdmin");
   if (!contenedor) return;
 
@@ -89,7 +89,7 @@ function inicializarGraficaVacia() {
     data: {
       labels: ["Pendientes ⏳", "Resueltos ✅"],
       datasets: [{
-        data:, // CORREGIDO: Inicializado de forma segura en ceros
+        data:, // Inicializado correctamente con valores numéricos base
         backgroundColor: ["#EA580C", "#16A34A"],
         borderWidth: 1
       }]
@@ -113,12 +113,13 @@ function actualizarGraficaMetricas(lista) {
     else pendientes++;
   });
 
+  // Modifica los valores internos y actualiza la animación sin recrear el lienzo
   miGrafica.data.datasets[0].data = [pendientes, resueltos];
   miGrafica.update(); 
 }
 
 // ==========================================
-// 5. ACCIONES DE BOTONES (RESOLVER / ELIMINAR)
+// 5. ACCIONES (RESOLVER / ELIMINAR)
 // ==========================================
 async function marcarComoResuelto(id) {
   if (!confirm("¿Deseas marcar este punto de la escuela como Resuelto?")) return;
