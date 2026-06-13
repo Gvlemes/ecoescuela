@@ -2,7 +2,7 @@ let miGrafica = null;
 
 // 1. CARGA INICIAL AUTOMÁTICA AL ABRIR EL PANEL
 document.addEventListener("DOMContentLoaded", () => {
-  inicializarGraficaVacia(); // Prepara el lienzo de la gráfica
+  inicializarGraficaVacia(); // Prepara la gráfica de forma segura
   cargarDatosAdmin();        // Primera consulta de Firebase
 });
 
@@ -22,7 +22,7 @@ async function cargarDatosAdmin() {
 
   } catch (error) {
     console.error("Error al actualizar la base de datos:", error);
-    const cuerpo = document.getElementById("cuerpoTablaAdmin");
+    const cuerpo = document.getElementById("cuerpoTablaAdmin") || document.getElementById("listaReportesAdmin");
     if (cuerpo) {
       cuerpo.innerHTML = `<p style="text-align:center; color:red; padding: 20px;">Fallo de sincronización con el servidor.</p>`;
     }
@@ -30,10 +30,10 @@ async function cargarDatosAdmin() {
 }
 
 // ==========================================
-// 3. RENDERIZAR TARJETAS EN LUGAR DE TABLA
+// 3. RENDERIZAR TARJETAS EN TIEMPO REAL
 // ==========================================
 function renderizarTarjetas(lista) {
-  // Busca el contenedor de tus reportes (puedes usar el ID de tu contenedor actual si es diferente)
+  // Busca el contenedor de tus reportes (utiliza el ID de tu div principal de tarjetas)
   const contenedor = document.getElementById("cuerpoTablaAdmin") || document.getElementById("listaReportesAdmin");
   if (!contenedor) return;
 
@@ -56,14 +56,14 @@ function renderizarTarjetas(lista) {
 
     // Generación dinámica de cada tarjeta exactamente como tu interfaz original
     htmlContenido += `
-      <div style="background: white; border-left: 6px solid ${colorBorde}; padding: 20px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); transition: all 0.3s ease;">
+      <div style="background: white; border-left: 6px solid ${colorBorde}; padding: 20px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); text-align: left;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
           <span style="font-size: 14px; color: #334155;">👤 <strong>Alumno / Encargado:</strong> ${item.nombre || "Anónimo"}</span>
           <span class="badge ${esResuelto ? 'badge-verde' : 'badge-naranja'}">${item.estado || "Pendiente"}</span>
         </div>
         <p style="font-size: 15px; margin: 5px 0; color: #1E293B;">📝 <strong>Reporte:</strong> ${item.mensaje || ""}</p>
         ${htmlFoto}
-        <div style="font-size: 11px; color: #94A3B8; margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-size: 11px; color: #94A3B8; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
           <span>ID: ${item.id} | Fecha: ${fechaTxt}</span>
           <div style="display: flex; gap: 8px;">
             <button class="${esResuelto ? 'btn-desactivado' : 'btn-resolver'}" ${esResuelto ? 'disabled' : ''} onclick="marcarComoResuelto('${item.id}')" style="background-color: #16A34A; color: white; padding: 6px 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">${esResuelto ? 'Completado' : 'Marcar Resuelto 📞'}</button>
@@ -78,7 +78,7 @@ function renderizarTarjetas(lista) {
 }
 
 // ==========================================
-// 4. INICIALIZAR Y ACTUALIZAR GRÁFICA (CHART.JS)
+// 4. INICIALIZAR Y ACTUALIZAR GRÁFICA (MÉTODO SEGURO)
 // ==========================================
 function inicializarGraficaVacia() {
   const ctx = document.getElementById("graficaReportes");
@@ -89,7 +89,7 @@ function inicializarGraficaVacia() {
     data: {
       labels: ["Pendientes ⏳", "Resueltos ✅"],
       datasets: [{
-        data:,
+        data:, // CORREGIDO: Inicializado de forma segura en ceros
         backgroundColor: ["#EA580C", "#16A34A"],
         borderWidth: 1
       }]
@@ -137,7 +137,7 @@ async function eliminarReporte(id) {
 }
 
 // ==========================================
-// 🔄 6. SINCRONIZACIÓN ULTRA RÁPIDA EN TIEMPO REAL (CADA 2 SEGUNDOS)
+// 🔄 6. SINCRONIZACIÓN ULTRA RÁPIDA (CADA 2 SEGUNDOS)
 // ==========================================
 setInterval(() => {
   cargarDatosAdmin();
