@@ -1,86 +1,78 @@
-const express = require('express');
-const path = require('path');
-const PDFDocument = require('pdfkit');
-const admin = require('firebase-admin');
+import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+import { db } from "./admin.js"; // Asegúrate de que admin.js también esté dentro de la carpeta src
+
+dotenv.config();
 
 const app = express();
-// Render asigna un puerto dinámico mediante la variable de entorno PORT
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Aumentamos el límite de tamaño para poder recibir las fotos en Base64 sin problemas
+app.use(express.json({ limit: "15mb" }));
+app.use(express.urlencoded({ limit: "15mb", extended: true }));
+
+// CORRECCIÓN DE RUTA: Como index.js está dentro de 'src', subimos un nivel ('..') para encontrar la carpeta 'public'
+app.use(express.static(path.join(__dirname, "..", "public")));
+
+// RUTA 1: Guardar un reporte (con foto y estado pendiente)
+app.post("/api/guardar", async (req, res) => {
+  try {
+    const { nombre, mensaje, foto, estado } = req.body;
+    
+    const nuevoDoc = await db.collection("reportes").add({
+      nombre: nombre || "Anónimo",
+      mensaje: mensaje || "",
+      foto: foto || "", 
+      estado: estado || "Pendiente", 
+      fecha: new Date().toISOString()
+    });
+
+    res.status(201).json({ ok: true, id: nuevoDoc.id, msg: "¡Guardado en Firestore!" });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
+// RUTA 2: Obtener todos los datos almacenados
+app.get("/api/datos", async (req, res) => {
+  try {
+    const snapshot = await db.collection("reportes").get();
+    const datos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    // Ordenamos por fecha directamente en Node.js para evitar errores de índices en Firestore
+    datos.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+    
+    res.status(200).json(datos);
+  } catch (error) {
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
+// RUTA 3: Permitir al administrador cambiar el estado a "Resuelto"
+app.put("/api/resolver/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    await db.collection("reportes").doc(id).update({ estado: "Resuelto" });
+    res.status(200).json({ ok: true, msg: "Reporte marcado como resuelto" });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
+// RUTA 4: Eliminar un reporte de Firestore usando su ID único
+app.delete("/api/eliminar/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    await db.collection("reportes").doc(id).delete();
+    res.status(200).json({ ok: true, msg: "Documento eliminado correctamente" });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
-
-// Middleware para procesar JSON y formularios
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Servir la carpeta estática "src/public" correctamente
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Inicializar Firebase Admin buscando 'llave.json' en la raíz del proyecto
-try {
-    if (!admin.apps.length) {
-        // En Render, process.cwd() apunta a la raíz del repositorio
-        const serviceAccountPath = path.join(process.cwd(), 'llave.json');
-        admin.initializeApp({
-            credential: admin.credential.cert(require(serviceAccountPath))
-        });
-        console.log("Firebase inicializado correctamente.");
-    }
-} catch (error) {
-    console.error('Error crítico inicializando Firebase:', error);
-}
-
-const db = admin.firestore();
-
-// Endpoint para guardar en Firebase y generar el PDF
-app.post('/api/reporte', async (req, res) => {
-    const { escuela, direccion, observaciones } = req.body;
-
-    if (!escuela || !direccion) {
-        return res.status(400).json({ error: 'Faltan campos obligatorios' });
-    }
-
-    try {
-        // 1. Guardar los datos del reporte en Firestore
-        await db.collection('reportes').add({
-            escuela,
-            direccion,
-            observaciones: observaciones || 'No se registraron observaciones adicionales.',
-            fechaCreacion: admin.firestore.FieldValue.serverTimestamp()
-        });
-
-        // 2. Configurar la respuesta HTTP para descargar el PDF al instante
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename=reporte_${escuela.replace(/\s+/g, '_')}.pdf`);
-
-        // 3. Crear el PDF en memoria y enviarlo directamente al cliente
-        const doc = new PDFDocument({ margin: 50 });
-        doc.pipe(res);
-
-        // --- Estructura visual del PDF ---
-        doc.fillColor('#1A365D').font('Helvetica-Bold').fontSize(26).text('REPORTE DE INFRAESTRUCTURA', { align: 'center' });
-        doc.moveDown(0.5);
-        doc.moveTo(50, doc.y).lineTo(562, doc.y).strokeColor('#CBD5E1').stroke();
-        doc.moveDown(1.5);
-
-        doc.fillColor('#334155').font('Helvetica-Bold').fontSize(14).text('Datos del Establecimiento:');
-        doc.moveDown(0.5);
-        doc.font('Helvetica').fontSize(12).fillColor('#000000');
-        doc.text(`Escuela: `, { continued: true }).font('Helvetica-Bold').text(escuela);
-        doc.font('Helvetica').text(`Dirección: `, { continued: true }).font('Helvetica-Bold').text(direccion);
-        doc.moveDown(1.5);
-
-        doc.fillColor('#334155').font('Helvetica-Bold').fontSize(14).text('Observaciones / Diagnóstico:');
-        doc.moveDown(0.5);
-        doc.font('Helvetica').text(observaciones || 'No se registraron observaciones adicionales.', { align: 'justify', lineGap: 4 });
-
-        doc.end();
-
-    } catch (error) {
-        console.error('Error procesando el reporte:', error);
-        res.status(500).json({ error: 'Error interno al procesar el reporte' });
-    }
-});
-
-// En Render el servidor SI debe quedarse escuchando siempre
-app.listen(PORT, () => {
-    console.log(`Servidor activo en el puerto ${PORT}`);
-});
+app.listen(PORT, () => console.log(`🚀 Servidor listo en http://localhost:${PORT}`));
