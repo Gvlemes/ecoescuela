@@ -1,21 +1,15 @@
-// Variable global para almacenar el objeto de Chart.js
 let miGrafica = null;
 
-// Variables globales para el reloj del indicador visual
 let segundosRestantes = 10;
 const textoContador = document.getElementById("texto-contador");
 const circuloPulso = document.getElementById("circulo-pulso");
 const contenedorIndicador = document.getElementById("indicador-actualizacion");
 
-// 1. CARGA INICIAL AUTOMÁTICA
 document.addEventListener("DOMContentLoaded", () => {
   cargarDatosAdmin();
   iniciarRelojContador();
 });
 
-// ==========================================
-// 2. LEER REPORTES DESDE EL BACKEND (RENDER)
-// ==========================================
 async function cargarDatosAdmin() {
   try {
     const respuesta = await fetch("/api/datos");
@@ -23,7 +17,6 @@ async function cargarDatosAdmin() {
     
     const datos = await respuesta.json();
     
-    // Inyectar la información en la tabla y en la gráfica
     renderizarTabla(datos);
     actualizarGraficaMetricas(datos);
 
@@ -36,9 +29,6 @@ async function cargarDatosAdmin() {
   }
 }
 
-// ==========================================
-// 3. RENDERIZAR TABLA HTML DE REPORTES
-// ==========================================
 function renderizarTabla(lista) {
   const cuerpoTabla = document.getElementById("cuerpoTablaAdmin");
   if (!cuerpoTabla) return;
@@ -54,7 +44,6 @@ function renderizarTabla(lista) {
     const textoBoton = esResuelto ? "✅ Atendido" : "⏳ Resolver";
     const claseBtn = esResuelto ? "btn-desactivado" : "btn-resolver";
     
-    // Condicional para pintar la imagen si viene cargada en Base64
     const htmlFoto = item.foto 
       ? `<img src="${item.foto}" style="width:50px; height:50px; object-fit:cover; border-radius:4px; border: 1px solid #CBD5E1;" alt="Evidencia">` 
       : `<span style="color:#94A3B8; font-size:11px;">Sin evidencia</span>`;
@@ -74,9 +63,6 @@ function renderizarTabla(lista) {
   });
 }
 
-// ==========================================
-// 4. CONTROLADOR DE LA GRÁFICA CIRCULAR
-// ==========================================
 function actualizarGraficaMetricas(lista) {
   const ctx = document.getElementById("graficaReportes");
   if (!ctx) return;
@@ -89,7 +75,6 @@ function actualizarGraficaMetricas(lista) {
     else pendientes++;
   });
 
-  // Rompemos la instancia previa para refrescar los datos de la gráfica limpiamente
   if (miGrafica) {
     miGrafica.destroy();
   }
@@ -114,9 +99,6 @@ function actualizarGraficaMetricas(lista) {
   });
 }
 
-// ==========================================
-// 5. ACCIÓN: MARCAR REPORTES COMO ATENDIDOS
-// ==========================================
 async function marcarComoResuelto(id) {
   if (!confirm("¿Deseas marcar este punto de la escuela como Resuelto?")) return;
   try {
@@ -131,11 +113,8 @@ async function marcarComoResuelto(id) {
   }
 }
 
-// ==========================================
-// 6. ACCIÓN: ELIMINAR REPORTES EN FIRESTORE
-// ==========================================
 async function eliminarReporte(id) {
-  if (!confirm("¿Seguro que deseas eliminar este reporte permanentemente de la base de datos?")) return;
+  if (!confirm("¿Estás seguro de eliminar este reporte permanentemente?")) return;
   try {
     const respuesta = await fetch(`/api/eliminar/${id}`, { method: "DELETE" });
     if (respuesta.ok) {
@@ -149,7 +128,7 @@ async function eliminarReporte(id) {
 }
 
 // ==========================================
-// 🔄 7. RELOJ DE CUENTA REGRESIVA (10 SEGUNDOS)
+// 🔄 7. TU AGREGADO DE ACTUALIZACIÓN AUTOMÁTICA
 // ==========================================
 function iniciarRelojContador() {
   if (textoContador) textoContador.innerHTML = `Actualizando en ${segundosRestantes}s...`;
@@ -161,9 +140,8 @@ function iniciarRelojContador() {
       textoContador.innerHTML = `Actualizando en ${segundosRestantes}s...`;
     }
 
-    // Al llegar a cero, sincroniza y cambia a modo alerta naranja temporalmente
     if (segundosRestantes <= 0) {
-      segundosRestantes = 10; // Reseteamos la cuenta regresiva
+      segundosRestantes = 10; 
 
       if (textoContador) textoContador.innerHTML = "🔄 Sincronizando red...";
       if (circuloPulso) circuloPulso.style.backgroundColor = "#EA580C";
@@ -172,9 +150,7 @@ function iniciarRelojContador() {
         contenedorIndicador.style.color = "#E65100";
       }
 
-      // Hacemos el fetch en segundo plano sin interrumpir la vista
       cargarDatosAdmin().then(() => {
-        // Al terminar de pintar, regresamos al indicador de pulso verde regular
         setTimeout(() => {
           if (circuloPulso) circuloPulso.style.backgroundColor = "#1B5E20";
           if (contenedorIndicador) {
@@ -184,5 +160,5 @@ function iniciarRelojContador() {
         }, 800);
       });
     }
-  }, 1000); // Latido exacto de un segundo
+  }, 1000);
 }
