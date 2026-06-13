@@ -1,10 +1,10 @@
-// CONFIGURACIÓN DE FIREBASE COMPATIBLE
+// CONFIGURACIÓN DE FIREBASE CORREGIDA (escuelalimpia con I)
 const firebaseConfig = {
   apiKey: "AIzaSyCCVjAAdkiNMIB3odwWXDUBbGurE9bgZYM",
   authDomain: "://firebaseapp.com",
   databaseURL: "https://firebaseio.com",
-  projectId: "escuelalimpla",
-  storageBucket: "escuelalimpla.firebasestorage.app",
+  projectId: "escuelalimpia",
+  storageBucket: "escuelalimpia.firebasestorage.app",
   messagingSenderId: "13533291736",
   appId: "1:13533291736:web:e3e8d514addb119fc4a3ad",
   measurementId: "G-KV3Y0V117P"
@@ -42,7 +42,7 @@ function cambiarPestana(idSeccion, botonActivo) {
     if (idSeccion === 'mis-reportes' && db) escucharMisReportes();
 }
 
-// LOGICA DEGRADACIÓN ORIGINAL CORREGIDA
+// LOGICA DEGRADACIÓN
 function mostrarDegradacion() {
     const combo = document.getElementById('comboMateriales');
     const resultado = document.getElementById('resultadoDegradacion');
@@ -61,7 +61,7 @@ function mostrarDegradacion() {
     }
 }
 
-// CALCULADORA REINTEGRADA ORIGINAL
+// CALCULADORA REINTEGRADA
 function calcularImpacto() {
     const botellas = parseInt(document.getElementById('cantBotellas').value) || 0;
     const totalAnual = botellas * 52;
@@ -77,7 +77,7 @@ function calcularImpacto() {
     }
 }
 
-// PREVISUALIZAR Y COMPRIMIR FOTOS AUTOMÁTICAMENTE
+// PREVISUALIZAR Y COMPRIMIR FOTOS
 function previsualizarFoto(input) {
     const vistaPrevia = document.getElementById('vistaPrevia');
     if (input.files && input.files[0]) {
@@ -107,7 +107,7 @@ function previsualizarFoto(input) {
     }
 }
 
-// GUARDAR REPORTE SEGURO
+// GUARDAR REPORTE
 function guardarReporteFirebase(event) {
     if (event) event.preventDefault();
     const msg = document.getElementById('mensajeEnvio');
@@ -181,7 +181,7 @@ function escucharMisReportes() {
     });
 }
 
-// ESCUCHAS ADMINISTRADOR (ACOMODO LIMPIO)
+// ESCUCHAS ADMINISTRADOR
 function escucharReportesAdmin() {
     const contenedorAdmin = document.getElementById('contenedorReportesAdmin');
     if (!contenedorAdmin || !db) return;
@@ -224,4 +224,3 @@ function borrarHistorialTotal() {
         db.ref('reportes').remove();
     }
 }
-
