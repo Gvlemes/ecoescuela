@@ -1,6 +1,7 @@
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
+import { existsSync } from "fs";
 import dotenv from "dotenv";
 import { initializeApp, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
@@ -17,8 +18,13 @@ const __dirname = path.dirname(__filename);
 app.use(express.json({ limit: "15mb" }));
 app.use(express.urlencoded({ limit: "15mb", extended: true }));
 
-// Servir los archivos web de la carpeta public que está afuera de src
-app.use(express.static(path.join(__dirname, "..", "public")));
+// === CORRECCIÓN CLAVE DE RUTA PARA EVITAR EL 'CANNOT GET' ===
+// Busca la carpeta public tanto afuera de src como adentro por si acaso
+const rutaPublica = existsSync(path.join(__dirname, "..", "public")) 
+  ? path.join(__dirname, "..", "public") 
+  : path.join(__dirname, "public");
+
+app.use(express.static(rutaPublica));
 
 // Inicialización segura de Firebase Admin mediante la variable de Render
 let adminApp;
@@ -44,13 +50,13 @@ const db = getFirestore(adminApp);
 // ==========================================
 app.post("/api/guardar", async (req, res) => {
   try {
-    const { nombre, mensaje, foto, estado } = req.body;
+    const { nombre, mensaje, foto } = req.body;
     
     const nuevoDoc = await db.collection("reportes").add({
       nombre: nombre || "Anónimo",
       mensaje: mensaje || "",
       foto: foto || "", 
-      estado: estado || "Pendiente", 
+      estado: "Pendiente", 
       fecha: new Date().toISOString()
     });
 
@@ -78,7 +84,7 @@ app.get("/api/datos", async (req, res) => {
   }
 });
 
-// Forzar al servidor a usar el puerto por defecto o el que Render asigne
+// Forzar al servidor a usar el puerto que Render asigne o el 3000 por defecto
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Servidor activo de forma correcta en el puerto ${PORT}`);
