@@ -51,20 +51,30 @@ document.getElementById("formularioReporte").addEventListener("submit", async (e
   const nombre = document.getElementById("nombreAlumno").value;
   const mensaje = document.getElementById("mensajeAlumno").value;
 
-  const respuesta = await fetch("/api/guardar", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nombre, mensaje, foto: base64Foto, estado: "Pendiente" })
-  });
+  try {
+    // MODIFICACIÓN DE SEGURIDAD EN LÍNEA 54
+    const respuesta = await fetch("/api/guardar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nombre, mensaje, foto: base64Foto, estado: "Pendiente" })
+    });
 
-  const res = await respuesta.json();
-  if (res.ok) {
-    alert("¡Reporte enviado con éxito! Puedes consultar su estado en la sección 'Mi Reporte' usando tu nombre.");
-    document.getElementById("formularioReporte").reset();
-    document.getElementById("preview").style.display = "none";
-    base64Foto = "";
-  } else {
-    alert("Error al enviar el reporte.");
+    if (!respuesta.ok) {
+      throw new Error(`Servidor fuera de línea o ruta inválida: ${respuesta.status}`);
+    }
+
+    const res = await respuesta.json();
+    if (res.ok) {
+      alert("¡Reporte enviado con éxito! Puedes consultar su estado en la sección 'Mi Reporte' usando tu nombre.");
+      document.getElementById("formularioReporte").reset();
+      document.getElementById("preview").style.display = "none";
+      base64Foto = "";
+    } else {
+      alert("Error al procesar el reporte en el servidor.");
+    }
+  } catch (error) {
+    console.error("Error de comunicación:", error);
+    alert("Hubo un fallo crítico de red. Asegúrate de compilar usando Clear Build Cache.");
   }
 });
 
@@ -82,7 +92,7 @@ function calcularImpacto() {
   // Lógica dinámica basada en la cantidad ingresada
   if (botellas === 0) {
     claseAlerta = "verde";
-    recomendacion = "🌟 <strong>¡Increíble, nivel Héroe Ecológico!</strong> Sigue así, estás cuidando al planeta al máximo al no generar estos residuos.";
+    recommendación = "🌟 <strong>¡Increíble, nivel Héroe Ecológico!</strong> Sigue así, estás cuidando al planeta al máximo al no generar estos residuos.";
   } else if (botellas >= 1 && botellas <= 3) {
     claseAlerta = "verde";
     recomendacion = "👍 <strong>¡Buen trabajo!</strong> Tu consumo es bajo. Intenta sustituirlas por completo usando un termo reutilizable en la escuela.";
