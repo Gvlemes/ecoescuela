@@ -1,13 +1,12 @@
 let miGrafica = null;
 
+// Movemos los segundos aquí para que sean accesibles de forma global
 let segundosRestantes = 10;
-const textoContador = document.getElementById("texto-contador");
-const circuloPulso = document.getElementById("circulo-pulso");
-const contenedorIndicador = document.getElementById("indicador-actualizacion");
 
+// 1. CARGA INICIAL AUTOMÁTICA (Espera a que el HTML esté 100% dibujado)
 document.addEventListener("DOMContentLoaded", () => {
   cargarDatosAdmin();
-  iniciarRelojContador();
+  iniciarRelojContador(); // Inicia el reloj de forma segura
 });
 
 async function cargarDatosAdmin() {
@@ -128,10 +127,17 @@ async function eliminarReporte(id) {
 }
 
 // ==========================================
-// 🔄 7. TU AGREGADO DE ACTUALIZACIÓN AUTOMÁTICA
+// 🔄 7. CONTROLADOR SEGURO DE CONTEO Y REFRESCO
 // ==========================================
 function iniciarRelojContador() {
-  if (textoContador) textoContador.innerHTML = `Actualizando en ${segundosRestantes}s...`;
+  // Capturamos los elementos estrictamente AQUÍ, cuando el DOM already cargó
+  const textoContador = document.getElementById("texto-contador");
+  const circuloPulso = document.getElementById("circulo-pulso");
+  const contenedorIndicador = document.getElementById("indicador-actualizacion");
+
+  if (textoContador) {
+    textoContador.innerHTML = `Actualizando en ${segundosRestantes}s...`;
+  }
 
   setInterval(() => {
     segundosRestantes--;
@@ -141,7 +147,7 @@ function iniciarRelojContador() {
     }
 
     if (segundosRestantes <= 0) {
-      segundosRestantes = 10; 
+      segundosRestantes = 10; // Reinicio automático
 
       if (textoContador) textoContador.innerHTML = "🔄 Sincronizando red...";
       if (circuloPulso) circuloPulso.style.backgroundColor = "#EA580C";
@@ -150,6 +156,7 @@ function iniciarRelojContador() {
         contenedorIndicador.style.color = "#E65100";
       }
 
+      // Consigue los datos de Render de fondo
       cargarDatosAdmin().then(() => {
         setTimeout(() => {
           if (circuloPulso) circuloPulso.style.backgroundColor = "#1B5E20";
