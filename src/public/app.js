@@ -1,10 +1,10 @@
-// CONFIGURACIÓN DE FIREBASE
+// CONFIGURACIÓN DE FIREBASE COMPATIBLE
 const firebaseConfig = {
   apiKey: "AIzaSyCCVjAAdkiNMIB3odwWXDUBbGurE9bgZYM",
   authDomain: "://firebaseapp.com",
   databaseURL: "https://firebaseio.com",
-  projectId: "escuelalimpia",
-  storageBucket: "escuelalimpia.firebasestorage.app",
+  projectId: "escuelalimpla",
+  storageBucket: "escuelalimpla.firebasestorage.app",
   messagingSenderId: "13533291736",
   appId: "1:13533291736:web:e3e8d514addb119fc4a3ad",
   measurementId: "G-KV3Y0V117P"
@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// PESTAÑAS
+// PESTAÑAS VISTA ALUMNO
 function cambiarPestana(idSeccion, botonActivo) {
     document.querySelectorAll('.tab-content').forEach(seccion => seccion.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -42,7 +42,7 @@ function cambiarPestana(idSeccion, botonActivo) {
     if (idSeccion === 'mis-reportes' && db) escucharMisReportes();
 }
 
-// DEGRADACIÓN
+// LOGICA DEGRADACIÓN ORIGINAL CORREGIDA
 function mostrarDegradacion() {
     const combo = document.getElementById('comboMateriales');
     const resultado = document.getElementById('resultadoDegradacion');
@@ -61,7 +61,7 @@ function mostrarDegradacion() {
     }
 }
 
-// CALCULADORA
+// CALCULADORA REINTEGRADA ORIGINAL
 function calcularImpacto() {
     const botellas = parseInt(document.getElementById('cantBotellas').value) || 0;
     const totalAnual = botellas * 52;
@@ -77,7 +77,7 @@ function calcularImpacto() {
     }
 }
 
-// 🚨 FUNCIÓN COMPRESORA: Reduce el tamaño de la foto para que Firebase la acepte
+// PREVISUALIZAR Y COMPRIMIR FOTOS AUTOMÁTICAMENTE
 function previsualizarFoto(input) {
     const vistaPrevia = document.getElementById('vistaPrevia');
     if (input.files && input.files[0]) {
@@ -86,9 +86,8 @@ function previsualizarFoto(input) {
             const img = new Image();
             img.src = e.target.result;
             img.onload = function() {
-                // Crear un lienzo (canvas) para reducir la imagen
                 const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 400; // Reducimos el ancho máximo a 400px para que sea ultra ligera
+                const MAX_WIDTH = 400; 
                 const scaleSize = MAX_WIDTH / img.width;
                 canvas.width = MAX_WIDTH;
                 canvas.height = img.height * scaleSize;
@@ -96,11 +95,9 @@ function previsualizarFoto(input) {
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-                // Convertir a Base64 optimizado con calidad media (0.6)
                 const dataUrlOptimizada = canvas.toDataURL('image/jpeg', 0.6);
-                
                 vistaPrevia.innerHTML = `<img src="${dataUrlOptimizada}" alt="Vista previa" style="max-width: 100%; max-height: 120px;">`;
-                fotoBase64Global = dataUrlOptimizada; // Guardamos la foto ya ligera
+                fotoBase64Global = dataUrlOptimizada; 
             };
         };
         lector.readAsDataURL(input.files[0]);
@@ -110,7 +107,7 @@ function previsualizarFoto(input) {
     }
 }
 
-// GUARDAR REPORTE
+// GUARDAR REPORTE SEGURO
 function guardarReporteFirebase(event) {
     if (event) event.preventDefault();
     const msg = document.getElementById('mensajeEnvio');
@@ -126,7 +123,7 @@ function guardarReporteFirebase(event) {
     const nuevoReporte = {
         nombre: nombre,
         problema: problema,
-        foto: fotoBase64Global, // Envía la foto comprimida y segura
+        foto: fotoBase64Global, 
         fecha: new Date().toLocaleString(),
         solucionado: false 
     };
@@ -144,11 +141,11 @@ function guardarReporteFirebase(event) {
         })
         .catch((error) => {
             console.error("Error Firebase:", error);
-            if (msg) msg.innerHTML = `<div class="panel-alerta naranja">Error al guardar. Archivo demasiado pesado o error de red.</div>`;
+            if (msg) msg.innerHTML = `<div class="panel-alerta naranja">Error al guardar el reporte en la base de datos.</div>`;
         });
 }
 
-// ESCUCHAS
+// ESCUCHAS ALUMNO
 function escucharMisReportes() {
     const contenedor = document.getElementById('listaMisReportes');
     if (!contenedor || !db) return;
@@ -184,6 +181,7 @@ function escucharMisReportes() {
     });
 }
 
+// ESCUCHAS ADMINISTRADOR (ACOMODO LIMPIO)
 function escucharReportesAdmin() {
     const contenedorAdmin = document.getElementById('contenedorReportesAdmin');
     if (!contenedorAdmin || !db) return;
@@ -207,10 +205,10 @@ function escucharReportesAdmin() {
                 <strong>👤 Autor:</strong> ${r.nombre} <br>
                 <strong>📅 Recibido:</strong> ${r.fecha} <br>
                 <strong>🚨 Incidencia:</strong> ${r.problema} <br>
-                ${r.foto ? `<img src="${r.foto}" style="max-width:100%; max-height:200px; margin-top:10px; display:block;">` : ''}
+                ${r.foto ? `<img src="${r.foto}" class="img-admin">` : ''}
                 <div style="margin-top: 10px; margin-bottom:10px;">Estado: ${textoEstado}</div>
-                <button class="btn-status btn-resolver" onclick="cambiarEstadoReporte('${key}', true)" style="padding: 6px 12px; background-color: #2E7D32; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right:5px;">Marcar Solucionado</button>
-                <button class="btn-status btn-pendiente" onclick="cambiarEstadoReporte('${key}', false)" style="padding: 6px 12px; background-color: #EF6C00; color: white; border: none; border-radius: 4px; cursor: pointer;">Poner en Espera</button>
+                <button class="btn-status btn-resolver" onclick="cambiarEstadoReporte('${key}', true)">Marcar Solucionado</button>
+                <button class="btn-status btn-pendiente" onclick="cambiarEstadoReporte('${key}', false)">Poner en Espera</button>
             `;
             contenedorAdmin.appendChild(tarjeta);
         });
@@ -226,6 +224,4 @@ function borrarHistorialTotal() {
         db.ref('reportes').remove();
     }
 }
-Usa el código con precaución.🚀 Sube la actualización finalReemplaza tu archivo app.js local, guarda los cambios y mándalos a producción:bashgit add .
-git commit -m "Fix: Compresión de imágenes integrada para evitar bloqueos en Firebase"
-git push origin main
+
