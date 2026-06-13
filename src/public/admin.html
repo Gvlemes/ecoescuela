@@ -4,217 +4,66 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel de Administración - Escuela Limpia</title>
+  <!-- Cargamos Chart.js para las gráficas en tiempo real -->
   <script src="https://jsdelivr.net"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-    body { background-color: #f1f5f9; color: #334155; padding: 20px; display: none; }
-    .contenedor { max-width: 900px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-    h1 { color: #1e293b; margin-bottom: 8px; font-size: 24px; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; }
-    p { color: #64748b; margin-bottom: 20px; font-size: 14px; }
-    .grafica-seccion { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 25px; height: 320px; }
-    .item-admin { background: #f8fafc; padding: 20px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 12px; position: relative; }
-    .item-admin.pendiente { border-left: 6px solid #eab308; }
-    .item-admin.resuelto { border-left: 6px solid #22c55e; background: #f0fdf4; }
-    .info { font-size: 15px; line-height: 1.6; }
-    .meta { font-size: 12px; color: #94a3b8; margin-top: 5px; }
-    .badge { display: inline-block; padding: 3px 8px; font-size: 12px; font-weight: bold; border-radius: 4px; margin-left: 5px; }
-    .badge.pendiente { background: #fef9c3; color: #854d0e; }
-    .badge.resuelto { background: #dcfce7; color: #166534; }
-    .foto-reporte { max-width: 200px; max-height: 150px; border-radius: 6px; border: 1px solid #cbd5e1; margin-top: 5px; display: block; object-fit: cover; }
-    .acciones { display: flex; gap: 10px; margin-top: 5px; justify-content: flex-end; }
-    .btn { padding: 8px 16px; font-size: 13px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
-    .btn-resolver { background-color: #22c55e; color: white; }
-    .btn-resolver:hover { background-color: #16a34a; }
-    .btn-borrar { background-color: #ef4444; color: white; }
-    .btn-borrar:hover { background-color: #dc2626; }
+    body { background-color: #F8FAFC; color: #1E293B; padding: 20px; }
+    header { margin-bottom: 25px; border-bottom: 2px solid #E2E8F0; padding-bottom: 15px; max-width: 1200px; margin-left: auto; margin-right: auto; }
+    h1 { color: #1E3A8A; margin-bottom: 5px; }
+    
+    .contenedor-admin { display: flex; flex-wrap: wrap; gap: 20px; max-width: 1200px; margin: 0 auto; }
+    .seccion-izquierda { flex: 2; min-width: 300px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); text-align: center; }
+    .seccion-derecha { flex: 1; min-width: 280px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); height: fit-content; }
+    
+    h3 { margin-bottom: 15px; color: #334155; border-bottom: 1px solid #EDF2F7; padding-bottom: 8px; text-align: left; }
+    
+    /* BADGES DE ESTADO */
+    .badge { padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; display: inline-block; }
+    .badge-naranja { background-color: #FFEDD5; color: #EA580C; }
+    .badge-verde { background-color: #DCFCE7; color: #16A34A; }
+    
+    /* BOTONES */
+    .btn-desactivado { background-color: #E2E8F0; color: #94A3B8; cursor: not-allowed; }
+    
+    /* CONTENEDOR DE LA GRÁFICA */
+    .canvas-container { position: relative; height: 260px; width: 100%; }
   </style>
 </head>
 <body>
 
-  <div class="contenedor">
-    <h1>🔑 Panel de Administración (Base de Datos)</h1>
-    <p>Monitorea las métricas del proyecto, revisa las evidencias enviadas y gestiona los estados de los reportes.</p>
+  <header>
+    <h1>🔑 Panel de Administración</h1>
+    <p style="color: #64748B; font-size: 14px;">Monitoreo de métricas y gestión de puntos sucios en tiempo real.</p>
+  </header>
 
-    <div class="grafica-seccion">
-      <canvas id="graficaReportes"></canvas>
-    </div>
+  <main class="contenedor-admin">
+    
+    <!-- Contenedor Izquierdo: Listado de Tarjetas Dinámicas -->
+    <section class="seccion-izquierda">
+      <h3>📋 Listado General de Reportes</h3>
+      
+      <!-- Este contenedor recibirá las tarjetas inyectadas desde admin.js de forma instantánea -->
+      <div id="cuerpoTablaAdmin">
+        <p style="text-align: center; color: #64748B; padding: 20px;">Sincronizando con la red de Firebase...</p>
+      </div>
+    </section>
 
-    <h2>📋 Listado General de Reportes</h2>
-    <br>
-    <div id="lista-admin">Cargando reportes del sistema...</div>
-  </div>
+    <!-- Contenedor Derecho: Gráficas de Pastel de Chart.js -->
+    <section class="seccion-derecha">
+      <h3>📊 Estado Operativo</h3>
+      <div class="canvas-container">
+        <canvas id="graficaReportes"></canvas>
+      </div>
+    </section>
 
-  <script>
-    const CONTRASEÑA_CORRECTA = "admin123"; 
+  </main>
 
-    function validarAcceso() {
-      const intento = prompt("Introduce la contraseña de administrador para acceder:");
-      if (intento === CONTRASEÑA_CORRECTA) {
-        document.body.style.display = "block"; 
-        consultarReportes(); 
-      } else {
-        alert("Contraseña incorrecta. Acceso denegado.");
-        window.location.href = "/index.html"; 
-      }
-    }
+  <!-- LIBRERÍA DE WEBSOCKETS OBLIGATORIA (Suministrada automáticamente por el servidor Node) -->
+  <script src="/socket.io/socket.io.js"></script>
 
-    const listaAdmin = document.getElementById("lista-admin");
-    let miGrafica = null; 
+  <!-- Script con tu lógica de renderizado de tarjetas sin caché de navegador -->
+  <script src="admin.js?v=3.0"></script>
 
-    async function consultarReportes() {
-      try {
-        const respuesta = await fetch("/api/datos");
-        const datos = await respuesta.json();
-        
-        listaAdmin.innerHTML = "";
-        if (!datos || datos.length === 0) {
-          listaAdmin.innerHTML = "<p>No hay reportes registrados en la base de datos.</p>";
-          inicializarGrafica([]); 
-          return;
-        }
-
-        datos.forEach(item => {
-          const div = document.createElement("div");
-          const esResuelto = item.estado === "Resuelto";
-          
-          div.className = `item-admin ${esResuelto ? 'resuelto' : 'pendiente'}`;
-          const htmlFoto = item.foto ? `<img src="${item.foto}" class="foto-reporte" alt="Evidencia">` : "";
-          
-          const botonResolver = !esResuelto 
-            ? `<button class="btn btn-resolver" onclick="marcarResuelto('${item.id}')">Marcar Resuelto ✅</button>` 
-            : `<span class="badge resuelto">Completado</span>`;
-
-          // Manejar fechas inexistentes de pruebas viejas de forma segura
-          const fechaFormateada = item.fecha ? new Date(item.fecha).toLocaleString() : "Sin fecha registrada";
-
-          div.innerHTML = `
-            <div class="info">
-              <strong>👤 Alumno / Encargado:</strong> ${item.nombre} 
-              <span class="badge ${esResuelto ? 'resuelto' : 'pendiente'}">${item.estado || 'Pendiente'}</span>
-              <br>
-              <strong>📝 Reporte:</strong> ${item.mensaje}
-              ${htmlFoto}
-              <div class="meta">ID: ${item.id} | Fecha: ${fechaFormateada}</div>
-            </div>
-            <div class="acciones">
-              ${botonResolver}
-              <button class="btn btn-borrar" onclick="eliminarReporte('${item.id}')">Eliminar 🗑️</button>
-            </div>
-          `;
-          listaAdmin.appendChild(div);
-        });
-
-        inicializarGrafica(datos);
-
-      } catch (error) {
-        console.error(error);
-        listaAdmin.innerHTML = "<p style='color:red;'>Error al procesar la información o conectar con el servidor.</p>";
-      }
-    }
-
-    function inicializarGrafica(datos) {
-      try {
-        const conteoDias = {};
-
-        datos.forEach(item => {
-          // Validamos de forma estricta que la fecha sea un string válido para evitar caídas
-          if (!item.fecha || typeof item.fecha !== 'string') return;
-          
-          const fechaDia = item.fecha.split("T")[0]; // Filtramos solo el día (Año-Mes-Día)
-          
-          if (!conteoDias[fechaDia]) {
-            conteoDias[fechaDia] = { obtenidos: 0, resueltos: 0 };
-          }
-          
-          conteoDias[fechaDia].obtenidos++;
-          if (item.estado === "Resuelto") {
-            conteoDias[fechaDia].resueltos++;
-          }
-        });
-
-        const diasOrdenados = Object.keys(conteoDias).sort();
-        const datosObtenidos = diasOrdenados.map(dia => conteoDias[dia].obtenidos);
-        const datosResueltos = diasOrdenados.map(dia => conteoDias[dia].resueltos);
-
-        const ctx = document.getElementById('graficaReportes').getContext('2d');
-
-        if (miGrafica) {
-          miGrafica.destroy();
-        }
-
-        miGrafica = new Chart(ctx, {
-          type: 'line', 
-          data: {
-            labels: diasOrdenados, 
-            datasets: [
-              {
-                label: 'Reportes Obtenidos',
-                data: datosObtenidos,
-                borderColor: '#eab308', 
-                backgroundColor: 'rgba(234, 179, 8, 0.1)',
-                tension: 0.3, 
-                borderWidth: 3,
-                fill: true
-              },
-              {
-                label: 'Reportes Resueltos',
-                data: datosResueltos,
-                borderColor: '#22c55e', 
-                backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                tension: 0.3, 
-                borderWidth: 3,
-                fill: true
-              }
-            ]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              y: {
-                beginAtZero: true,
-                ticks: { stepSize: 1 }
-              }
-            }
-          }
-        });
-      } catch (err) {
-        console.error("Error al generar gráficos:", err);
-      }
-    }
-
-    async function marcarResuelto(id) {
-      try {
-        const respuesta = await fetch(`/api/resolver/${id}`, { method: "PUT" });
-        const resultado = await respuesta.json();
-        if (resultado.ok) {
-          consultarReportes(); 
-        } else {
-          alert("Error al actualizar el estado: " + resultado.error);
-        }
-      } catch (error) {
-        alert("Error en la petición de actualización.");
-      }
-    }
-
-    async function eliminarReporte(id) {
-      if (!confirm("¿Estás seguro de que deseas eliminar este reporte definitivamente de la base de datos?")) return;
-
-      try {
-        const respuesta = await fetch(`/api/eliminar/${id}`, { method: "DELETE" });
-        const resultado = await respuesta.json();
-
-        if (resultado.ok) {
-          consultarReportes(); 
-        } else {
-          alert("No se pudo eliminar: " + resultado.error);
-        }
-      } catch (error) {
-        alert("Error en la petición de borrado.");
-      }
-    }
-
-    validarAcceso();
-  </script>
 </body>
 </html>
