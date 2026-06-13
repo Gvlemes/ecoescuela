@@ -1,8 +1,9 @@
 let miGrafica = null;
 
-// 1. CARGA INICIAL AUTOMÁTICA
+// 1. CARGA INICIAL AUTOMÁTICA AL ABRIR EL PANEL
 document.addEventListener("DOMContentLoaded", () => {
-  cargarDatosAdmin();
+  inicializarGraficaVacia(); // Prepara el lienzo de la gráfica
+  cargarDatosAdmin();        // Primera consulta de Firebase
 });
 
 // ==========================================
@@ -15,63 +16,94 @@ async function cargarDatosAdmin() {
     
     const datos = await respuesta.json();
     
-    // Inyectar la información en la tabla y en la gráfica
-    renderizarTabla(datos);
+    // Inyectar las tarjetas visuales y actualizar la gráfica
+    renderizarTarjetas(datos);
     actualizarGraficaMetricas(datos);
 
   } catch (error) {
     console.error("Error al actualizar la base de datos:", error);
     const cuerpo = document.getElementById("cuerpoTablaAdmin");
     if (cuerpo) {
-      cuerpo.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Fallo de sincronización con Render.</td></tr>`;
+      cuerpo.innerHTML = `<p style="text-align:center; color:red; padding: 20px;">Fallo de sincronización con el servidor.</p>`;
     }
   }
 }
 
 // ==========================================
-// 3. RENDERIZAR TABLA HTML DE REPORTES
+// 3. RENDERIZAR TARJETAS EN LUGAR DE TABLA
 // ==========================================
-function renderizarTabla(lista) {
-  const cuerpoTabla = document.getElementById("cuerpoTablaAdmin");
-  if (!cuerpoTabla) return;
+function renderizarTarjetas(lista) {
+  // Busca el contenedor de tus reportes (puedes usar el ID de tu contenedor actual si es diferente)
+  const contenedor = document.getElementById("cuerpoTablaAdmin") || document.getElementById("listaReportesAdmin");
+  if (!contenedor) return;
 
   if (!lista || lista.length === 0) {
-    cuerpoTabla.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748B;">No se registran puntos sucios en el sistema 🌱</td></tr>`;
+    contenedor.innerHTML = `<p style="text-align:center; color:#64748B; padding: 20px;">No se registran puntos sucios en el sistema 🌱</p>`;
     return;
   }
 
-  cuerpoTabla.innerHTML = "";
+  let htmlContenido = "";
+
   lista.forEach(item => {
     const esResuelto = item.estado === "Resuelto";
-    const textoBoton = esResuelto ? "✅ Atendido" : "⏳ Resolver";
-    const claseBtn = esResuelto ? "btn-desactivado" : "btn-resolver";
+    const colorBorde = esResuelto ? "#16A34A" : "#EA580C"; // Verde para resuelto, Naranja para pendiente
+    const fechaTxt = item.fecha ? new Date(item.fecha).toLocaleString('es-ES') : "Reciente";
     
-    // Condicional para pintar la imagen si viene cargada en Base64
+    // Si incluye imagen Base64, se dibuja la etiqueta de la foto
     const htmlFoto = item.foto 
-      ? `<img src="${item.foto}" style="width:50px; height:50px; object-fit:cover; border-radius:4px; border: 1px solid #CBD5E1;" alt="Evidencia">` 
-      : `<span style="color:#94A3B8; font-size:11px;">Sin evidencia</span>`;
+      ? `<img src="${item.foto}" style="width:100%; max-width:280px; max-height:180px; object-fit:cover; border-radius:6px; margin: 10px 0; display:block; border: 1px solid #E2E8F0;" alt="Evidencia">` 
+      : "";
 
-    cuerpoTabla.innerHTML += `
-      <tr>
-        <td><strong>${item.nombre || "Anónimo"}</strong></td>
-        <td>${item.mensaje || ""}</td>
-        <td>${htmlFoto}</td>
-        <td><span class="badge ${esResuelto ? 'badge-verde' : 'badge-naranja'}">${item.estado || "Pendiente"}</span></td>
-        <td>
-          <button class="${claseBtn}" ${esResuelto ? "disabled" : ""} onclick="marcarComoResuelto('${item.id}')">${textoBoton}</button>
-          <button class="btn-eliminar" onclick="eliminarReporte('${item.id}')">🗑️</button>
-        </td>
-      </tr>
+    // Generación dinámica de cada tarjeta exactamente como tu interfaz original
+    htmlContenido += `
+      <div style="background: white; border-left: 6px solid ${colorBorde}; padding: 20px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); transition: all 0.3s ease;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <span style="font-size: 14px; color: #334155;">👤 <strong>Alumno / Encargado:</strong> ${item.nombre || "Anónimo"}</span>
+          <span class="badge ${esResuelto ? 'badge-verde' : 'badge-naranja'}">${item.estado || "Pendiente"}</span>
+        </div>
+        <p style="font-size: 15px; margin: 5px 0; color: #1E293B;">📝 <strong>Reporte:</strong> ${item.mensaje || ""}</p>
+        ${htmlFoto}
+        <div style="font-size: 11px; color: #94A3B8; margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+          <span>ID: ${item.id} | Fecha: ${fechaTxt}</span>
+          <div style="display: flex; gap: 8px;">
+            <button class="${esResuelto ? 'btn-desactivado' : 'btn-resolver'}" ${esResuelto ? 'disabled' : ''} onclick="marcarComoResuelto('${item.id}')" style="background-color: #16A34A; color: white; padding: 6px 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">${esResuelto ? 'Completado' : 'Marcar Resuelto 📞'}</button>
+            <button class="btn-eliminar" onclick="eliminarReporte('${item.id}')" style="background-color: #EF4444; color: white; padding: 6px 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">Eliminar 🗑️</button>
+          </div>
+        </div>
+      </div>
     `;
   });
+
+  contenedor.innerHTML = htmlContenido;
 }
 
 // ==========================================
-// 4. CONTROLADOR DE LA GRÁFICA CIRCULAR
+// 4. INICIALIZAR Y ACTUALIZAR GRÁFICA (CHART.JS)
 // ==========================================
-function actualizarGraficaMetricas(lista) {
+function inicializarGraficaVacia() {
   const ctx = document.getElementById("graficaReportes");
-  if (!ctx) return;
+  if (!ctx || miGrafica !== null) return;
+
+  miGrafica = new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels: ["Pendientes ⏳", "Resueltos ✅"],
+      datasets: [{
+        data:,
+        backgroundColor: ["#EA580C", "#16A34A"],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: "bottom" } }
+    }
+  });
+}
+
+function actualizarGraficaMetricas(lista) {
+  if (!miGrafica) return;
 
   let pendientes = 0;
   let resueltos = 0;
@@ -81,70 +113,32 @@ function actualizarGraficaMetricas(lista) {
     else pendientes++;
   });
 
-  // Rompemos la instancia previa para refrescar los datos de la gráfica limpiamente
-  if (miGrafica) {
-    miGrafica.destroy();
-  }
-
-  miGrafica = new Chart(ctx, {
-    type: "pie",
-    data: {
-      labels: ["Pendientes ⏳", "Resueltos ✅"],
-      datasets: [{
-        data: [pendientes, resueltos],
-        backgroundColor: ["#EA580C", "#16A34A"],
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: "bottom" }
-      }
-    }
-  });
+  miGrafica.data.datasets[0].data = [pendientes, resueltos];
+  miGrafica.update(); 
 }
 
 // ==========================================
-// 5. ACCIÓN: MARCAR REPORTES COMO ATENDIDOS
+// 5. ACCIONES DE BOTONES (RESOLVER / ELIMINAR)
 // ==========================================
 async function marcarComoResuelto(id) {
   if (!confirm("¿Deseas marcar este punto de la escuela como Resuelto?")) return;
   try {
     const respuesta = await fetch(`/api/resolver/${id}`, { method: "PUT" });
-    if (respuesta.ok) {
-      cargarDatosAdmin();
-    } else {
-      alert("No se pudo actualizar el estado.");
-    }
-  } catch (err) {
-    console.error(err);
-  }
+    if (respuesta.ok) cargarDatosAdmin();
+  } catch (err) { console.error(err); }
 }
 
-// ==========================================
-// 6. ACCIÓN: ELIMINAR REPORTES EN FIRESTORE
-// ==========================================
 async function eliminarReporte(id) {
-  if (!confirm("¿Seguro que deseas eliminar este reporte permanentemente de la base de datos?")) return;
+  if (!confirm("¿Seguro que deseas eliminar este reporte permanentemente?")) return;
   try {
     const respuesta = await fetch(`/api/eliminar/${id}`, { method: "DELETE" });
-    if (respuesta.ok) {
-      cargarDatosAdmin();
-    } else {
-      alert("No se pudo eliminar el registro.");
-    }
-  } catch (err) {
-    console.error(err);
-  }
+    if (respuesta.ok) cargarDatosAdmin();
+  } catch (err) { console.error(err); }
 }
 
 // ==========================================
-// 🔄 7. ACTUALIZACIÓN AUTOMÁTICA EN TIEMPO REAL (CADA 3 SEGUNDOS)
+// 🔄 6. SINCRONIZACIÓN ULTRA RÁPIDA EN TIEMPO REAL (CADA 2 SEGUNDOS)
 // ==========================================
 setInterval(() => {
-  if (typeof cargarDatosAdmin === "function") {
-    cargarDatosAdmin();
-  }
-}, 3000);
+  cargarDatosAdmin();
+}, 2000);
