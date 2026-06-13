@@ -1,42 +1,219 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Administrador - Escuela Limpia</title>
-    <!-- LIBRERÍAS DE FIREBASE COMPATIBLES -->
-    <script src="https://gstatic.com"></script>
-    <script src="https://gstatic.com"></script>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-        body { background-color: #F5F5F5; color: #333; }
-        header { background-color: #0D47A1; color: white; text-align: center; padding: 15px; }
-        .contenedor-principal { padding: 20px; max-width: 600px; margin: 0 auto; }
-        .panel-admin { background-color: #FFFFFF; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        h3 { margin-bottom: 15px; text-align: center; color: #0D47A1; }
-        .item-reporte { border-left: 5px solid #0D47A1; background: #F9F9F9; padding: 15px; margin-top: 15px; border-radius: 0 6px 6px 0; font-size: 14px; }
-        .img-admin { max-width: 100%; max-height: 200px; margin-top: 10px; display: block; border-radius: 4px; }
-        .btn-status { padding: 6px 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 12px; }
-        .btn-resolver { background-color: #2E7D32; color: white; margin-right: 5px; }
-        .btn-pendiente { background-color: #EF6C00; color: white; }
-        .btn-borrar { background-color: #D32F2F; color: white; padding: 10px; border: none; border-radius: 6px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administración - Escuela Limpia</title>
+  <script src="https://jsdelivr.net"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+    body { background-color: #f1f5f9; color: #334155; padding: 20px; display: none; }
+    .contenedor { max-width: 900px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    h1 { color: #1e293b; margin-bottom: 8px; font-size: 24px; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; }
+    p { color: #64748b; margin-bottom: 20px; font-size: 14px; }
+    .grafica-seccion { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 25px; height: 320px; }
+    .item-admin { background: #f8fafc; padding: 20px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 12px; position: relative; }
+    .item-admin.pendiente { border-left: 6px solid #eab308; }
+    .item-admin.resuelto { border-left: 6px solid #22c55e; background: #f0fdf4; }
+    .info { font-size: 15px; line-height: 1.6; }
+    .meta { font-size: 12px; color: #94a3b8; margin-top: 5px; }
+    .badge { display: inline-block; padding: 3px 8px; font-size: 12px; font-weight: bold; border-radius: 4px; margin-left: 5px; }
+    .badge.pendiente { background: #fef9c3; color: #854d0e; }
+    .badge.resuelto { background: #dcfce7; color: #166534; }
+    .foto-reporte { max-width: 200px; max-height: 150px; border-radius: 6px; border: 1px solid #cbd5e1; margin-top: 5px; display: block; object-fit: cover; }
+    .acciones { display: flex; gap: 10px; margin-top: 5px; justify-content: flex-end; }
+    .btn { padding: 8px 16px; font-size: 13px; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
+    .btn-resolver { background-color: #22c55e; color: white; }
+    .btn-resolver:hover { background-color: #16a34a; }
+    .btn-borrar { background-color: #ef4444; color: white; }
+    .btn-borrar:hover { background-color: #dc2626; }
+  </style>
 </head>
-<body>
+<body onload="validarAcceso()">
 
-<header>
-    <h2>📋 Panel de Administración</h2>
-</header>
+  <div class="contenedor">
+    <h1>🔑 Panel de Administración (Base de Datos)</h1>
+    <p>Monitorea las métricas del proyecto, revisa las evidencias enviadas y gestiona los estados de los reportes. (Actualización automática activa)</p>
 
-<main class="contenedor-principal">
-    <div class="panel-admin">
-        <h3>Bandeja de Entrada de Incidencias</h3>
-        <!-- Los reportes se acomodan automáticamente aquí de forma limpia -->
-        <div id="contenedorReportesAdmin"></div>
-        <button class="btn-borrar" onclick="borrarHistorialTotal()">Vaciar Base de Datos</button>
+    <div class="grafica-seccion">
+      <canvas id="graficaReportes"></canvas>
     </div>
-</main>
 
-<script src="app.js"></script>
+    <h2>📋 Listado General de Reportes</h2>
+    <br>
+    <div id="lista-admin">Cargando reportes del sistema...</div>
+  </div>
+
+  <script>
+    const CONTRASEÑA_CORRECTA = "admin123"; 
+
+    function validarAcceso() {
+      const intento = prompt("Introduce la contraseña de administrador para acceder:");
+      if (intento === CONTRASEÑA_CORRECTA) {
+        document.body.style.display = "block"; 
+        consultarReportes(); 
+        
+        // ACTUALIZACIÓN AUTOMÁTICA: Ejecuta la consulta cada 10,000 milisegundos (10 segundos)
+        setInterval(consultarReportes, 10000); 
+      } else {
+        alert("Contraseña incorrecta. Acceso denegado.");
+        window.location.href = "/index.html"; 
+      }
+    }
+
+    const listaAdmin = document.getElementById("lista-admin");
+    let miGrafica = null; 
+
+    async function consultarReportes() {
+      try {
+        const respuesta = await fetch("/api/datos");
+        const datos = await respuesta.json();
+        
+        listaAdmin.innerHTML = "";
+        if (!datos || datos.length === 0) {
+          listaAdmin.innerHTML = "<p>No hay reportes registrados en la base de datos.</p>";
+          inicializarGrafica([]); 
+          return;
+        }
+
+        datos.forEach(item => {
+          const div = document.createElement("div");
+          const esResuelto = item.estado === "Resuelto";
+          
+          div.className = `item-admin ${esResuelto ? 'resuelto' : 'pendiente'}`;
+          const htmlFoto = item.foto ? `<img src="${item.foto}" class="foto-reporte" alt="Evidencia">` : "";
+          
+          const botonResolver = !esResuelto 
+            ? `<button class="btn btn-resolver" onclick="marcarResuelto('${item.id}')">Marcar Resuelto ✅</button>` 
+            : `<span class="badge resuelto">Completado</span>`;
+
+          const fechaFormateada = item.fecha ? new Date(item.fecha).toLocaleString() : "Sin fecha registrada";
+
+          div.innerHTML = `
+            <div class="info">
+              <strong>👤 Alumno / Encargado:</strong> ${item.nombre} 
+              <span class="badge ${esResuelto ? 'resuelto' : 'pendiente'}">${item.estado || 'Pendiente'}</span>
+              <br>
+              <strong>📝 Reporte:</strong> ${item.mensaje}
+              ${htmlFoto}
+              <div class="meta">ID: ${item.id} | Fecha: ${fechaFormateada}</div>
+            </div>
+            <div class="acciones">
+              ${botonResolver}
+              <button class="btn btn-borrar" onclick="eliminarReporte('${item.id}')">Eliminar 🗑️</button>
+            </div>
+          `;
+          listaAdmin.appendChild(div);
+        });
+
+        inicializarGrafica(datos);
+
+      } catch (error) {
+        console.error("Error al consultar reportes automáticamente:", error);
+      }
+    }
+
+    function inicializarGrafica(datos) {
+      try {
+        const conteoDias = {};
+
+        datos.forEach(item => {
+          if (!item.fecha || typeof item.fecha !== 'string') return;
+          
+          const fechaDia = item.fecha.split("T")[0]; 
+          
+          if (!conteoDias[fechaDia]) {
+            conteoDias[fechaDia] = { obtenidos: 0, resueltos: 0 };
+          }
+          
+          conteoDias[fechaDia].obtenidos++;
+          if (item.estado === "Resuelto") {
+            conteoDias[fechaDia].resueltos++;
+          }
+        });
+
+        const diasOrdenados = Object.keys(conteoDias).sort();
+        const datosObtenidos = diasOrdenados.map(dia => conteoDias[dia].obtenidos);
+        const datosResueltos = diasOrdenados.map(dia => conteoDias[dia].resueltos);
+
+        const ctx = document.getElementById('graficaReportes').getContext('2d');
+
+        if (miGrafica) {
+          miGrafica.destroy();
+        }
+
+        miGrafica = new Chart(ctx, {
+          type: 'line', 
+          data: {
+            labels: diasOrdenados, 
+            datasets: [
+              {
+                label: 'Reportes Obtenidos',
+                data: datosObtenidos,
+                borderColor: '#eab308', 
+                backgroundColor: 'rgba(234, 179, 8, 0.1)',
+                tension: 0.3, 
+                borderWidth: 3,
+                fill: true
+              },
+              {
+                label: 'Reportes Resueltos',
+                data: datosResueltos,
+                borderColor: '#22c55e', 
+                backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                tension: 0.3, 
+                borderWidth: 3,
+                fill: true
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: { stepSize: 1 }
+              }
+            }
+          }
+        });
+      } catch (err) {
+        console.error("Error al generar gráficos:", err);
+      }
+    }
+
+    async function marcarResuelto(id) {
+      try {
+        const respuesta = await fetch(`/api/resolver/${id}`, { method: "PUT" });
+        const resultado = await respuesta.json();
+        if (resultado.ok) {
+          consultarReportes(); 
+        } else {
+          alert("Error al actualizar el estado: " + resultado.error);
+        }
+      } catch (error) {
+        alert("Error en la petición de actualización.");
+      }
+    }
+
+    async function eliminarReporte(id) {
+      if (!confirm("¿Estás seguro de que deseas eliminar este reporte definitivamente de la base de datos?")) return;
+
+      try {
+        const respuesta = await fetch(`/api/eliminar/${id}`, { method: "DELETE" });
+        const resultado = await respuesta.json();
+        
+        if (resultado.ok) {
+          consultarReportes(); 
+        } else {
+          alert("Error al eliminar el reporte: " + (resultado.error || "Error desconocido"));
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Error en la petición de eliminación.");
+      }
+    }
+  </script>
 </body>
 </html>
