@@ -8,12 +8,6 @@ function cambiarPestana(idPestana, boton) {
   boton.classList.add('active');
 }
 
-// ==========================================
-// 2. CONCIENTIZACIÓN DE DEGRADACIÓN
-// ==========================================
-// ==========================================
-// 2. CONCIENTIZACIÓN DE DEGRADACIÓN
-// ==========================================
 function mostrarDegradacion() {
   const material = document.getElementById("comboMateriales").value;
   const res = document.getElementById("resultadoDegradacion");
@@ -22,41 +16,43 @@ function mostrarDegradacion() {
     // 🍏 MATERIALES BÁSICOS
     plastico: { tiempo: "450 años", info: "Las botellas se fragmentan en microplásticos dañinos para el suelo.", tipo: "naranja" },
     chicle: { tiempo: "5 años", info: "Contiene resinas sintéticas que los pájaros confunden con comida.", tipo: "naranja" },
-    lata: { tiempo: "10 a 100 años", info: "El aluminio se oxida lentamente, requiere mucha energía reciclarlo.", tipo: "naranja" },
-    papel: { tiempo: "2 a 5 meses", info: "Se degrada rápido si hay humedad. ¡Recíclalo en los botes azules!", tipo: "verde" },
+    lata: { tiempo: "10 años", info: "El aluminio se oxida lentamente, requiere mucha energía reciclarlo.", tipo: "naranja" },
+    papel: { tiempo: "1 año", info: "Se degrada rápido si hay humedad, pero evitemos desperdiciarlo.", tipo: "verde" },
     vidrio: { tiempo: "4,000 años", info: "Es 100% reciclable de forma infinita, pero tarda milenios en la naturaleza.", tipo: "naranja" },
 
-    // 💼 GESTIÓN ADMINISTRATIVA
-    papel_bond: { tiempo: "2 a 5 meses", info: "Su producción gasta mucha agua. Fomenta el uso de archivos digitales en oficinas.", tipo: "verde" },
-    carton_archivo: { tiempo: "1 año", info: "El cartón es altamente reciclable; se debe reutilizar para archivo interno.", tipo: "verde" },
-    boligrafo: { tiempo: "100 años", info: "Hecho de plásticos densos y puntas metálicas. Prefiere plumas recargables.", tipo: "naranja" },
-
     // 🤖 MECATRÓNICA
-    cables: { tiempo: "30 a 40 años", info: "El recubrimiento aislante de PVC se fragmenta liberando toxinas al entorno.", tipo: "naranja" },
-    metales_taller: { tiempo: "100 años", info: "Las rebabas y piezas de metal tardan un siglo en corroerse. El scrap debe fundirse.", tipo: "naranja" },
-    baterias: { tiempo: "500 a 1,000 años", info: "Liberan litio y mercurio. Deben ir exclusivamente al contenedor de pilas.", tipo: "naranja" },
+    jumpers: { tiempo: "200 a 300 años", info: "El cobre interno se oxida rápido, pero el aislamiento de plástico PVC dura siglos.", tipo: "naranja" },
+    pilas: { tiempo: "500 a 1,000 años", info: "Extremadamente peligrosas; derraman mercurio, plomo y cadmio altamente tóxico.", tipo: "naranja" },
+    pcbs: { tiempo: "Más de 500 años", info: "La baquelita y la fibra de vidrio con resina epóxica no son biodegradables.", tipo: "naranja" },
+    motores: { tiempo: "100 a 500 años", info: "Sus carcasas plásticas y engranajes mecánicos resisten décadas a la intemperie.", tipo: "naranja" },
+    resistencias: { tiempo: "200 a 400 años", info: "Las terminales de metal se oxidan rápido, pero los cuerpos cerámicos no.", tipo: "naranja" },
 
     // 🔧 SOPORTE Y MANTENIMIENTO
-    carcasa: { tiempo: "150 años", info: "Plásticos ABS de computadoras. El soporte debe priorizar reparar antes de desechar.", tipo: "naranja" },
-    teclado: { tiempo: "400 años", info: "Las teclas resisten siglos debido a los polímeros de alta densidad.", tipo: "naranja" },
-    toner: { tiempo: "450 años", info: "Contiene polvos químicos nocivos que pueden contaminar el aire del laboratorio.", tipo: "naranja" },
+    carcasas: { tiempo: "400 a 500 años", info: "El plástico ABS rígido de teclados y monitores se fragmenta muy lentamente.", tipo: "naranja" },
+    gabinetes: { tiempo: "50 a 100 años", info: "La lámina de acero se oxidará con la humedad, pero las pinturas protectoras retrasan el proceso.", tipo: "naranja" },
+    termica: { tiempo: "¡No se biodegrada!", info: "Los compuestos de silicona y óxidos metálicos se resecan y dispersan en la tierra.", tipo: "naranja" },
+    ethernet: { tiempo: "200 a 300 años", info: "El recubrimiento de PVC protege los hilos internos de cobre contra bacterias.", tipo: "naranja" },
 
     // 💻 PROGRAMACIÓN
-    cd: { tiempo: "100 años", info: "Los discos ópticos tardan un siglo. Es mejor usar almacenamiento en la nube.", tipo: "naranja" },
-    usb: { tiempo: "300 años", info: "Las resinas epóxicas y componentes de memorias dañadas no se degradan fácilmente.", tipo: "naranja" },
+    discos: { tiempo: "Más de 500 años", info: "Los platos magnéticos de aluminio duran décadas y las tarjetas controladoras no se degradan.", tipo: "naranja" },
+    toner: { tiempo: "400 a 500 años", info: "Plástico de alta densidad con polímeros magnéticos y metales pesados nocivos.", tipo: "naranja" },
+
+    // 💼 PROGRESOS DE GESTIÓN ADMINISTRATIVA
+    carpetas: { tiempo: "100 a 400 años", info: "Las cubiertas rígidas de polipropileno o PVC resisten el ataque de bacterias por siglos.", tipo: "naranja" },
+    hojas_calculo: { tiempo: "2 a 5 meses", info: "El papel bond se descompone rápido con humedad, pero la tinta quemada ralentiza el proceso.", tipo: "verde" },
 
     // 🏭 PRODUCCIÓN INDUSTRIAL
-    pallets: { tiempo: "1 a 3 años", info: "Madera industrial. Se puede reutilizar para proyectos de diseño o mobiliario.", tipo: "verde" },
-    flejes: { tiempo: "300 años", info: "Las bandas plásticas de embalaje se acumulan rompiendo ciclos ecológicos.", tipo: "naranja" },
-    neumaticos: { tiempo: "600 años", info: "El caucho vulcanizado tarda siglos y su acumulación genera riesgos de incendio.", tipo: "naranja" }
+    virutas: { tiempo: "10 a 50 años", info: "El metal se oxida, pero los aceites de corte impregnados contaminan gravemente el subsuelo.", tipo: "naranja" },
+    bandas: { tiempo: "50 a 150 años", info: "El caucho vulcanizado reforzado con hilos textiles está diseñado para resistir fricción extrema.", tipo: "naranja" },
+    cascos: { tiempo: "400 a 500 años", info: "Fabricados con policarbonato rígido para impactos duros, el sol los rompe muy lento.", tipo: "naranja" }
   };
 
   if(!material) { res.innerHTML = ""; return; }
   const data = datos[material];
-  // Corregido: Se cambió "data.type" por "data.tipo" para que coincida con tu objeto
+  
+  // 🔥 CORRECCIÓN HECHA: Se cambió de 'data.type' a 'data.tipo' para que pinte tus clases CSS correctly
   res.innerHTML = `<div class="panel-alerta ${data.tipo}"><strong>Tiempo de degradación:</strong> ${data.tiempo}<br><small>${data.info}</small></div>`;
 }
-
 // ==========================================
 // 3. REPORTAR CON IMAGEN (BASE64)
 // ==========================================
