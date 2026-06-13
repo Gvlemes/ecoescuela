@@ -25,7 +25,7 @@ function mostrarDegradacion() {
 
   if(!material) { res.innerHTML = ""; return; }
   const data = datos[material];
-  res.innerHTML = `<div class="panel-alerta ${data.type}"><strong>Tiempo de degradación:</strong> ${data.tiempo}<br><small>${data.info}</small></div>`;
+  res.innerHTML = `<div class="panel-alerta ${data.tipo}"><strong>Tiempo de degradación:</strong> ${data.tiempo}<br><small>${data.info}</small></div>`;
 }
 
 // ==========================================
@@ -52,27 +52,29 @@ document.getElementById("formularioReporte").addEventListener("submit", async (e
   const mensaje = document.getElementById("mensajeAlumno").value;
 
   try {
+    // Petición hacia la API de Render
     const respuesta = await fetch("/api/guardar", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ nombre, mensaje, foto: base64Foto, estado: "Pendiente" })
     });
 
-    // Alerta de depuración para ver qué código responde Render realmente
-    alert("Respuesta del servidor código: " + respuesta.status);
+    if (!respuesta.ok) {
+      throw new Error(`Código del servidor: ${respuesta.status}`);
+    }
 
     const res = await respuesta.json();
     if (res.ok) {
-      alert("¡Reporte enviado con éxito!");
+      alert("¡Reporte enviado con éxito! Puedes consultar su estado en la sección 'Mi Reporte' usando tu nombre.");
       document.getElementById("formularioReporte").reset();
       document.getElementById("preview").style.display = "none";
       base64Foto = "";
     } else {
-      alert("Error en la base de datos: " + res.error);
+      alert("Error en el servidor al almacenar los datos.");
     }
   } catch (error) {
-    console.error("Error capturado:", error);
-    alert("Error de red: El fetch falló por completo al conectar con Render.");
+    console.error("Fallo de red:", error);
+    alert("Error crítico de comunicación. Asegúrate de compilar usando Clear Build Cache.");
   }
 });
 
@@ -120,25 +122,32 @@ async function buscarMisReportes() {
   if (!nombreBuscar) { alert("Escribe un nombre para buscar."); return; }
 
   contenedor.innerHTML = "Buscando...";
-  const respuesta = await fetch("/api/datos");
-  const datos = await respuesta.json();
+  try {
+    const respuesta = await fetch("/api/datos");
+    if (!respuesta.ok) throw new Error("Error obteniendo datos.");
+    
+    const datos = await respuesta.json();
+    const filtrados = datos.filter(item => item.nombre && item.nombre.toLowerCase().includes(nombreBuscar));
 
-  const filtrados = datos.filter(item => item.nombre.toLowerCase().includes(nombreBuscar));
+    contenedor.innerHTML = "";
+    if (filtrados.length === 0) {
+      contenedor.innerHTML = "<p>No encontramos reportes con ese nombre.</p>";
+      return;
+    }
 
-  contenedor.innerHTML = "";
-  if (filtrados.length === 0) {
-    contenedor.innerHTML = "<p>No encontramos reportes con ese nombre.</p>";
-    return;
+    filtrados.forEach(item => {
+      const claseEstado = item.estado === "Resuelto" ? "status-resuelto" : "status-pendiente";
+      const icono = item.estado === "Resuelto" ? "✅" : "⏳";
+      const fechaTxt = item.fecha ? new Date(item.fecha).toLocaleDateString() : "Reciente";
+      
+      contenedor.innerHTML += `
+        <div class="status-card ${claseEstado}">
+          <strong>${icono} Estado: ${item.estado || "Pendiente"}</strong><br>
+          <small>Detalle: ${item.mensaje || ""}</small><br>
+          <small style="color:#777;">Fecha: ${fechaTxt}</small>
+        </div>`;
+    });
+  } catch (err) {
+    contenedor.innerHTML = "<p style='color:red;'>Error al cargar los reportes de la red.</p>";
   }
-
-  filtrados.forEach(item => {
-    const claseEstado = item.estado === "Resuelto" ? "status-resuelto" : "status-pendiente";
-    const icono = item.estado === "Resuelto" ? "✅" : "⏳";
-    contenedor.innerHTML += `
-      <div class="status-card ${claseEstado}">
-        <strong>${icono} Estado: ${item.estado}</strong><br>
-        <small>Detalle: ${item.mensaje}</small><br>
-        <small style="color:#777;">Fecha: ${new Date(item.fecha).toLocaleDateString()}</small>
-      </div>`;
-  });
 }
