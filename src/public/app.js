@@ -8,51 +8,53 @@ function cambiarPestana(idPestana, boton) {
   boton.classList.add('active');
 }
 
-function mostrarDegradacion() {
-  const material = document.getElementById("comboMateriales").value;
-  const res = document.getElementById("resultadoDegradacion");
+<label for="comboMateriales">Selecciona un material:</label>
+<select id="comboMateriales" onchange="mostrarDegradacion()">
+  <option value="">-- Seleccionar --</option>
   
-  const datos = {
-    // 🍏 MATERIALES BÁSICOS
-    plastico: { tiempo: "450 años", info: "Las botellas se fragmentan en microplásticos dañinos para el suelo.", tipo: "naranja" },
-    chicle: { tiempo: "5 años", info: "Contiene resinas sintéticas que los pájaros confunden con comida.", tipo: "naranja" },
-    lata: { tiempo: "10 años", info: "El aluminio se oxida lentamente, requiere mucha energía reciclarlo.", tipo: "naranja" },
-    papel: { tiempo: "1 año", info: "Se degrada rápido si hay humedad, pero evitemos desperdiciarlo.", tipo: "verde" },
-    vidrio: { tiempo: "4,000 años", info: "Es 100% reciclable de forma infinita, pero tarda milenios en la naturaleza.", tipo: "naranja" },
+  <optgroup label="🍏 Materiales Básicos">
+    <option value="chicle">Chicle</option>
+    <option value="pet">Botella de Plástico</option>
+    <option value="aluminio">Lata de Aluminio</option>
+    <option value="bolsa">Bolsa Plástica</option>
+    <option value="carton">Papel o Cartón</option>
+    <option value="unicel">Unicel</option>
+    <option value="organico">Residuos Orgánicos</option>
+  </optgroup>
 
-    // 🤖 MECATRÓNICA
-    jumpers: { tiempo: "200 a 300 años", info: "El cobre interno se oxida rápido, pero el aislamiento de plástico PVC dura siglos.", tipo: "naranja" },
-    pilas: { tiempo: "500 a 1,000 años", info: "Extremadamente peligrosas; derraman mercurio, plomo y cadmio altamente tóxico.", tipo: "naranja" },
-    pcbs: { tiempo: "Más de 500 años", info: "La baquelita y la fibra de vidrio con resina epóxica no son biodegradables.", tipo: "naranja" },
-    motores: { tiempo: "100 a 500 años", info: "Sus carcasas plásticas y engranajes mecánicos resisten décadas a la intemperie.", tipo: "naranja" },
-    resistencias: { tiempo: "200 a 400 años", info: "Las terminales de metal se oxidan rápido, pero los cuerpos cerámicos no.", tipo: "naranja" },
+  <optgroup label="🤖 Mecatrónica">
+    <option value="jumpers">Cables Jumpers (PVC/Cobre)</option>
+    <option value="pilas">Pilas y Baterías Alcalinas</option>
+    <option value="pcbs">Tarjetas de Circuitos (PCBs)</option>
+    <option value="motores">Motores DC / Servomotores</option>
+    <option value="resistencias">Resistencias y Componentes Cerámicos</option>
+  </optgroup>
 
-    // 🔧 SOPORTE Y MANTENIMIENTO
-    carcasas: { tiempo: "400 a 500 años", info: "El plástico ABS rígido de teclados y monitores se fragmenta muy lentamente.", tipo: "naranja" },
-    gabinetes: { tiempo: "50 a 100 años", info: "La lámina de acero se oxidará con la humedad, pero las pinturas protectoras retrasan el proceso.", tipo: "naranja" },
-    termica: { tiempo: "¡No se biodegrada!", info: "Los compuestos de silicona y óxidos metálicos se resecan y dispersan en la tierra.", tipo: "naranja" },
-    ethernet: { tiempo: "200 a 300 años", info: "El recubrimiento de PVC protege los hilos internos de cobre contra bacterias.", tipo: "naranja" },
+  <optgroup label="🔧 Soporte y Mantenimiento">
+    <option value="carcasas">Carcasas de Plástico ABS</option>
+    <option value="gabinetes">Gabinetes de Metal y Acero</option>
+    <option value="termica">Pasta Térmica Usada</option>
+    <option value="ethernet">Cableado Ethernet Estructural</option>
+  </optgroup>
 
-    // 💻 PROGRAMACIÓN
-    discos: { tiempo: "Más de 500 años", info: "Los platos magnéticos de aluminio duran décadas y las tarjetas controladoras no se degradan.", tipo: "naranja" },
-    toner: { tiempo: "400 a 500 años", info: "Plástico de alta densidad con polímeros magnéticos y metales pesados nocivos.", tipo: "naranja" },
+  <optgroup label="💻 Programación">
+    <option value="discos">Discos Duros Dañados (HDD)</option>
+    <option value="toner">Cartuchos de Tóner Láser</option>
+  </optgroup>
 
-    // 💼 PROGRESOS DE GESTIÓN ADMINISTRATIVA
-    carpetas: { tiempo: "100 a 400 años", info: "Las cubiertas rígidas de polipropileno o PVC resisten el ataque de bacterias por siglos.", tipo: "naranja" },
-    hojas_calculo: { tiempo: "2 a 5 meses", info: "El papel bond se descompone rápido con humedad, pero la tinta quemada ralentiza el proceso.", tipo: "verde" },
+  <optgroup label="💼 Progresos de Gestión Administrativa">
+    <option value="carpetas">Carpetas Rígidas de PVC</option>
+    <option value="hojas_calculo">Hojas de Cálculo Impresas</option>
+  </optgroup>
 
-    // 🏭 PRODUCCIÓN INDUSTRIAL
-    virutas: { tiempo: "10 a 50 años", info: "El metal se oxida, pero los aceites de corte impregnados contaminan gravemente el subsuelo.", tipo: "naranja" },
-    bandas: { tiempo: "50 a 150 años", info: "El caucho vulcanizado reforzado con hilos textiles está diseñado para resistir fricción extrema.", tipo: "naranja" },
-    cascos: { tiempo: "400 a 500 años", info: "Fabricados con policarbonato rígido para impactos duros, el sol los rompe muy lento.", tipo: "naranja" }
-  };
+  <optgroup label="🏭 Producción Industrial">
+    <option value="virutas">Virutas de Metal con Aceite</option>
+    <option value="bandas">Bandas de Transmisión / Caucho</option>
+    <option value="cascos">Cascos de Protección</option>
+  </optgroup>
+</select>
 
-  if(!material) { res.innerHTML = ""; return; }
-  const data = datos[material];
-  
-  // 🔥 CORRECCIÓN HECHA: Se cambió de 'data.type' a 'data.tipo' para que pinte tus clases CSS correctly
-  res.innerHTML = `<div class="panel-alerta ${data.tipo}"><strong>Tiempo de degradación:</strong> ${data.tiempo}<br><small>${data.info}</small></div>`;
-}
+<div id="cajaResultadoDegradacion"></div>
 // ==========================================
 // 3. REPORTAR CON IMAGEN (BASE64)
 // ==========================================
