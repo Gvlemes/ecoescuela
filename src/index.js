@@ -1,19 +1,37 @@
 const express = require('express');
 const path = require('path');
 const PDFDocument = require('pdfkit');
+const admin = require('firebase-admin');
 
 const app = express();
+// Render asigna un puerto dinámico mediante la variable de entorno PORT
 const PORT = process.env.PORT || 3000;
 
-// Middleware para entender JSON y formularios
+// Middleware para procesar JSON y formularios
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Servir los archivos estáticos de la carpeta public
+// Servir la carpeta estática "src/public" correctamente
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Ruta API para generar el reporte
-app.post('/api/reporte', (req, res) => {
+// Inicializar Firebase Admin buscando 'llave.json' en la raíz del proyecto
+try {
+    if (!admin.apps.length) {
+        // En Render, process.cwd() apunta a la raíz del repositorio
+        const serviceAccountPath = path.join(process.cwd(), 'llave.json');
+        admin.initializeApp({
+            credential: admin.credential.cert(require(serviceAccountPath))
+        });
+        console.log("Firebase inicializado correctamente.");
+    }
+} catch (error) {
+    console.error('Error crítico inicializando Firebase:', error);
+}
+
+const db = admin.firestore();
+
+// Endpoint para guardar en Firebase y generar el PDF
+app.post('/api/reporte', async (req, res) => {
     const { escuela, direccion, observaciones } = req.body;
 
     if (!escuela || !direccion) {
@@ -21,59 +39,48 @@ app.post('/api/reporte', (req, res) => {
     }
 
     try {
-        // Crear el documento PDF en memoria
-        const doc = new PDFDocument({ margin: 50 });
+        // 1. Guardar los datos del reporte en Firestore
+        await db.collection('reportes').add({
+            escuela,
+            direccion,
+            observaciones: observaciones || 'No se registraron observaciones adicionales.',
+            fechaCreacion: admin.firestore.FieldValue.serverTimestamp()
+        });
 
-        // Configurar los headers de respuesta para descarga de archivo
+        // 2. Configurar la respuesta HTTP para descargar el PDF al instante
         res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename=reporte.pdf`);
+        res.setHeader('Content-Disposition', `attachment; filename=reporte_${escuela.replace(/\s+/g, '_')}.pdf`);
 
-        // Conectar el flujo del PDF directamente a la respuesta HTTP
+        // 3. Crear el PDF en memoria y enviarlo directamente al cliente
+        const doc = new PDFDocument({ margin: 50 });
         doc.pipe(res);
 
-        // --- Diseño del PDF ---
-        // Título Principal
-        doc.fillColor('#1A365D')
-           .font('Helvetica-Bold')
-           .fontSize(26)
-           .text('REPORTE DE INFRAESTRUCTURA', { align: 'center' });
-        
+        // --- Estructura visual del PDF ---
+        doc.fillColor('#1A365D').font('Helvetica-Bold').fontSize(26).text('REPORTE DE INFRAESTRUCTURA', { align: 'center' });
         doc.moveDown(0.5);
-        
-        // Línea divisoria decorativa
         doc.moveTo(50, doc.y).lineTo(562, doc.y).strokeColor('#CBD5E1').stroke();
         doc.moveDown(1.5);
 
-        // Datos de la Escuela
         doc.fillColor('#334155').font('Helvetica-Bold').fontSize(14).text('Datos del Establecimiento:');
         doc.moveDown(0.5);
-        
         doc.font('Helvetica').fontSize(12).fillColor('#000000');
         doc.text(`Escuela: `, { continued: true }).font('Helvetica-Bold').text(escuela);
         doc.font('Helvetica').text(`Dirección: `, { continued: true }).font('Helvetica-Bold').text(direccion);
-        
         doc.moveDown(1.5);
 
-        // Sección de Observaciones o Hallazgos
         doc.fillColor('#334155').font('Helvetica-Bold').fontSize(14).text('Observaciones / Diagnóstico:');
         doc.moveDown(0.5);
-        
-        doc.font('Helvetica').fontSize(12).fillColor('#000000');
-        doc.text(observaciones || 'No se registraron observaciones adicionales.', {
-            align: 'justify',
-            lineGap: 4
-        });
+        doc.font('Helvetica').text(observaciones || 'No se registraron observaciones adicionales.', { align: 'justify', lineGap: 4 });
 
-        // Terminar y enviar el PDF
         doc.end();
 
     } catch (error) {
-        console.error('Error generando PDF:', error);
-        res.status(500).json({ error: 'No se pudo generar el PDF' });
+        console.error('Error procesando el reporte:', error);
+        res.status(500).json({ error: 'Error interno al procesar el reporte' });
     }
 });
 
-// Arrancar el servidor
+// En Render el servidor SI debe quedarse escuchando siempre
 app.listen(PORT, () => {
-    console.log(`Servidor corriendo perfectamente en http://localhost:${PORT}`);
+    console.log(`Servidor activo en el puerto ${PORT}`);
 });
