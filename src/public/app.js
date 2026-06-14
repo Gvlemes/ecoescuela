@@ -8,51 +8,51 @@ function cambiarPestana(idPestana, boton) {
   boton.classList.add('active');
 }
 
-<label for="comboMateriales">Selecciona un material:</label>
-<select id="comboMateriales" onchange="mostrarDegradacion()">
-  <option value="">-- Seleccionar --</option>
-  
-  <optgroup label="🍏 Materiales Básicos">
-    <option value="chicle">Chicle</option>
-    <option value="pet">Botella de Plástico</option>
-    <option value="aluminio">Lata de Aluminio</option>
-    <option value="bolsa">Bolsa Plástica</option>
-    <option value="carton">Papel o Cartón</option>
-    <option value="unicel">Unicel</option>
-    <option value="organico">Residuos Orgánicos</option>
-  </optgroup>
+function mostrarDegradacion() {
+    const material = document.getElementById("comboMateriales").value;
+    const caja = document.getElementById("cajaResultadoDegradacion");
 
-  <optgroup label="🤖 Mecatrónica">
-    <option value="jumpers">Cables Jumpers (PVC/Cobre)</option>
-    <option value="pilas">Pilas y Baterías Alcalinas</option>
-    <option value="pcbs">Tarjetas de Circuitos (PCBs)</option>
-    <option value="motores">Motores DC / Servomotores</option>
-    <option value="resistencias">Resistencias y Componentes Cerámicos</option>
-  </optgroup>
+    const respuestas = {
+        // Básicos que ya tenías configurados o planeados
+        chicle: "El chicle tarda 5 años en degradarse. Al tirarlo al suelo daña los patios escolares y afecta a las aves.",
+        pet: "Las botellas plásticas tardan de 100 a 1,000 años. Evita el plástico de un solo uso en la cafetería.",
+        aluminio: "Las latas de refresco tardan de 10 a 100 años. Son 100% reciclables de forma infinita.",
+        bolsa: "Las bolsas plásticas tardan alrededor de 150 años en fragmentarse en microplásticos nocivos.",
+        carton: "El papel y cartón toman de 2 a 5 meses. Deposítalos limpios en los contenedores de reciclaje.",
+        unicel: "El unicel NO se degrada nunca químicamente; solo se divide en pedazos más pequeños de por vida.",
+        organico: "Los residuos orgánicos tardan de 1 a 6 meses. ¡Ideales para una sección de compostaje escolar!",
 
-  <optgroup label="🔧 Soporte y Mantenimiento">
-    <option value="carcasas">Carcasas de Plástico ABS</option>
-    <option value="gabinetes">Gabinetes de Metal y Acero</option>
-    <option value="termica">Pasta Térmica Usada</option>
-    <option value="ethernet">Cableado Ethernet Estructural</option>
-  </optgroup>
+        // Mecatrónica
+        cables: "El recubrimiento de PVC de los cables tarda de 30 a 40 años en degradarse.",
+        metales_taller: "Las rebabas y piezas metálicas de desecho tardan un siglo en corroerse en el taller.",
+        baterias: "Las pilas tardan más de 500 años y liberan mercurio y litio altamente contaminantes.",
 
-  <optgroup label="💻 Programación">
-    <option value="discos">Discos Duros Dañados (HDD)</option>
-    <option value="toner">Cartuchos de Tóner Láser</option>
-  </optgroup>
+        // Gestión Administrativa
+        papel_bond: "El papel de reportes tarda unos meses. Los administradores deben fomentar la entrega digital.",
+        carton_archivo: "El cartón de las cajas de archivo tarda cerca de 1 año. Reutilízalas para almacenamiento interno.",
+        boligrafo: "Un bolígrafo común tarda 100 años en desaparecer debido a sus plásticos densos.",
 
-  <optgroup label="💼 Progresos de Gestión Administrativa">
-    <option value="carpetas">Carpetas Rígidas de PVC</option>
-    <option value="hojas_calculo">Hojas de Cálculo Impresas</option>
-  </optgroup>
+        // Soporte y Mantenimiento
+        carcasa: "Los plásticos ABS de computadoras obsoletas tardan 150 años. Se debe priorizar la reparación.",
+        teclado: "Las teclas resisten hasta 400 años sin degradarse debido a los polímeros empleados.",
+        toner: "Un cartucho de tóner tarda 450 años y sus componentes químicos afectan la calidad del aire.",
 
-  <optgroup label="🏭 Producción Industrial">
-    <option value="virutas">Virutas de Metal con Aceite</option>
-    <option value="bandas">Bandas de Transmisión / Caucho</option>
-    <option value="cascos">Cascos de Protección</option>
-  </optgroup>
-</select>
+        // Programación
+        cd: "Los discos ópticos antiguos toman 100 años en desaparecer. Es mejor migrar tus respaldos a la nube.",
+        usb: "Los componentes plásticos y las resinas de una memoria USB dañada tardan 300 años en degradarse.",
+
+        // Producción Industrial
+        pallets: "La madera industrial de las tarimas tarda de 1 a 3 años si no está tratada químicamente.",
+        flejes: "Los flejes plásticos de embalaje de carga industrial tardan hasta 300 años en fragmentarse.",
+        neumaticos: "El caucho vulcanizado de montacargas toma 600 años. Su acumulación es un riesgo de incendio."
+    };
+
+    if (respuestas[material]) {
+        caja.innerHTML = `<div class="panel-alerta naranja"><strong>Impacto de Degradación:</strong><br>${respuestas[material]}</div>`;
+    } else {
+        caja.innerHTML = "<p style='color: #666; font-style: italic;'>Por favor, selecciona una opción para auditar su impacto.</p>";
+    }
+}
 
 <div id="cajaResultadoDegradacion"></div>
 // ==========================================
