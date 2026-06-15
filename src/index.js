@@ -44,11 +44,6 @@ if (process.env.FIREBASE_PRIVATE_KEY_JSON) {
 }
 const db = getFirestore(adminApp);
 
-// Conexión de WebSockets
-io.on("connection", (socket) => {
-  console.log("🖥️ Panel de administración conectado via WebSocket");
-});
-
 // ==========================================
 // ENDPOINTS
 // ==========================================
