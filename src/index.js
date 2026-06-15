@@ -6,7 +6,6 @@ import dotenv from "dotenv";
 import { initializeApp, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { createServer } from "http";
-import { Server } from "socket.io";
 
 dotenv.config();
 
