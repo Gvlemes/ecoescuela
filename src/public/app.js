@@ -8,53 +8,55 @@ function cambiarPestana(idPestana, boton) {
   boton.classList.add('active');
 }
 
-<label for="comboMateriales">Selecciona un material:</label>
-<select id="comboMateriales" onchange="mostrarDegradacion()">
-  <option value="">-- Seleccionar --</option>
+// ==========================================
+// 2. CONCIENTIZACIÓN DE DEGRADACIÓN
+// ==========================================
+// ==========================================
+// 2. CONCIENTIZACIÓN DE DEGRADACIÓN
+// ==========================================
+function mostrarDegradacion() {
+  const material = document.getElementById("comboMateriales").value;
+  const res = document.getElementById("resultadoDegradacion");
   
-  <optgroup label="🍏 Materiales Básicos">
-    <option value="chicle">Chicle</option>
-    <option value="pet">Botella de Plástico</option>
-    <option value="aluminio">Lata de Aluminio</option>
-    <option value="bolsa">Bolsa Plástica</option>
-    <option value="carton">Papel o Cartón</option>
-    <option value="unicel">Unicel</option>
-    <option value="organico">Residuos Orgánicos</option>
-  </optgroup>
+  const datos = {
+    // 🍏 MATERIALES BÁSICOS
+    plastico: { tiempo: "450 años", info: "Las botellas se fragmentan en microplásticos dañinos para el suelo.", tipo: "naranja" },
+    chicle: { tiempo: "5 años", info: "Contiene resinas sintéticas que los pájaros confunden con comida.", tipo: "naranja" },
+    lata: { tiempo: "10 a 100 años", info: "El aluminio se oxida lentamente, requiere mucha energía reciclarlo.", tipo: "naranja" },
+    papel: { tiempo: "2 a 5 meses", info: "Se degrada rápido si hay humedad. ¡Recíclalo en los botes azules!", tipo: "verde" },
+    vidrio: { tiempo: "4,000 años", info: "Es 100% reciclable de forma infinita, pero tarda milenios en la naturaleza.", tipo: "naranja" },
 
-  <optgroup label="🤖 Mecatrónica">
-    <option value="jumpers">Cables Jumpers (PVC/Cobre)</option>
-    <option value="pilas">Pilas y Baterías Alcalinas</option>
-    <option value="pcbs">Tarjetas de Circuitos (PCBs)</option>
-    <option value="motores">Motores DC / Servomotores</option>
-    <option value="resistencias">Resistencias y Componentes Cerámicos</option>
-  </optgroup>
+    // 💼 GESTIÓN ADMINISTRATIVA
+    papel_bond: { tiempo: "2 a 5 meses", info: "Su producción gasta mucha agua. Fomenta el uso de archivos digitales en oficinas.", tipo: "verde" },
+    carton_archivo: { tiempo: "1 año", info: "El cartón es altamente reciclable; se debe reutilizar para archivo interno.", tipo: "verde" },
+    boligrafo: { tiempo: "100 años", info: "Hecho de plásticos densos y puntas metálicas. Prefiere plumas recargables.", tipo: "naranja" },
 
-  <optgroup label="🔧 Soporte y Mantenimiento">
-    <option value="carcasas">Carcasas de Plástico ABS</option>
-    <option value="gabinetes">Gabinetes de Metal y Acero</option>
-    <option value="termica">Pasta Térmica Usada</option>
-    <option value="ethernet">Cableado Ethernet Estructural</option>
-  </optgroup>
+    // 🤖 MECATRÓNICA
+    cables: { tiempo: "30 a 40 años", info: "El recubrimiento aislante de PVC se fragmenta liberando toxinas al entorno.", tipo: "naranja" },
+    metales_taller: { tiempo: "100 años", info: "Las rebabas y piezas de metal tardan un siglo en corroerse. El scrap debe fundirse.", tipo: "naranja" },
+    baterias: { tiempo: "500 a 1,000 años", info: "Liberan litio y mercurio. Deben ir exclusivamente al contenedor de pilas.", tipo: "naranja" },
 
-  <optgroup label="💻 Programación">
-    <option value="discos">Discos Duros Dañados (HDD)</option>
-    <option value="toner">Cartuchos de Tóner Láser</option>
-  </optgroup>
+    // 🔧 SOPORTE Y MANTENIMIENTO
+    carcasa: { tiempo: "150 años", info: "Plásticos ABS de computadoras. El soporte debe priorizar reparar antes de desechar.", tipo: "naranja" },
+    teclado: { tiempo: "400 años", info: "Las teclas resisten siglos debido a los polímeros de alta densidad.", tipo: "naranja" },
+    toner: { tiempo: "450 años", info: "Contiene polvos químicos nocivos que pueden contaminar el aire del laboratorio.", tipo: "naranja" },
 
-  <optgroup label="💼 Progresos de Gestión Administrativa">
-    <option value="carpetas">Carpetas Rígidas de PVC</option>
-    <option value="hojas_calculo">Hojas de Cálculo Impresas</option>
-  </optgroup>
+    // 💻 PROGRAMACIÓN
+    cd: { tiempo: "100 años", info: "Los discos ópticos tardan un siglo. Es mejor usar almacenamiento en la nube.", tipo: "naranja" },
+    usb: { tiempo: "300 años", info: "Las resinas epóxicas y componentes de memorias dañadas no se degradan fácilmente.", tipo: "naranja" },
 
-  <optgroup label="🏭 Producción Industrial">
-    <option value="virutas">Virutas de Metal con Aceite</option>
-    <option value="bandas">Bandas de Transmisión / Caucho</option>
-    <option value="cascos">Cascos de Protección</option>
-  </optgroup>
-</select>
+    // 🏭 PRODUCCIÓN INDUSTRIAL
+    pallets: { tiempo: "1 a 3 años", info: "Madera industrial. Se puede reutilizar para proyectos de diseño o mobiliario.", tipo: "verde" },
+    flejes: { tiempo: "300 años", info: "Las bandas plásticas de embalaje se acumulan rompiendo ciclos ecológicos.", tipo: "naranja" },
+    neumaticos: { tiempo: "600 años", info: "El caucho vulcanizado tarda siglos y su acumulación genera riesgos de incendio.", tipo: "naranja" }
+  };
 
-<div id="cajaResultadoDegradacion"></div>
+  if(!material) { res.innerHTML = ""; return; }
+  const data = datos[material];
+  // Corregido: Se cambió "data.type" por "data.tipo" para que coincida con tu objeto
+  res.innerHTML = `<div class="panel-alerta ${data.tipo}"><strong>Tiempo de degradación:</strong> ${data.tiempo}<br><small>${data.info}</small></div>`;
+}
+
 // ==========================================
 // 3. REPORTAR CON IMAGEN (BASE64)
 // ==========================================
