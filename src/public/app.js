@@ -10,7 +10,9 @@ function cambiarPestana(idPestana, boton) {
 
 function mostrarDegradacion() {
     const material = document.getElementById("comboMateriales").value;
-    const caja = document.getElementById("cajaResultadoDegradacion");
+    // Cambia "cajaResultadoDegradacion" por "resultadoDegradacion"
+const caja = document.getElementById("resultadoDegradacion");
+
 
     const respuestas = {
         // Básicos que ya tenías configurados o planeados
