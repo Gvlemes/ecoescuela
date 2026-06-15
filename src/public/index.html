@@ -45,62 +45,18 @@
   
   <!-- PESTAÑA 1: CONCIENTIZACIÓN DE DEGRADACIÓN -->
   <section id="degradacion" class="tab-content active">
-  <h3>⏳ ¿Cuánto tardan en degradarse?</h3>
-         <label for="comboMateriales">Selecciona un material de uso común o de tu carrera técnica:</label>
+    <h3>⏳ ¿Cuánto tardan en degradarse?</h3>
+    <label for="comboMateriales">Selecciona un material:</label>
     <select id="comboMateriales" onchange="mostrarDegradacion()">
-      <option value="">-- Seleccionar un material --</option>
-      
-      <!-- 🍏 MATERIALES BÁSICOS -->
-      <optgroup label="🍏 Materiales Básicos de Uso Común">
-        <option value="chicle">Chicle</option>
-        <option value="pet">Botella de Plástico</option>
-        <option value="aluminio">Lata de Aluminio</option>
-        <option value="bolsa">Bolsa Plástica</option>
-        <option value="carton">Papel o Cartón</option>
-        <option value="unicel">Unicel</option>
-        <option value="organico">Residuos Orgánicos</option>
-      </optgroup>
-
-      <!-- 🤖 MECATRÓNICA -->
-      <optgroup label="🤖 Mecatrónica">
-        <option value="cables">Aislamiento de Cables / PVC</option>
-        <option value="metales_taller">Desechos Metálicos / Scrap</option>
-        <option value="baterias">Baterías y Pilas alcalinas</option>
-      </optgroup>
-
-      <!-- 💼 GESTIÓN ADMINISTRATIVA -->
-      <optgroup label="💼 Progresos de Gestión Administrativa">
-        <option value="papel_bond">Papel Bond y Archivos muertos</option>
-        <option value="carton_archivo">Carpetas y Cajas de Cartón</option>
-        <option value="boligrafo">Bolígrafos de Plástico</option>
-      </optgroup>
-
-      <!-- 🔧 SOPORTE Y MANTENIMIENTO -->
-      <optgroup label="🔧 Soporte y Mantenimiento">
-        <option value="carcasa">Carcasas de Monitor o Mouse</option>
-        <option value="teclado">Teclas de Teclado (Plástico)</option>
-        <option value="toner">Cartuchos de Tóner</option>
-      </optgroup>
-
-      <!-- 💻 PROGRAMACIÓN -->
-      <optgroup label="💻 Programación">
-        <option value="cd">Discos CD/DVD de instalación</option>
-        <option value="usb">Unidades USB o Memorias dañadas</option>
-      </optgroup>
-
-      <!-- 🏭 PRODUCCIÓN INDUSTRIAL -->
-      <optgroup label="🏭 Producción Industrial">
-        <option value="pallets">Tarimas / Pallets de Madera</option>
-        <option value="flejes">Flejes plásticos de embalaje</option>
-        <option value="neumaticos">Llantas de montacargas</option>
-      </optgroup>
+      <option value="">-- Seleccionar --</option>
+      <option value="plastico">Botella de Plástico</option>
+      <option value="chicle">Chicle</option>
+      <option value="lata">Lata de Aluminio</option>
+      <option value="papel">Papel o Cartón</option>
+      <option value="vidrio">Botella de Vidrio</option>
     </select>
-
-    <!-- Cambia id="cajaResultadoDegradacion" por id="resultadoDegradacion" -->
-<div id="resultadoDegradacion">
-  <p style="color: #666; font-style: italic;">Por favor, selecciona una opción para auditar su impacto.</p>
-</div>
-
+    <div id="resultadoDegradacion"></div>
+  </section>
 
   <!-- PESTAÑA 2: REPORTAR CON IMAGEN -->
   <section id="reportar" class="tab-content">
