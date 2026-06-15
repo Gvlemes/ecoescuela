@@ -56,7 +56,6 @@ const caja = document.getElementById("resultadoDegradacion");
     }
 }
 
-<div id="cajaResultadoDegradacion"></div>
 // ==========================================
 // 3. REPORTAR CON IMAGEN (BASE64)
 // ==========================================
